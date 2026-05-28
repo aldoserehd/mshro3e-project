@@ -3,16 +3,13 @@ import * as Localization from 'expo-localization';
 import ar from './ar';
 import en from './en';
 
-const i18n = new I18n({
-  ar,
-  en,
-});
+const i18n = new I18n({ ar, en });
 
-// Set the locale based on the device's locale
-i18n.locale = Localization.locale.includes('ar') ? 'ar' : 'en';
+// Default to Arabic — primary locale for Mshro3e.
+const deviceLocale = (Localization.getLocales?.()[0]?.languageCode) || 'ar';
+i18n.locale = deviceLocale === 'en' ? 'en' : 'ar';
 
-// Enable fallback to another language
 i18n.enableFallback = true;
-i18n.defaultLocale = 'en';
+i18n.defaultLocale = 'ar';
 
 export default i18n;
