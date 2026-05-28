@@ -9,9 +9,12 @@
     }
   },
   "include": [
-    "**/*.ts",
-    "**/*.tsx",
+    "App.tsx",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "shared/**/*.ts",
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
-  ]
+  ],
+  "exclude": ["node_modules", "admin", "babel.config.js"]
 }

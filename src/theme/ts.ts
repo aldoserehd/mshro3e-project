@@ -114,9 +114,18 @@ export function darkSurfaceBorder(): ViewStyle {
 
 /**
  * Format price with western digits + currency. Brief §9: prices stay LTR.
+ * Kuwait default: KWD → "د.ك" in Arabic, "KWD" in Latin.
  */
-export function formatPrice(amount: number, currency = 'SAR'): string {
-  return `${amount} ${currency === 'SAR' ? 'ر.س' : currency}`;
+const CURRENCY_SYMBOL_AR: Record<string, string> = {
+  KWD: 'د.ك',
+  SAR: 'ر.س',
+  AED: 'د.إ',
+  USD: '$',
+};
+
+export function formatPrice(amount: number, currency = 'KWD', locale: 'ar' | 'en' = I18nManager.isRTL ? 'ar' : 'en'): string {
+  const symbol = locale === 'ar' ? (CURRENCY_SYMBOL_AR[currency] ?? currency) : currency;
+  return locale === 'ar' ? `${amount} ${symbol}` : `${symbol} ${amount}`;
 }
 
 /**
