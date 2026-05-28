@@ -48,21 +48,21 @@ const vendorTemplates: {
   city: string;
   bioAr: string;
 }[] = [
-  { nameAr: 'صالون النور للحلاقة', nameEn: 'Al Noor Barbershop', catId: 'cat_beauty', status: 'active', city: 'الرياض', bioAr: 'حلاقة كلاسيكية وتشذيب لحية على يد محترفين' },
-  { nameAr: 'مطبخ بيت الجدة', nameEn: 'Grandmas Kitchen', catId: 'cat_food', status: 'active', city: 'جدة', bioAr: 'أطباق منزلية بنكهة الأم — كبسة، مندي، حلويات' },
-  { nameAr: 'صيانة المكيفات السريعة', nameEn: 'Fast AC Service', catId: 'cat_home', status: 'active', city: 'الدمام', bioAr: 'صيانة وتنظيف مكيفات سبليت وشباك ومركزية' },
-  { nameAr: 'كوافير لمسات', nameEn: 'Lamsat Salon', catId: 'cat_beauty', status: 'active', city: 'الرياض', bioAr: 'صبغة، تسريحات، عناية شعر للسيدات فقط' },
-  { nameAr: 'حلويات أم سلطان', nameEn: 'Um Sultan Sweets', catId: 'cat_food', status: 'pending', city: 'مكة', bioAr: 'حلويات شعبية وكيك مناسبات بطلب مسبق' },
-  { nameAr: 'سباكة الحرفيين', nameEn: 'Pro Plumbers', catId: 'cat_home', status: 'active', city: 'الرياض', bioAr: 'إصلاح تسرّبات، تركيب خزانات، صيانة سخّانات' },
-  { nameAr: 'استوديو هلا للتصوير', nameEn: 'Hala Photo Studio', catId: 'cat_events', status: 'active', city: 'جدة', bioAr: 'تصوير أعراس، خطوبات، حفلات تخرّج' },
-  { nameAr: 'نادي إنرجي للياقة', nameEn: 'Energy Fitness Club', catId: 'cat_fitness', status: 'active', city: 'الخبر', bioAr: 'تدريب شخصي ودروس جماعية للرجال والنساء' },
-  { nameAr: 'أكاديمية المتفوقين', nameEn: 'Top Scholars Academy', catId: 'cat_education', status: 'active', city: 'الرياض', bioAr: 'دروس خصوصية في الرياضيات والفيزياء واللغة الإنجليزية' },
-  { nameAr: 'مغسلة درر السيارات', nameEn: 'Durar Car Wash', catId: 'cat_auto', status: 'active', city: 'الرياض', bioAr: 'غسيل بخار، تلميع، نانو سيراميك' },
-  { nameAr: 'بيت الإبرة للتطريز', nameEn: 'Embroidery House', catId: 'cat_handmade', status: 'pending', city: 'المدينة', bioAr: 'تطريز يدوي على القماش والثياب التقليدية' },
-  { nameAr: 'باراش بربر شوب', nameEn: 'Paragraph Barbershop', catId: 'cat_beauty', status: 'suspended', city: 'الدمام', bioAr: 'موقوف مؤقتًا بسبب شكاوى جودة الخدمة' },
-  { nameAr: 'مطعم زاد البيت', nameEn: 'Zad Albayt', catId: 'cat_food', status: 'active', city: 'الرياض', bioAr: 'وجبات منزلية صحية بنظام الاشتراك الأسبوعي' },
-  { nameAr: 'كهربائي 24 ساعة', nameEn: '24h Electrician', catId: 'cat_home', status: 'active', city: 'جدة', bioAr: 'استجابة فورية لأعطال الكهرباء على مدار الساعة' },
-  { nameAr: 'محترفو الديكور', nameEn: 'Décor Pros', catId: 'cat_events', status: 'rejected', city: 'الرياض', bioAr: 'مرفوض — مستندات سجل تجاري غير مطابقة' },
+  { nameAr: 'صالون السالمية للحلاقة', nameEn: 'Salmiya Barbershop', catId: 'cat_beauty', status: 'active', city: 'السالمية', bioAr: 'حلاقة كلاسيكية وتشذيب لحية على يد محترفين' },
+  { nameAr: 'مطعم بيت الكويت', nameEn: 'Bayt Al Kuwait', catId: 'cat_food', status: 'active', city: 'الكويت العاصمة', bioAr: 'أطباق كويتية أصيلة — مجبوس، مرقوق، جريش' },
+  { nameAr: 'صيانة المكيفات السريعة', nameEn: 'Fast AC Service', catId: 'cat_home', status: 'active', city: 'الفروانية', bioAr: 'صيانة وتنظيف مكيفات سبليت وشباك ومركزية' },
+  { nameAr: 'كوافير لمسة الذهب', nameEn: 'Lamsat Al Dahab', catId: 'cat_beauty', status: 'active', city: 'حولي', bioAr: 'صبغة، تسريحات، عناية شعر للسيدات فقط' },
+  { nameAr: 'حلويات أم خالد', nameEn: 'Um Khaled Sweets', catId: 'cat_food', status: 'pending', city: 'الجابرية', bioAr: 'حلويات شعبية وكيك مناسبات بطلب مسبق' },
+  { nameAr: 'سباكة الكويت السريعة', nameEn: 'Kuwait Fast Plumbers', catId: 'cat_home', status: 'active', city: 'الفروانية', bioAr: 'إصلاح تسرّبات، تركيب خزانات، صيانة سخّانات' },
+  { nameAr: 'استوديو الديوانية للتصوير', nameEn: 'Diwaniya Photo Studio', catId: 'cat_events', status: 'active', city: 'مشرف', bioAr: 'تصوير أعراس، خطوبات، حفلات تخرّج' },
+  { nameAr: 'نادي الخليج للياقة', nameEn: 'Gulf Fitness Club', catId: 'cat_fitness', status: 'active', city: 'السالمية', bioAr: 'تدريب شخصي ودروس جماعية للرجال والنساء' },
+  { nameAr: 'أكاديمية النجاح للتدريس', nameEn: 'Najah Tutoring Academy', catId: 'cat_education', status: 'active', city: 'الجابرية', bioAr: 'دروس خصوصية في الرياضيات والفيزياء واللغة الإنجليزية' },
+  { nameAr: 'مغسلة الراية للسيارات', nameEn: 'Al Raya Car Wash', catId: 'cat_auto', status: 'active', city: 'الفنطاس', bioAr: 'غسيل بخار، تلميع، نانو سيراميك' },
+  { nameAr: 'بيت التطريز الكويتي', nameEn: 'Kuwaiti Embroidery House', catId: 'cat_handmade', status: 'pending', city: 'العديلية', bioAr: 'تطريز يدوي على القماش والدراعات التقليدية' },
+  { nameAr: 'مطعم الديوانية', nameEn: 'Diwaniya Restaurant', catId: 'cat_food', status: 'suspended', city: 'مشرف', bioAr: 'موقوف مؤقتًا بسبب شكاوى جودة الخدمة' },
+  { nameAr: 'مطبخ شيف فيصل', nameEn: 'Chef Faisal Kitchen', catId: 'cat_food', status: 'active', city: 'الجابرية', bioAr: 'وجبات منزلية صحية بنظام الاشتراك الأسبوعي' },
+  { nameAr: 'كهربائي الكويت ٢٤', nameEn: 'Kuwait 24h Electrician', catId: 'cat_home', status: 'active', city: 'حولي', bioAr: 'استجابة فورية لأعطال الكهرباء على مدار الساعة' },
+  { nameAr: 'ديكور الخليج', nameEn: 'Gulf Décor', catId: 'cat_events', status: 'rejected', city: 'السالمية', bioAr: 'مرفوض — مستندات الترخيص التجاري غير مطابقة' },
 ];
 
 const isoCover = (i: number) =>
@@ -80,10 +80,10 @@ export const seedVendors: Vendor[] = vendorTemplates.map((t, i): Vendor => {
     coverImage: isoCover(i),
     logoImage: `https://api.dicebear.com/9.x/shapes/svg?seed=${encodeURIComponent(t.nameEn)}`,
     categoryIds: [t.catId],
-    location: { lat: 24.7 + i * 0.05, lng: 46.7 + i * 0.05 },
-    address: { ar: `${t.city}، حي العليا`, en: `${t.city}, Al Olaya` },
-    phone: `+9665${(50000000 + i * 137).toString().padStart(8, '0').slice(0, 8)}`,
-    whatsapp: `+9665${(50000000 + i * 137).toString().padStart(8, '0').slice(0, 8)}`,
+    location: { lat: 29.3 + (i % 5) * 0.05, lng: 47.95 + (i % 5) * 0.04 },
+    address: { ar: `${t.city}، قطعة ${(i % 9) + 1}`, en: `${t.city}, Block ${(i % 9) + 1}` },
+    phone: `+9655${(0 + i * 137 + 1000000).toString().padStart(7, '0').slice(0, 7)}`,
+    whatsapp: `+9655${(0 + i * 137 + 1000000).toString().padStart(7, '0').slice(0, 7)}`,
     workingHours: {},
     rating: Math.round(rating * 10) / 10,
     reviewCount: between(i + 1, 12, 240),
@@ -97,33 +97,33 @@ export const seedVendors: Vendor[] = vendorTemplates.map((t, i): Vendor => {
 // -------------------- Services per vendor --------------------
 const servicesByVendor: Record<string, { ar: string; en: string; price: number; mins: number }[]> = {
   vendor_1: [
-    { ar: 'حلاقة كلاسيك', en: 'Classic Haircut', price: 50, mins: 30 },
-    { ar: 'تشذيب لحية', en: 'Beard Trim', price: 35, mins: 20 },
-    { ar: 'حلاقة + لحية', en: 'Haircut + Beard', price: 75, mins: 45 },
+    { ar: 'حلاقة كلاسيك',  en: 'Classic Haircut',   price: 5, mins: 30 },
+    { ar: 'تشذيب لحية',   en: 'Beard Trim',        price: 4, mins: 20 },
+    { ar: 'حلاقة + لحية', en: 'Haircut + Beard',   price: 8, mins: 45 },
   ],
   vendor_2: [
-    { ar: 'كبسة دجاج عائلية', en: 'Family Chicken Kabsa', price: 180, mins: 90 },
-    { ar: 'مندي لحم', en: 'Lamb Mandi', price: 260, mins: 120 },
-    { ar: 'كنافة بالقشطة', en: 'Cream Kunafa', price: 95, mins: 45 },
+    { ar: 'مجبوس دجاج عائلي', en: 'Family Chicken Machboos', price: 18, mins: 90 },
+    { ar: 'مجبوس لحم',         en: 'Lamb Machboos',           price: 25, mins: 120 },
+    { ar: 'كنافة بالقشطة',     en: 'Cream Kunafa',            price: 9,  mins: 45 },
   ],
   vendor_3: [
-    { ar: 'تنظيف مكيف سبليت', en: 'Split AC Cleaning', price: 120, mins: 60 },
-    { ar: 'تعبئة فريون', en: 'Freon Refill', price: 200, mins: 45 },
+    { ar: 'تنظيف مكيف سبليت', en: 'Split AC Cleaning', price: 12, mins: 60 },
+    { ar: 'تعبئة فريون',       en: 'Freon Refill',      price: 20, mins: 45 },
   ],
   vendor_4: [
-    { ar: 'صبغة + قص', en: 'Color + Cut', price: 350, mins: 120 },
-    { ar: 'تسريحة مناسبات', en: 'Event Styling', price: 220, mins: 60 },
+    { ar: 'صبغة + قص',        en: 'Color + Cut',       price: 35, mins: 120 },
+    { ar: 'تسريحة مناسبات',   en: 'Event Styling',     price: 22, mins: 60 },
   ],
   vendor_7: [
-    { ar: 'تصوير عرس كامل', en: 'Full Wedding Coverage', price: 4500, mins: 360 },
-    { ar: 'جلسة خطوبة', en: 'Engagement Session', price: 1200, mins: 120 },
+    { ar: 'تصوير عرس كامل',   en: 'Full Wedding Coverage', price: 450, mins: 360 },
+    { ar: 'جلسة خطوبة',        en: 'Engagement Session',    price: 120, mins: 120 },
   ],
 };
 
 export const seedServices: Service[] = seedVendors.flatMap((v): Service[] => {
   const list = servicesByVendor[v.id] ?? [
-    { ar: 'خدمة أساسية', en: 'Standard service', price: 150, mins: 60 },
-    { ar: 'خدمة بريميوم', en: 'Premium service', price: 280, mins: 90 },
+    { ar: 'خدمة أساسية', en: 'Standard service', price: 15, mins: 60 },
+    { ar: 'خدمة بريميوم', en: 'Premium service', price: 28, mins: 90 },
   ];
   return list.map((s, j) => ({
     id: `svc_${v.id}_${j}`,
@@ -132,7 +132,7 @@ export const seedServices: Service[] = seedVendors.flatMap((v): Service[] => {
     description: { ar: s.ar, en: s.en },
     images: [],
     price: s.price,
-    currency: 'SAR',
+    currency: 'KWD',
     durationMinutes: s.mins,
     categoryIds: v.categoryIds,
     active: true,
@@ -142,34 +142,34 @@ export const seedServices: Service[] = seedVendors.flatMap((v): Service[] => {
 
 // -------------------- Customers --------------------
 const customerNames = [
-  'أحمد العمري',
-  'فاطمة الزهراني',
-  'محمد القحطاني',
-  'نورة الشمري',
-  'خالد الحربي',
-  'ريم الدوسري',
-  'عبدالله الغامدي',
-  'سارة العتيبي',
-  'يوسف المالكي',
+  'أحمد الخالد',
+  'فاطمة العجمي',
+  'محمد الصباح',
+  'نورة الكندري',
+  'خالد العتيبي',
+  'ريم الفضلي',
+  'عبدالله الراشد',
+  'سارة المطيري',
+  'يوسف العنزي',
   'هدى الرشيد',
-  'بدر السبيعي',
-  'لينا الشهراني',
-  'تركي المطيري',
-  'منيرة العنزي',
-  'فهد البلوي',
-  'دانة الجهني',
-  'سلمان الفهد',
-  'مريم القرشي',
-  'ناصر الزهراني',
-  'جوهرة العمري',
+  'بدر السلطان',
+  'لينا الفيلكاوي',
+  'تركي السعيد',
+  'منيرة الخالدي',
+  'فهد الفهد',
+  'دانة الدوسري',
+  'سلمان البحر',
+  'مريم العميري',
+  'ناصر الشمري',
+  'جوهرة المسعود',
 ];
 
 export const seedCustomers: (UserProfile & { bookingsCount: number; ordersCount: number; banned?: boolean })[] =
   customerNames.map((name, i) => ({
     uid: `uid_cust_${i + 1}`,
     role: 'customer' as const,
-    phone: `+9665${(70000000 + i * 31).toString().padStart(8, '0').slice(0, 8)}`,
-    email: `customer${i + 1}@example.sa`,
+    phone: `+9656${(i * 31 + 1000000).toString().padStart(7, '0').slice(0, 7)}`,
+    email: `customer${i + 1}@example.kw`,
     displayName: name,
     photoURL: `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(name)}`,
     locale: 'ar' as const,
@@ -209,7 +209,7 @@ export const seedBookings: Booking[] = Array.from({ length: 42 }, (_, i): Bookin
     endAt: startAt + svc.durationMinutes * 60 * 1000,
     status,
     totalPrice: svc.price,
-    currency: 'SAR',
+    currency: 'KWD',
     notes: i % 4 === 0 ? 'يرجى الاتصال قبل الوصول' : undefined,
     createdAt: startAt - 2 * DAY,
   };
@@ -222,10 +222,10 @@ export const seedOrders: Order[] = Array.from({ length: 22 }, (_, i): Order => {
   const vendor = pick(seedVendors, i + 1);
   const customer = pick(seedCustomers, i + 5);
   const qty = 1 + (i % 4);
-  const unit = 60 + (i % 6) * 30;
+  const unit = 6 + (i % 6) * 3;
   const subtotal = qty * unit;
-  const tax = Math.round(subtotal * 0.15);
-  const shipping = i % 3 === 0 ? 0 : 25;
+  const tax = 0; // Kuwait: no VAT on most goods/services
+  const shipping = i % 3 === 0 ? 0 : 2;
   return {
     id: `ord_${(2000 + i).toString()}`,
     customerUid: customer.uid,
@@ -242,12 +242,12 @@ export const seedOrders: Order[] = Array.from({ length: 22 }, (_, i): Order => {
     tax,
     shipping,
     total: subtotal + tax + shipping,
-    currency: 'SAR',
+    currency: 'KWD',
     status: pick(orderStatuses, i),
     shippingAddress: {
-      line1: `شارع الملك فهد ${100 + i}`,
-      city: 'الرياض',
-      country: 'SA',
+      line1: `شارع ${100 + i}، قطعة ${(i % 9) + 1}`,
+      city: ['السالمية', 'حولي', 'الجابرية', 'الفروانية', 'مشرف'][i % 5],
+      country: 'KW',
     },
     createdAt: NOW - i * DAY * 0.5,
   };
@@ -291,7 +291,7 @@ export const seedPayouts: (PayoutRequest & { vendorBalance: number; lastPayoutAt
       seedVendors.filter((v) => v.status === 'active'),
       i,
     );
-    const amount = 800 + i * 350;
+    const amount = 80 + i * 35;
     const status = pick(
       ['pending', 'pending', 'pending', 'approved', 'paid', 'rejected'] as PayoutRequest['status'][],
       i,
@@ -300,7 +300,7 @@ export const seedPayouts: (PayoutRequest & { vendorBalance: number; lastPayoutAt
       id: `po_${(4000 + i).toString()}`,
       vendorId: vendor.id,
       amount,
-      currency: 'SAR',
+      currency: 'KWD',
       status,
       requestedAt: NOW - i * DAY,
       resolvedAt: status === 'paid' || status === 'approved' || status === 'rejected' ? NOW - i * DAY + 6 * HOUR : undefined,
@@ -347,10 +347,10 @@ export const overviewMetrics = () => {
     }))
     .filter((b) => b.value > 0);
 
-  // Sparkline series for hero GMV (last 7 days)
+  // Sparkline series for hero GMV (last 7 days, KWD)
   const gmvSpark = Array.from({ length: 7 }, (_, i) => ({
     day: i,
-    value: Math.round(4000 + Math.sin(i / 1.6) * 1500 + i * 600 + (i % 2 === 0 ? 800 : 0)),
+    value: Math.round(400 + Math.sin(i / 1.6) * 150 + i * 60 + (i % 2 === 0 ? 80 : 0)),
   }));
 
   return {

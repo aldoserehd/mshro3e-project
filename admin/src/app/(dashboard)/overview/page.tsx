@@ -57,7 +57,7 @@ export default async function OverviewPage() {
                   <FreshDataPill since={since} locale={locale} dotOnly className="text-white" />
                 </div>
                 <div className="mt-3 text-[44px] leading-[52px] font-extrabold text-white tabular-nums">
-                  {formatCurrency(m.gmvMonth, 'SAR', locale === 'ar' ? 'ar-SA' : 'en-US')}
+                  {formatCurrency(m.gmvMonth, 'KWD', locale === 'ar' ? 'ar-KW' : 'en-US')}
                 </div>
                 <div className="mt-1 inline-flex items-center gap-1.5 rounded-full bg-white/10 backdrop-blur-sm border border-white/15 px-2.5 py-1 text-[12px] font-semibold text-white">
                   <TrendingUp className="size-3" />

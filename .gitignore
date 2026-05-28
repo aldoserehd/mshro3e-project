@@ -95,3 +95,4 @@ admin/.turbo/
 .vscode/
 *.code-workspace
 
+admin/tsconfig.tsbuildinfo
