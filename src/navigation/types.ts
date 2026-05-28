@@ -10,17 +10,13 @@ export type RootStackParamList = {
   MainTabs: undefined;
   VendorProfile: { vendorId: string };
   ServiceDetail: { serviceId: string };
-  ServiceConfirm: { serviceId: string };
-  DateTimePicker: { serviceId: string };
-  ConfirmPay: { serviceId: string; startAt: number };
-  BookingConfirmation: { serviceId: string; startAt: number };
 };
 
 export type MainTabsParamList = {
   Home: undefined;
   Search: undefined;
-  Bookings: undefined;
-  Profile: undefined;
+  Favorites: undefined;
+  Account: undefined;
 };
 
 export type RootStackScreenProps<T extends keyof RootStackParamList> = NativeStackScreenProps<

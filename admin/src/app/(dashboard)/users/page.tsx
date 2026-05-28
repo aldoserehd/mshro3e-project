@@ -66,7 +66,6 @@ export default async function UsersPage({ searchParams }: PageProps) {
                 <TH>{t.users.colName}</TH>
                 <TH>{t.users.colContact}</TH>
                 <TH>{t.users.colJoined}</TH>
-                <TH className="text-center">{t.users.colBookings}</TH>
                 <TH className="text-center">{t.users.colOrders}</TH>
                 <TH>{t.users.colStatus}</TH>
               </TRow>
@@ -92,7 +91,6 @@ export default async function UsersPage({ searchParams }: PageProps) {
                     </div>
                   </TCell>
                   <TCell>{formatDate(u.createdAt, tag)}</TCell>
-                  <TCell className="text-center tabular-nums">{u.bookingsCount}</TCell>
                   <TCell className="text-center tabular-nums">{u.ordersCount}</TCell>
                   <TCell>
                     {u.banned ? (

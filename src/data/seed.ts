@@ -10,7 +10,6 @@ import type {
   Vendor,
   Service,
   Review,
-  Booking,
 } from '@shared/types';
 
 const now = Date.now();
@@ -269,12 +268,6 @@ export const reviews: Review[] = vendors.flatMap((v, vi) =>
     createdAt: now - (i + 1) * 7 * DAY,
   })),
 );
-
-export const bookings: Booking[] = [
-  { id: 'b-1', customerUid: 'me', vendorId: 'v-salmiya-cuts',  serviceId: 's-1',  startAt: now + 1 * DAY,  endAt: now + 1 * DAY + 45 * MIN,  status: 'confirmed', totalPrice: 5,  currency: KWD, createdAt: now - 2 * HOUR },
-  { id: 'b-2', customerUid: 'me', vendorId: 'v-bayt-kuwait',   serviceId: 's-5',  startAt: now + 3 * DAY,  endAt: now + 3 * DAY + 60 * MIN,  status: 'pending',   totalPrice: 22, currency: KWD, createdAt: now - 30 * MIN },
-  { id: 'b-3', customerUid: 'me', vendorId: 'v-lamsat-aldahab', serviceId: 's-15', startAt: now - 7 * DAY,  endAt: now - 7 * DAY + 90 * MIN,  status: 'completed', totalPrice: 20, currency: KWD, createdAt: now - 14 * DAY },
-];
 
 export const servicesForVendor = (vendorId: string) => services.filter((s) => s.vendorId === vendorId);
 export const reviewsForVendor  = (vendorId: string) => reviews.filter((r) => r.vendorId === vendorId);

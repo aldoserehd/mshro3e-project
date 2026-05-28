@@ -89,15 +89,15 @@ export default async function OverviewPage() {
           />
         </BentoTile>
 
-        {/* MID stacked — Bookings today */}
+        {/* MID stacked — Active subscriptions */}
         <BentoTile variant="mid" span="1x1" className="col-span-12 sm:col-span-6 lg:col-span-3 row-span-1">
           <KpiCard
-            label={t.overview.bookingsToday}
-            value={<span className="tabular-nums">{m.bookingsToday}</span>}
+            label={t.overview.activeSubscriptions}
+            value={<span className="tabular-nums">{m.activeVendors}</span>}
             icon={<CalendarCheck className="size-4" />}
             trend={{ direction: 'up', label: '+2' }}
             footer={
-              <Link href="/bookings" className="text-[12px] font-medium text-navy-500 hover:text-navy-700">
+              <Link href="/subscriptions" className="text-[12px] font-medium text-navy-500 hover:text-navy-700">
                 {t.overview.viewDetails} →
               </Link>
             }

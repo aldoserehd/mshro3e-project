@@ -27,7 +27,7 @@ export default {
     verify: 'Verify',
   },
 
-  tabs: { home: 'Home', search: 'Search', bookings: 'Bookings', profile: 'Profile' },
+  tabs: { home: 'Home', search: 'Search', favorites: 'Favorites', account: 'Account' },
 
   home: {
     greeting: 'Welcome',

@@ -1,6 +1,6 @@
 import 'server-only';
 import type { Vendor, VendorStatus } from '@shared/types';
-import { seedVendors, vendorById, seedBookings, seedReviews, seedServices } from '@/data/seed';
+import { seedVendors, vendorById, seedOrders, seedReviews, seedServices } from '@/data/seed';
 
 const useFirebase = !!process.env.FIREBASE_ADMIN_SERVICE_ACCOUNT;
 
@@ -53,26 +53,26 @@ export async function listPendingVendors(): Promise<Vendor[]> {
   return listVendors({ status: 'pending' });
 }
 
-/** Aggregated metrics for a single vendor. */
+/** Aggregated metrics for a single vendor — uses product sales as revenue source. */
 export async function getVendorMetrics(vendorId: string) {
-  const bookings = seedBookings.filter((b) => b.vendorId === vendorId);
+  const orders = seedOrders.filter((o) => o.vendorId === vendorId);
   const reviews = seedReviews.filter((r) => r.vendorId === vendorId);
-  const services = seedServices.filter((s) => s.vendorId === vendorId);
-  const revenueMtd = bookings
-    .filter((b) => b.status === 'completed' || b.status === 'confirmed')
-    .reduce((s, b) => s + b.totalPrice, 0);
-  return { bookings, reviews, services, revenueMtd };
+  const products = seedServices.filter((s) => s.vendorId === vendorId);
+  const revenueMtd = orders
+    .filter((o) => o.status === 'paid' || o.status === 'delivered' || o.status === 'shipped')
+    .reduce((sum, o) => sum + o.total, 0);
+  return { orders, reviews, products, revenueMtd };
 }
 
 /** All-vendors metrics (used by the vendors table). */
 export async function listVendorsWithMetrics(filters: VendorFilters = {}) {
   const vendors = await listVendors(filters);
   return vendors.map((v) => {
-    const bookings = seedBookings.filter((b) => b.vendorId === v.id);
-    const revenueMtd = bookings
-      .filter((b) => b.status === 'completed' || b.status === 'confirmed')
-      .reduce((s, b) => s + b.totalPrice, 0);
-    return { ...v, bookingsCount: bookings.length, revenueMtd };
+    const orders = seedOrders.filter((o) => o.vendorId === v.id);
+    const revenueMtd = orders
+      .filter((o) => o.status === 'paid' || o.status === 'delivered' || o.status === 'shipped')
+      .reduce((sum, o) => sum + o.total, 0);
+    return { ...v, ordersCount: orders.length, revenueMtd };
   });
 }
 

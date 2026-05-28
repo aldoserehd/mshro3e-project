@@ -17,8 +17,8 @@ import { motion, palette, radius, semantic, shadowStyle, spacing } from '../them
 const ICONS: Record<string, { active: keyof typeof Ionicons.glyphMap; inactive: keyof typeof Ionicons.glyphMap }> = {
   Home: { active: 'home', inactive: 'home-outline' },
   Search: { active: 'search', inactive: 'search-outline' },
-  Bookings: { active: 'calendar', inactive: 'calendar-outline' },
-  Profile: { active: 'person', inactive: 'person-outline' },
+  Favorites: { active: 'heart', inactive: 'heart-outline' },
+  Account: { active: 'person', inactive: 'person-outline' },
 };
 
 /**

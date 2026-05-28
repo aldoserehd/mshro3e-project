@@ -115,9 +115,10 @@ export default function ServiceDetailScreen({ route, navigation }: RootStackScre
           </Text>
           <Text variant="pageTitle">{formatPrice(service.price, service.currency)}</Text>
         </View>
+        {/* TODO Phase 1: replace booking CTA with WhatsApp deep-link to vendor */}
         <Button
           title={i18n.t('service.bookNow')}
-          onPress={() => navigation.navigate('ServiceConfirm', { serviceId })}
+          onPress={() => navigation.goBack()}
           style={{ minWidth: 160 }}
         />
       </View>

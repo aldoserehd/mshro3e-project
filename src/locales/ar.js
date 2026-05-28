@@ -30,8 +30,8 @@ export default {
   tabs: {
     home: 'الرئيسية',
     search: 'بحث',
-    bookings: 'حجوزاتي',
-    profile: 'حسابي',
+    favorites: 'المفضلة',
+    account: 'حسابي',
   },
 
   home: {

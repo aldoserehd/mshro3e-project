@@ -6,7 +6,6 @@ import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
   Store,
-  ClipboardList,
   Package,
   Users,
   Tags,
@@ -14,6 +13,7 @@ import {
   Wallet,
   Settings,
   UserCheck,
+  CreditCard,
   PanelLeftClose,
   PanelLeftOpen,
 } from 'lucide-react';
@@ -32,7 +32,7 @@ const items: NavItem[] = [
   { href: '/overview', labelKey: 'overview', icon: LayoutDashboard },
   { href: '/vendors', labelKey: 'vendorsAll', icon: Store, matches: ['/vendors'] },
   { href: '/vendors/pending', labelKey: 'vendorsPending', icon: UserCheck },
-  { href: '/bookings', labelKey: 'bookings', icon: ClipboardList },
+  { href: '/subscriptions', labelKey: 'subscriptions', icon: CreditCard },
   { href: '/orders', labelKey: 'orders', icon: Package },
   { href: '/users', labelKey: 'users', icon: Users },
   { href: '/categories', labelKey: 'categories', icon: Tags },

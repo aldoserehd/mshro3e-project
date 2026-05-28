@@ -5,7 +5,7 @@ import { getLocale } from '@/lib/locale';
 import { getDict } from '@/i18n/dict';
 import { getVendor, getVendorMetrics } from '@/lib/data/vendors';
 import { PageHeader } from '@/components/domain/page-header';
-import { VendorStatusPill, BookingStatusPill } from '@/components/domain/status-pill';
+import { VendorStatusPill, OrderStatusPill } from '@/components/domain/status-pill';
 import { RatingStars } from '@/components/domain/rating-stars';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -29,7 +29,7 @@ export default async function VendorDetailPage({ params }: PageProps) {
   const vendor = await getVendor(id);
   if (!vendor) notFound();
 
-  const { bookings, reviews, services, revenueMtd } = await getVendorMetrics(id);
+  const { orders, reviews, products, revenueMtd } = await getVendorMetrics(id);
   const tag = locale === 'ar' ? 'ar-KW' : 'en-US';
   const categories = vendor!.categoryIds
     .map((cid) => seedCategories.find((c) => c.id === cid))
@@ -86,8 +86,8 @@ export default async function VendorDetailPage({ params }: PageProps) {
       <Tabs defaultValue="overview">
         <TabsList>
           <TabsTrigger value="overview">{t.vendors.tabsOverview}</TabsTrigger>
-          <TabsTrigger value="services">{t.vendors.tabsServices}</TabsTrigger>
-          <TabsTrigger value="bookings">{t.vendors.tabsBookings}</TabsTrigger>
+          <TabsTrigger value="products">{t.vendors.tabsProducts}</TabsTrigger>
+          <TabsTrigger value="orders">{t.vendors.tabsOrders}</TabsTrigger>
           <TabsTrigger value="revenue">{t.vendors.tabsRevenue}</TabsTrigger>
           <TabsTrigger value="reviews">{t.vendors.tabsReviews}</TabsTrigger>
         </TabsList>
@@ -117,7 +117,7 @@ export default async function VendorDetailPage({ params }: PageProps) {
               <div className="text-[28px] font-bold tabular-nums">
                 {formatCurrency(revenueMtd, 'KWD', tag)}
               </div>
-              <p className="text-[12px] text-ink-500">{bookings.length} {t.bookings.title}</p>
+              <p className="text-[12px] text-ink-500">{orders.length} {t.orders.title}</p>
             </Card>
           </div>
           {vendor!.bio ? (
@@ -128,23 +128,29 @@ export default async function VendorDetailPage({ params }: PageProps) {
           ) : null}
         </TabsContent>
 
-        <TabsContent value="services">
+        <TabsContent value="products">
           <Card className="p-0 overflow-hidden">
             <Table>
               <THead>
                 <TRow>
-                  <TH>{t.vendors.tabsServices}</TH>
-                  <TH className="text-center">{t.bookings.colDate}</TH>
-                  <TH className="text-end">{t.bookings.colTotal}</TH>
+                  <TH>{t.vendors.tabsProducts}</TH>
+                  <TH className="text-center">{t.common.status}</TH>
+                  <TH className="text-end">{t.orders.colTotal}</TH>
                 </TRow>
               </THead>
               <TBody>
-                {services.map((s) => (
-                  <TRow key={s.id}>
-                    <TCell className="font-medium">{s.title[locale]}</TCell>
-                    <TCell className="text-center">{s.durationMinutes} {locale === 'ar' ? 'د' : 'min'}</TCell>
+                {products.map((p) => (
+                  <TRow key={p.id}>
+                    <TCell className="font-medium">{p.title[locale]}</TCell>
+                    <TCell className="text-center">
+                      {p.active ? (
+                        <Badge tone="success">{t.subscriptions.statusActive}</Badge>
+                      ) : (
+                        <Badge tone="neutral">{t.common.cancel}</Badge>
+                      )}
+                    </TCell>
                     <TCell className="text-end tabular-nums font-semibold">
-                      {formatCurrency(s.price, s.currency, tag)}
+                      {formatCurrency(p.price, p.currency, tag)}
                     </TCell>
                   </TRow>
                 ))}
@@ -153,25 +159,25 @@ export default async function VendorDetailPage({ params }: PageProps) {
           </Card>
         </TabsContent>
 
-        <TabsContent value="bookings">
+        <TabsContent value="orders">
           <Card className="p-0 overflow-hidden">
             <Table>
               <THead>
                 <TRow>
-                  <TH>{t.bookings.colCustomer}</TH>
-                  <TH>{t.bookings.colDate}</TH>
-                  <TH>{t.bookings.colStatus}</TH>
-                  <TH className="text-end">{t.bookings.colTotal}</TH>
+                  <TH>{t.orders.colCustomer}</TH>
+                  <TH>{t.orders.colDate}</TH>
+                  <TH>{t.orders.colStatus}</TH>
+                  <TH className="text-end">{t.orders.colTotal}</TH>
                 </TRow>
               </THead>
               <TBody>
-                {bookings.slice(0, 20).map((b) => (
-                  <TRow key={b.id}>
-                    <TCell>{cust(b.customerUid)?.displayName ?? '—'}</TCell>
-                    <TCell>{formatDateTime(b.startAt, tag)}</TCell>
-                    <TCell><BookingStatusPill status={b.status} t={t} /></TCell>
+                {orders.slice(0, 20).map((o) => (
+                  <TRow key={o.id}>
+                    <TCell>{cust(o.customerUid)?.displayName ?? '—'}</TCell>
+                    <TCell>{formatDateTime(o.createdAt, tag)}</TCell>
+                    <TCell><OrderStatusPill status={o.status} t={t} /></TCell>
                     <TCell className="text-end tabular-nums font-semibold">
-                      {formatCurrency(b.totalPrice, b.currency, tag)}
+                      {formatCurrency(o.total, o.currency, tag)}
                     </TCell>
                   </TRow>
                 ))}

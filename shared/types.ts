@@ -41,18 +41,24 @@ export interface Vendor {
   ownerUid: ID;
   name: LocalizedString;
   slug: string;
+  /** Public handle for mini-store URL: mshro3e.com/@<handle> */
+  handle?: string;
   bio?: LocalizedString;
   coverImage?: string;
   logoImage?: string;
   categoryIds: ID[];
   location?: GeoLocation;
   address?: LocalizedString;
+  /** Kuwait governorate for delivery presets */
+  governorate?: 'capital' | 'hawalli' | 'farwaniya' | 'ahmadi' | 'jahra' | 'mubarak_al_kabeer';
   phone?: string;
   whatsapp?: string;
   workingHours: WorkingHours;
   rating: number;
   reviewCount: number;
   status: VendorStatus;
+  /** Current subscription tier — null = no active subscription */
+  tier?: 'basic' | 'pro' | 'managed' | null;
   verifiedAt?: Timestamp;
   createdAt: Timestamp;
   updatedAt: Timestamp;
@@ -114,27 +120,24 @@ export interface ProductVariant {
   stock: number;
 }
 
-export type BookingStatus =
-  | 'pending'
-  | 'confirmed'
-  | 'in_progress'
-  | 'completed'
-  | 'cancelled_by_customer'
-  | 'cancelled_by_vendor'
-  | 'no_show';
+export type SubscriptionTier = 'basic' | 'pro' | 'managed';
+export type SubscriptionStatus = 'trialing' | 'active' | 'past_due' | 'cancelled' | 'paused';
 
-export interface Booking {
+export interface Subscription {
   id: ID;
-  customerUid: ID;
   vendorId: ID;
-  serviceId: ID;
-  startAt: Timestamp;
-  endAt: Timestamp;
-  status: BookingStatus;
-  totalPrice: number;
-  currency: string;
-  notes?: string;
+  tier: SubscriptionTier;
+  status: SubscriptionStatus;
+  /** KWD monthly price snapshot at signup (lets us grandfather old prices) */
+  monthlyPriceKwd: number;
+  /** Annual billing toggle */
+  isAnnual: boolean;
+  trialEndsAt?: Timestamp;
+  currentPeriodStart: Timestamp;
+  currentPeriodEnd: Timestamp;
+  cancelAtPeriodEnd: boolean;
   createdAt: Timestamp;
+  updatedAt: Timestamp;
 }
 
 export type OrderStatus =

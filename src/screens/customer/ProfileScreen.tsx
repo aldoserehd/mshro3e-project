@@ -36,7 +36,7 @@ const Row: React.FC<RowProps> = ({ icon, label, onPress, destructive }) => (
   </PressableScale>
 );
 
-export default function ProfileScreen({ navigation }: MainTabsScreenProps<'Profile'>) {
+export default function ProfileScreen({ navigation: _ }: MainTabsScreenProps<'Account'>) {
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.scroll}>
@@ -51,8 +51,6 @@ export default function ProfileScreen({ navigation }: MainTabsScreenProps<'Profi
         </View>
 
         <Card style={styles.section}>
-          <Row icon="calendar-outline" label={i18n.t('profile.myBookings')} onPress={() => navigation.navigate('MainTabs')} />
-          <Divider />
           <Row icon="heart-outline" label={i18n.t('profile.favorites')} />
           <Divider />
           <Row icon="location-outline" label={i18n.t('profile.addresses')} />

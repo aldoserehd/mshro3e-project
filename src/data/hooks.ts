@@ -9,9 +9,8 @@ import type {
   Service,
   Category,
   Review,
-  Booking,
 } from '@shared/types';
-import { categories, vendors, services, reviews, bookings } from './seed';
+import { categories, vendors, services, reviews } from './seed';
 
 export interface HookResult<T> {
   data: T;
@@ -73,10 +72,6 @@ export function useReviews(vendorId?: string): HookResult<Review[]> {
     [vendorId],
   );
   return { data, loading: false };
-}
-
-export function useBookings(_userId?: string): HookResult<Booking[]> {
-  return { data: bookings, loading: false };
 }
 
 /** Featured vendors = top-rated 4 */

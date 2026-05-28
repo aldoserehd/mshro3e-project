@@ -8,14 +8,12 @@
 
 import type {
   Vendor,
-  Booking,
   Order,
   Review,
   PayoutRequest,
   UserProfile,
   Category,
   Service,
-  BookingStatus,
   OrderStatus,
 } from '@shared/types';
 
@@ -164,7 +162,7 @@ const customerNames = [
   'جوهرة المسعود',
 ];
 
-export const seedCustomers: (UserProfile & { bookingsCount: number; ordersCount: number; banned?: boolean })[] =
+export const seedCustomers: (UserProfile & { ordersCount: number; banned?: boolean })[] =
   customerNames.map((name, i) => ({
     uid: `uid_cust_${i + 1}`,
     role: 'customer' as const,
@@ -174,46 +172,9 @@ export const seedCustomers: (UserProfile & { bookingsCount: number; ordersCount:
     photoURL: `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(name)}`,
     locale: 'ar' as const,
     createdAt: NOW - (60 - i) * DAY,
-    bookingsCount: between(i + 1, 0, 14),
     ordersCount: between(i + 7, 0, 8),
-    banned: i === 11, // one banned customer for the UI to show
+    banned: i === 11,
   }));
-
-// -------------------- Bookings (~40) --------------------
-const bookingStatuses: BookingStatus[] = [
-  'pending',
-  'confirmed',
-  'in_progress',
-  'completed',
-  'completed',
-  'completed',
-  'cancelled_by_customer',
-  'cancelled_by_vendor',
-  'no_show',
-];
-
-export const seedBookings: Booking[] = Array.from({ length: 42 }, (_, i): Booking => {
-  const vendor = pick(seedVendors.filter((v) => v.status === 'active'), i);
-  const services = seedServices.filter((s) => s.vendorId === vendor.id);
-  const svc = services[i % services.length] ?? seedServices[0]!;
-  const customer = pick(seedCustomers, i + 3);
-  const offsetDays = (i % 14) - 4; // some past, some today, some future
-  const startAt = NOW + offsetDays * DAY + (8 + (i % 10)) * HOUR;
-  const status = pick(bookingStatuses, i);
-  return {
-    id: `bk_${(1000 + i).toString()}`,
-    customerUid: customer.uid,
-    vendorId: vendor.id,
-    serviceId: svc.id,
-    startAt,
-    endAt: startAt + svc.durationMinutes * 60 * 1000,
-    status,
-    totalPrice: svc.price,
-    currency: 'KWD',
-    notes: i % 4 === 0 ? 'يرجى الاتصال قبل الوصول' : undefined,
-    createdAt: startAt - 2 * DAY,
-  };
-});
 
 // -------------------- Orders (~22) --------------------
 const orderStatuses: OrderStatus[] = ['pending', 'paid', 'preparing', 'shipped', 'delivered', 'delivered', 'cancelled', 'refunded'];
@@ -319,14 +280,9 @@ export const categoryById = (id: string) => seedCategories.find((c) => c.id === 
 // -------------------- Aggregates for overview --------------------
 export const overviewMetrics = () => {
   const activeVendors = seedVendors.filter((v) => v.status === 'active').length;
-  const todayStart = NOW - 8 * HOUR; // start of current day window
-  const bookingsToday = seedBookings.filter(
-    (b) => b.startAt >= todayStart && b.startAt < todayStart + DAY,
-  ).length;
   const gmvMonth = seedOrders
     .filter((o) => o.status === 'paid' || o.status === 'delivered' || o.status === 'shipped')
-    .reduce((sum, o) => sum + o.total, 0) +
-    seedBookings.filter((b) => b.status === 'completed').reduce((sum, b) => sum + b.totalPrice, 0);
+    .reduce((sum, o) => sum + o.total, 0);
   const newUsers = seedCustomers.filter((c) => c.createdAt > NOW - 7 * DAY).length;
   const pendingPayouts = seedPayouts.filter((p) => p.status === 'pending').length;
   const openDisputes = 3;
@@ -353,9 +309,16 @@ export const overviewMetrics = () => {
     value: Math.round(400 + Math.sin(i / 1.6) * 150 + i * 60 + (i % 2 === 0 ? 80 : 0)),
   }));
 
+  // Subscription tier distribution (mock — assign tiers by index modulo for now)
+  const tierBreakdown = {
+    basic: seedVendors.filter((_, i) => i % 3 === 0).length,
+    pro: seedVendors.filter((_, i) => i % 3 === 1).length,
+    managed: seedVendors.filter((_, i) => i % 3 === 2).length,
+  };
+  const mrr = tierBreakdown.basic * 9 + tierBreakdown.pro * 15 + tierBreakdown.managed * 23;
+
   return {
     activeVendors,
-    bookingsToday,
     gmvMonth,
     gmvSpark,
     newUsers,
@@ -363,5 +326,7 @@ export const overviewMetrics = () => {
     openDisputes,
     signups,
     byCategory,
+    tierBreakdown,
+    mrr,
   };
 };

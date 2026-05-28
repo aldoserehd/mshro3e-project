@@ -10,15 +10,10 @@ import CodeVerifyScreen from '../screens/auth/CodeVerifyScreen';
 
 import HomeScreen from '../screens/customer/HomeScreen';
 import SearchScreen from '../screens/customer/SearchScreen';
-import BookingsScreen from '../screens/customer/BookingsScreen';
+import FavoritesScreen from '../screens/customer/FavoritesScreen';
 import ProfileScreen from '../screens/customer/ProfileScreen';
 import VendorProfileScreen from '../screens/customer/VendorProfileScreen';
 import ServiceDetailScreen from '../screens/customer/ServiceDetailScreen';
-
-import ServiceConfirmScreen from '../screens/booking/ServiceConfirmScreen';
-import DateTimePickerScreen from '../screens/booking/DateTimePickerScreen';
-import ConfirmPayScreen from '../screens/booking/ConfirmPayScreen';
-import BookingConfirmationScreen from '../screens/booking/BookingConfirmationScreen';
 
 import BlurTabBar from '../ui/BlurTabBar';
 import { palette, semantic } from '../theme/ts';
@@ -48,8 +43,8 @@ const MainTabs = () => (
   >
     <Tabs.Screen name="Home" component={HomeScreen} options={{ tabBarLabel: i18n.t('tabs.home') }} />
     <Tabs.Screen name="Search" component={SearchScreen} options={{ tabBarLabel: i18n.t('tabs.search') }} />
-    <Tabs.Screen name="Bookings" component={BookingsScreen} options={{ tabBarLabel: i18n.t('tabs.bookings') }} />
-    <Tabs.Screen name="Profile" component={ProfileScreen} options={{ tabBarLabel: i18n.t('tabs.profile') }} />
+    <Tabs.Screen name="Favorites" component={FavoritesScreen} options={{ tabBarLabel: i18n.t('tabs.favorites') }} />
+    <Tabs.Screen name="Account" component={ProfileScreen} options={{ tabBarLabel: i18n.t('tabs.account') }} />
   </Tabs.Navigator>
 );
 
@@ -67,14 +62,6 @@ export default function AppNavigator() {
         <Stack.Screen name="MainTabs" component={MainTabs} />
         <Stack.Screen name="VendorProfile" component={VendorProfileScreen} />
         <Stack.Screen name="ServiceDetail" component={ServiceDetailScreen} />
-        <Stack.Screen name="ServiceConfirm" component={ServiceConfirmScreen} options={{ animation: 'slide_from_bottom' }} />
-        <Stack.Screen name="DateTimePicker" component={DateTimePickerScreen} />
-        <Stack.Screen name="ConfirmPay" component={ConfirmPayScreen} />
-        <Stack.Screen
-          name="BookingConfirmation"
-          component={BookingConfirmationScreen}
-          options={{ animation: 'fade', gestureEnabled: false }}
-        />
       </Stack.Navigator>
     </NavigationContainer>
   );
