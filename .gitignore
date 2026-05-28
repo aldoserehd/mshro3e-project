@@ -38,7 +38,6 @@ npm-debug.log
 npm-debug.*
 yarn-error.log
 yarn.lock
-package-lock.json
 
 # BUCK
 buck-out/
@@ -77,3 +76,22 @@ dist/
 # Backup files
 *.backup
 package.json.backup
+
+# Env / secrets
+.env
+.env.local
+.env.*.local
+shared/firebase.config.ts
+shared/firebase-admin-key.json
+**/firebase-admin-*.json
+**/*-service-account*.json
+
+# Admin Next.js
+admin/.next/
+admin/out/
+admin/.turbo/
+
+# IDE
+.vscode/
+*.code-workspace
+
