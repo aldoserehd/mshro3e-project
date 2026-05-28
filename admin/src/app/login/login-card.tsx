@@ -38,15 +38,16 @@ export function LoginCard({ locale }: { locale: Locale }) {
   });
 
   const onSubmit = async (_v: FormValues) => {
-    // Mock session — base64({ uid, role }).
-    const payload = btoa(
-      JSON.stringify({
-        uid: 'owner_demo_1',
-        role: 'owner',
-        displayName: locale === 'ar' ? 'سالم العتيبي' : 'Salem Otaibi',
-        email: _v.identifier.includes('@') ? _v.identifier : 'owner@mshro3e.sa',
-      }),
-    );
+    // Mock session — UTF-8 → base64 (btoa only handles Latin1, so encode bytes first).
+    const json = JSON.stringify({
+      uid: 'owner_demo_1',
+      role: 'owner',
+      displayName: locale === 'ar' ? 'سالم العتيبي' : 'Salem Otaibi',
+      email: _v.identifier.includes('@') ? _v.identifier : 'owner@mshro3e.kw',
+    });
+    const bytes = new TextEncoder().encode(json);
+    const binary = Array.from(bytes, (b) => String.fromCharCode(b)).join('');
+    const payload = btoa(binary);
     document.cookie = `__mshro3e_session=${payload}; path=/; max-age=2592000; SameSite=Lax`;
     // Brief artificial delay so the loading state actually shows
     await new Promise((r) => setTimeout(r, 350));

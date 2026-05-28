@@ -4,17 +4,23 @@
     "strict": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@shared/*": ["./shared/*"]
+      "@/*": [
+        "./src/*"
+      ],
+      "@shared/*": [
+        "./shared/*"
+      ]
     }
   },
   "include": [
     "App.tsx",
     "src/**/*.ts",
     "src/**/*.tsx",
-    "shared/**/*.ts",
-    ".expo/types/**/*.ts",
-    "expo-env.d.ts"
+    "shared/**/*.ts"
   ],
-  "exclude": ["node_modules", "admin", "babel.config.js"]
+  "exclude": [
+    "node_modules",
+    "admin",
+    "babel.config.js"
+  ]
 }

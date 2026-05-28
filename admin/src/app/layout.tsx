@@ -20,7 +20,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           rel="stylesheet"
         />
       </head>
-      <body className="min-h-dvh bg-[color:var(--color-bg)]">{children}</body>
+      <body className="min-h-dvh bg-[color:var(--color-bg)]" suppressHydrationWarning>{children}</body>
     </html>
   );
 }
