@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+
+<html dir="rtl" lang="ar"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Manrope:wght@600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;family=Manrope:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-surface-variant": "#46464c",
+                    "surface-dim": "#d8d9e5",
+                    "secondary-fixed": "#dae2ff",
+                    "secondary-container": "#9db7ff",
+                    "tertiary-container": "#001a41",
+                    "surface-tint": "#585e71",
+                    "surface-container-lowest": "#ffffff",
+                    "on-tertiary": "#ffffff",
+                    "surface-variant": "#e0e2ed",
+                    "on-error-container": "#93000a",
+                    "tertiary-fixed-dim": "#adc6ff",
+                    "on-error": "#ffffff",
+                    "tertiary": "#000000",
+                    "on-primary": "#ffffff",
+                    "on-secondary-container": "#2a4686",
+                    "surface-container-low": "#f2f3ff",
+                    "outline-variant": "#c6c6cd",
+                    "primary-container": "#151b2c",
+                    "on-primary-fixed": "#151b2c",
+                    "on-tertiary-container": "#6483c2",
+                    "secondary": "#415c9d",
+                    "surface": "#faf8ff",
+                    "background": "#faf8ff",
+                    "inverse-on-surface": "#eff0fc",
+                    "on-secondary-fixed": "#001947",
+                    "error-container": "#ffdad6",
+                    "on-secondary-fixed-variant": "#274484",
+                    "inverse-primary": "#c1c6dc",
+                    "on-primary-container": "#7e8398",
+                    "surface-container": "#ecedf9",
+                    "outline": "#76777d",
+                    "surface-container-highest": "#e0e2ed",
+                    "on-surface": "#181b24",
+                    "surface-bright": "#faf8ff",
+                    "on-primary-fixed-variant": "#414659",
+                    "on-secondary": "#ffffff",
+                    "on-tertiary-fixed-variant": "#234580",
+                    "on-tertiary-fixed": "#001a41",
+                    "primary-fixed": "#dde2f9",
+                    "secondary-fixed-dim": "#b1c5ff",
+                    "error": "#ba1a1a",
+                    "primary-fixed-dim": "#c1c6dc"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "2xl": "32px",
+                    "3xl": "48px",
+                    "xl": "24px",
+                    "sm": "8px",
+                    "md": "12px",
+                    "lg": "16px",
+                    "xs": "4px",
+                    "4xl": "64px"
+            },
+            "fontFamily": {
+                    "display-lg-mobile": ["Manrope"],
+                    "body-lg": ["Inter"],
+                    "label-md": ["Inter"],
+                    "headline-md": ["Manrope"],
+                    "headline-lg": ["Manrope"],
+                    "display-lg": ["Manrope"],
+                    "body-sm": ["Inter"],
+                    "body-md": ["Inter"]
+            },
+            "fontSize": {
+                    "display-lg-mobile": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                    "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .navy-gradient {
+        background: linear-gradient(180deg, #151b2c 0%, #001a41 100%);
+      }
+      .glass-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      @keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+        100% { transform: translateY(0px); }
+      }
+      .animate-float {
+        animation: float 4s ease-in-out infinite;
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface antialiased overflow-hidden">
+<!-- Onboarding Shell: Suppressing Global Nav because it is a linear/transactional screen -->
+<main class="relative h-screen w-full navy-gradient flex flex-col items-center justify-between px-xl py-4xl">
+<!-- Top Bar (Header) -->
+<header class="w-full flex justify-start items-center">
+<button class="font-label-md text-label-md text-on-secondary-container hover:text-white transition-colors duration-200">
+                يطّخت
+            </button>
+</header>
+<!-- Illustration Content -->
+<div class="flex-1 flex flex-col items-center justify-center w-full max-w-md gap-2xl">
+<div class="relative w-full aspect-square flex items-center justify-center">
+<!-- Decorative background elements -->
+<div class="absolute inset-0 bg-secondary/10 rounded-full blur-3xl scale-90"></div>
+<!-- Main Illustration Card -->
+<div class="relative z-10 glass-card rounded-3xl p-lg animate-float overflow-hidden shadow-2xl">
+<img alt="Kuwaiti artisan baking" class="rounded-2xl w-full h-full object-cover aspect-square grayscale-[0.2] hover:grayscale-0 transition-all duration-700" data-alt="A high-end cinematic photograph of a professional Kuwaiti artisan baker in a modern, sun-drenched kitchen. The scene is bathed in soft, warm golden hour lighting that highlights flour dusting the air. The aesthetic is sophisticated and minimalist, featuring a palette of deep navy blues, crisp whites, and warm wooden textures. The baker is meticulously decorating a traditional contemporary cake, capturing a sense of craftsmanship, trust, and premium home-grown quality." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCblxwS3XQ_jLcVWj3zIVWN2xrSf_3wxK0cgbtwt72-shJZjUrdmnOLxa1FTkYnW130AdiNuTw5Z-me6Z2bf2FUrQRjXpkUByx2KHKcaW-RMXokjntRFL0sxSGQDCnVxG3Lw1-ktnN8e60ScEhI5QvZ7ZyAUJqr_cYuEDMrdKckRfjcG2PTgc2RJIPjVRBksbVSHPzy5QmN1fhb0OmGAI9r4Ct2QrSd1GqojG58JnZHx7k4vWUFgJTc_yJu3erFdSS4ZuvUrP25J9iP"/>
+</div>
+<!-- Floating Decorative Accent -->
+<div class="absolute -bottom-4 -right-4 glass-card p-md rounded-xl flex items-center gap-md shadow-lg border-secondary/20">
+<div class="w-10 h-10 bg-secondary rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-[20px]">local_mall</span>
+</div>
+<div>
+<div class="font-label-md text-[12px] text-secondary-fixed opacity-70">صُنع في الكويت</div>
+<div class="font-headline-md text-sm text-white">مشروعي المميز</div>
+</div>
+</div>
+</div>
+<!-- Text Content -->
+<div class="text-center space-y-md">
+<h1 class="font-display-lg-mobile text-display-lg-mobile text-white tracking-tight">
+                    نآلا أدبا
+                </h1>
+<p class="font-body-md text-body-md text-secondary-fixed/80 max-w-[280px] mx-auto leading-relaxed">
+                    ادعم المشاريع الكويتية الصغيرة وتسوق من بيوت مبدعينا.
+                </p>
+</div>
+</div>
+<!-- Footer Actions -->
+<footer class="w-full max-w-md flex flex-col items-center gap-2xl">
+<!-- Pagination Dots -->
+<div class="flex gap-sm">
+<span class="w-2 h-2 rounded-full bg-secondary/30"></span>
+<span class="w-2 h-2 rounded-full bg-secondary/30"></span>
+<span class="w-6 h-2 rounded-full bg-secondary-container transition-all duration-500"></span>
+</div>
+<!-- CTA Button -->
+<button class="w-full py-lg bg-secondary text-white font-headline-md text-headline-md rounded-xl shadow-xl shadow-secondary/20 hover:bg-secondary/90 active:scale-[0.98] transition-all duration-150 flex items-center justify-center gap-md group">
+                نآلا أدبا
+                <span class="material-symbols-outlined group-hover:translate-x-[-4px] transition-transform duration-200">arrow_back</span>
+</button>
+</footer>
+</main>
+<!-- Micro-interaction Script -->
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const cta = document.querySelector('button.bg-secondary');
+            cta.addEventListener('mouseenter', () => {
+                const icon = cta.querySelector('.material-symbols-outlined');
+                icon.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
+            });
+
+            // Gentle parallax for the glass card
+            document.addEventListener('mousemove', (e) => {
+                const card = document.querySelector('.glass-card');
+                const xAxis = (window.innerWidth / 2 - e.pageX) / 45;
+                const yAxis = (window.innerHeight / 2 - e.pageY) / 45;
+                card.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+            });
+        });
+    </script>
+</body></html>

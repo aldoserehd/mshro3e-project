@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+
+<html dir="rtl" lang="ar"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Mshro3e - Home</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;family=Manrope:wght@600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;family=Manrope:wght@100..900&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-surface-variant": "#46464c",
+                        "surface-dim": "#d8d9e5",
+                        "secondary-fixed": "#dae2ff",
+                        "secondary-container": "#9db7ff",
+                        "tertiary-container": "#001a41",
+                        "surface-tint": "#585e71",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "surface-variant": "#e0e2ed",
+                        "on-error-container": "#93000a",
+                        "tertiary-fixed-dim": "#adc6ff",
+                        "on-error": "#ffffff",
+                        "tertiary": "#000000",
+                        "on-primary": "#ffffff",
+                        "on-secondary-container": "#2a4686",
+                        "surface-container-low": "#f2f3ff",
+                        "outline-variant": "#c6c6cd",
+                        "primary-container": "#151b2c",
+                        "on-primary-fixed": "#151b2c",
+                        "on-tertiary-container": "#6483c2",
+                        "secondary": "#415c9d",
+                        "surface": "#faf8ff",
+                        "background": "#faf8ff",
+                        "inverse-on-surface": "#eff0fc",
+                        "on-secondary-fixed": "#001947",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed-variant": "#274484",
+                        "inverse-primary": "#c1c6dc",
+                        "on-primary-container": "#7e8398",
+                        "surface-container": "#ecedf9",
+                        "outline": "#76777d",
+                        "surface-container-highest": "#e0e2ed",
+                        "on-surface": "#181b24",
+                        "surface-container-high": "#e6e7f3",
+                        "tertiary-fixed": "#d8e2ff",
+                        "primary": "#000000",
+                        "inverse-surface": "#2d3039",
+                        "on-background": "#181b24",
+                        "surface-bright": "#faf8ff",
+                        "on-primary-fixed-variant": "#414659",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-fixed-variant": "#234580",
+                        "on-tertiary-fixed": "#001a41",
+                        "primary-fixed": "#dde2f9",
+                        "secondary-fixed-dim": "#b1c5ff",
+                        "error": "#ba1a1a",
+                        "primary-fixed-dim": "#c1c6dc"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "2xl": "32px",
+                        "3xl": "48px",
+                        "xl": "24px",
+                        "sm": "8px",
+                        "md": "12px",
+                        "lg": "16px",
+                        "xs": "4px",
+                        "4xl": "64px"
+                    },
+                    "fontFamily": {
+                        "display-lg-mobile": ["Manrope"],
+                        "body-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-md": ["Manrope"],
+                        "headline-lg": ["Manrope"],
+                        "display-lg": ["Manrope"],
+                        "body-sm": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display-lg-mobile": ["32px", {"lineHeight": "40px", "fontWeight": "700"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        ::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        .story-ring {
+            background: linear-gradient(45deg, #151b2c, #415c9d, #dae2ff);
+            padding: 2px;
+        }
+        .glass-nav {
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .pulsate-dot {
+            box-shadow: 0 0 0 0 rgba(65, 92, 157, 0.7);
+            animation: pulsate 2s infinite;
+        }
+        @keyframes pulsate {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(65, 92, 157, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(65, 92, 157, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(65, 92, 157, 0); }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body-md selection:bg-secondary-container">
+<!-- Top App Bar (As specified in JSON) -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-lg py-sm bg-surface/80 dark:bg-inverse-surface/80 backdrop-blur-md border-b border-outline-variant/30 dark:border-outline/20">
+<div class="flex items-center gap-md">
+<button class="text-secondary dark:text-secondary-fixed hover:opacity-80 transition-opacity active:scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="text-headline-md font-headline-md font-bold text-primary dark:text-inverse-primary">Mshro3e</h1>
+</div>
+<div class="flex items-center gap-md">
+<button class="text-secondary dark:text-secondary-fixed hover:opacity-80 transition-opacity active:scale-95 transition-transform duration-150">
+<span class="material-symbols-outlined">mail</span>
+</button>
+</div>
+</header>
+<main class="pt-[64px] pb-[100px] md:max-w-screen-xl md:mx-auto">
+<!-- Sticky Search -->
+<div class="sticky top-[64px] z-40 bg-background/95 backdrop-blur-sm px-lg py-md">
+<div class="relative group">
+<input class="w-full bg-surface-container-low border border-outline-variant rounded-xl py-md pr-[44px] pl-md font-body-md focus:ring-2 focus:ring-secondary/20 focus:border-secondary outline-none transition-all placeholder:text-on-surface-variant/60" placeholder="ابحث عن منتج أو محل" type="text"/>
+<span class="material-symbols-outlined absolute right-md top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-secondary transition-colors">search</span>
+</div>
+</div>
+<!-- Category Chip Rail -->
+<section class="mt-sm">
+<div class="flex overflow-x-auto hide-scrollbar gap-sm px-lg py-xs">
+<button class="flex-shrink-0 bg-primary-container text-on-primary-fixed-variant px-lg py-sm rounded-full font-label-md text-label-md border border-primary-container">الكل</button>
+<button class="flex-shrink-0 bg-surface-container-high text-on-surface px-lg py-sm rounded-full font-label-md text-label-md hover:bg-surface-container-highest transition-colors">حلويات ومخبوزات</button>
+<button class="flex-shrink-0 bg-surface-container-high text-on-surface px-lg py-sm rounded-full font-label-md text-label-md hover:bg-surface-container-highest transition-colors">ملابس وعبايات</button>
+<button class="flex-shrink-0 bg-surface-container-high text-on-surface px-lg py-sm rounded-full font-label-md text-label-md hover:bg-surface-container-highest transition-colors">جمال وعناية</button>
+<button class="flex-shrink-0 bg-surface-container-high text-on-surface px-lg py-sm rounded-full font-label-md text-label-md hover:bg-surface-container-highest transition-colors">مجوهرات واكسسوارات</button>
+<button class="flex-shrink-0 bg-surface-container-high text-on-surface px-lg py-sm rounded-full font-label-md text-label-md hover:bg-surface-container-highest transition-colors">ديكور منزلي</button>
+<button class="flex-shrink-0 bg-surface-container-high text-on-surface px-lg py-sm rounded-full font-label-md text-label-md hover:bg-surface-container-highest transition-colors">بخور وعطور</button>
+<button class="flex-shrink-0 bg-surface-container-high text-on-surface px-lg py-sm rounded-full font-label-md text-label-md hover:bg-surface-container-highest transition-colors">فن ولوحات</button>
+<button class="flex-shrink-0 bg-surface-container-high text-on-surface px-lg py-sm rounded-full font-label-md text-label-md hover:bg-surface-container-highest transition-colors">أطفال ومواليد</button>
+<button class="flex-shrink-0 bg-surface-container-high text-on-surface px-lg py-sm rounded-full font-label-md text-label-md hover:bg-surface-container-highest transition-colors">حيوانات أليفة</button>
+<button class="flex-shrink-0 bg-surface-container-high text-on-surface px-lg py-sm rounded-full font-label-md text-label-md hover:bg-surface-container-highest transition-colors">نباتات وحدائق</button>
+<button class="flex-shrink-0 bg-surface-container-high text-on-surface px-lg py-sm rounded-full font-label-md text-label-md hover:bg-surface-container-highest transition-colors">هدايا ومناسبات</button>
+</div>
+</section>
+<!-- Vendor Stories -->
+<section class="mt-xl">
+<div class="flex items-center justify-between px-lg mb-md">
+<h2 class="text-headline-md font-headline-md text-on-surface">قصص البائعين</h2>
+<button class="text-secondary text-label-md font-label-md">مشاهدة الكل</button>
+</div>
+<div class="flex overflow-x-auto hide-scrollbar gap-lg px-lg">
+<!-- Story Item -->
+<div class="flex flex-col items-center gap-xs flex-shrink-0 cursor-pointer group">
+<div class="story-ring rounded-full transition-transform group-active:scale-95">
+<div class="p-[2px] bg-background rounded-full">
+<img alt="Vendor" class="w-16 h-16 rounded-full object-cover" data-alt="A portrait of a creative professional woman in a modern Kuwaiti design studio setting. She is wearing elegant contemporary business attire. The lighting is soft and natural from a large window, creating a warm, approachable atmosphere for a boutique business owner. High-end, corporate photography style with shallow depth of field." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBc0RsFIcec-MJBe7jQNhR5LCgXBlJoiqoSNFFVrt3BPAyw2gbzanjli3Q2p5S3fBGDXiLN5BiX6LPOehvUZqaWDkuoFNRiMhi2YL2EdGuaGSYsSuV1MhyfGgNLSZKjXZaqu5chfDBBtT8Y2wkCPqKOjgWSc9zESfIAMqVV3JOk446Ki9gTKMzXElkUtzrEYcDumEuwE6dIRTC1deLm3OnMMUSBwDnMvouka0qdBTLBvQFMK3iuLFxb6bLe3Ss_AslJJ8KgqybQiqHa"/>
+</div>
+</div>
+<span class="text-body-sm font-label-md text-on-surface-variant">عبير كروشي</span>
+</div>
+<!-- More Stories -->
+<div class="flex flex-col items-center gap-xs flex-shrink-0 cursor-pointer group">
+<div class="story-ring rounded-full transition-transform group-active:scale-95">
+<div class="p-[2px] bg-background rounded-full">
+<img alt="Vendor" class="w-16 h-16 rounded-full object-cover" data-alt="Close-up portrait of a young male artisan in his woodworking workshop. He has a focused, passionate expression. The background features blurred wood textures and high-quality tools. Cinematic lighting with warm amber tones and dark navy shadows, evoking a premium craft brand feel." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDKpv9js-N-Ik_Da-OP0DwQAjaPNtrCpXDzajNd0jPthCmuB9pyV0pGwODtiCDtECEh1h_RRnrCXkrLaHlr2NYfdPrS8FI_SA7-cEtCNDOD4t6t7kRPr9V0liguyXjy-TLz-2wH0EV7x2RxPuWAHfV_w-WGsscpXx572j9mnSutlfyXizzyWvIUInwIyDGimqhEuN1gApXol32nKNVUouONYo17iJxY0UzE03TnRgFbT9i6s7aB4GlzD7uUFC2YQ1aUizgTMmNFUIF"/>
+</div>
+</div>
+<span class="text-body-sm font-label-md text-on-surface-variant">فنون الخشب</span>
+</div>
+<div class="flex flex-col items-center gap-xs flex-shrink-0 cursor-pointer group">
+<div class="story-ring rounded-full opacity-60 transition-transform group-active:scale-95">
+<div class="p-[2px] bg-background rounded-full">
+<img alt="Vendor" class="w-16 h-16 rounded-full object-cover" data-alt="A professional studio portrait of a woman specializing in luxury botanical care. The aesthetic is clean and minimalist with a palette of soft whites and deep navy blues. Her expression is calm and expert. Soft-box lighting emphasizes a high-end retail skincare brand identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPswJP_7aDk7LEUc0ByhSk1znv4M8u5B-mIH4moJ088J_I7NrDAN68a8fD53Z0K2Ujh7GqD2CVTkCok0HmXlTuSqpacPwXIJunvkhadrzBhSBX6Si92ZyL6TIV5Tq1mkbPnlpL7zrx-ScZ33EsEtTYoGE1ni5PEU_bMyRIsJbBdAcoFp4zD5lt48RD7d30n8aeQ_dXCWEpL300i0044LmS44cd0wB3dphF-QSu12czBGn4iDmzvC2aV42rCRNJ7xmktrgxRHf2c5AN"/>
+</div>
+</div>
+<span class="text-body-sm font-label-md text-on-surface-variant">عناية الطبيعة</span>
+</div>
+<div class="flex flex-col items-center gap-xs flex-shrink-0 cursor-pointer group">
+<div class="story-ring rounded-full transition-transform group-active:scale-95">
+<div class="p-[2px] bg-background rounded-full">
+<img alt="Vendor" class="w-16 h-16 rounded-full object-cover" data-alt="A portrait of a cheerful fashion designer in a brightly lit boutique. She is wearing a modern abaya with unique textile patterns. The setting is a premium showroom in Kuwait City. The lighting is vibrant and high-key, reflecting a sophisticated and reliable modern brand." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCBLhTWUfxe5iEXJJ4MPB8Vjyi0GeCnpzybU_HBId_6u9T6rIlB67i1R-Eq33570vOh5pKeU7e_5RYTUKvcshYKBtkPnt1waXQrW1O46lWzUd1pB7noAVubNDxS5EykJMke-EqnTyWdFL35MPk4mqm4EONLdO3xhGGHSSGZA52bKtEFjR-q_LWBjdsTylmf8TbHKFhbj8znexfCmFF-AMAiegIyZt-Hjo9vJ7wS3TThEZI6kTdu2Z8y2AhTttxW1NRHQsnhRUAFOMCo"/>
+</div>
+</div>
+<span class="text-body-sm font-label-md text-on-surface-variant">مزاج للتصميم</span>
+</div>
+<div class="flex flex-col items-center gap-xs flex-shrink-0 cursor-pointer group">
+<div class="story-ring rounded-full transition-transform group-active:scale-95">
+<div class="p-[2px] bg-background rounded-full">
+<img alt="Vendor" class="w-16 h-16 rounded-full object-cover" data-alt="Portrait of a male perfume maker in a high-end olfactory laboratory. He is holding a glass vial with precision. The environment is clean, clinical yet luxurious with dark wood accents. The lighting is dramatic, highlighting the crystalline clarity of the glass and the navy branding in the background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAtRjugGGZ6bmmGexqtgNx_cKeU5U0fIb9BNATEFZry62t53UjPmJfmBIkPqYwVqMG0fsWnklq741noNrfAkhou3HdqXVPqEtE8Qatjv1wOTKq3aZB5iG2y80nVYfsJX-qpYnu_sKGMPcvsorXGfhMlV4Cy-jBCUvBIeVHlwva6bXRqyIYCr8C1qeoQvXd3LOmEwTLvCHsNzCq8Bl0Y651_qjlIijz_UkrFOkHDMn1RbCcB2YDdMbYJ4i4o2wTm-iKLEANZJX0Kd9np"/>
+</div>
+</div>
+<span class="text-body-sm font-label-md text-on-surface-variant">أريج العود</span>
+</div>
+</div>
+</section>
+<!-- New Arrivals Carousel -->
+<section class="mt-xl">
+<div class="flex items-center justify-between px-lg mb-md">
+<h2 class="text-headline-md font-headline-md text-on-surface">جديد على مشروعي</h2>
+</div>
+<div class="flex overflow-x-auto hide-scrollbar gap-lg px-lg pb-md">
+<!-- Product Card Small -->
+<div class="w-[200px] flex-shrink-0 bg-surface rounded-xl overflow-hidden border border-outline-variant/30 shadow-sm hover:border-secondary/30 transition-all">
+<div class="relative">
+<img alt="Product" class="w-full h-[180px] object-cover" data-alt="A luxury handmade scented candle in a dark navy glass jar, set against a minimalist white marble surface. The candle flame is soft and warm. The scene is elegantly composed with a sprig of dried lavender. High-end product photography with soft shadows and a premium, corporate aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuADBxYX91LhJDP7rcjH--zUKE_pOYRJdLYUmq8XI0T7C3s8wLMYuUZT2AO50POdii9cKzsasx143SVfGt2HQ8p3Y95BrCn_C64kUj9K3RFTE_ZtTLD9kNz-smpGcu_0I-QUG-HVprZWfChzxDi-wgoLv5t3x8rJmODtZ8EZtHKFZBOIYfHgYOgKmd_yuey_q97Z5t3lHeHQyCowjXmJwuEYwCfj2duBoMFPggWagXS472loZMzM5ZrpKEVgySQ8Cu3JsMfnCW234il0"/>
+<button class="absolute top-sm left-sm bg-surface/80 p-xs rounded-full backdrop-blur-sm text-secondary active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-[20px]">favorite</span>
+</button>
+</div>
+<div class="p-md">
+<h3 class="font-label-md text-on-surface truncate">شمعة اللافندر الملكية</h3>
+<p class="text-secondary font-semibold mt-xs">12.000 د.ك</p>
+</div>
+</div>
+<!-- Repeat cards... -->
+<div class="w-[200px] flex-shrink-0 bg-surface rounded-xl overflow-hidden border border-outline-variant/30 shadow-sm hover:border-secondary/30 transition-all">
+<div class="relative">
+<img alt="Product" class="w-full h-[180px] object-cover" data-alt="A close-up of a designer ceramic vase with organic, asymmetric shapes. The glaze is a deep navy blue with subtle metallic flecks. The background is a clean, neutral-toned modern interior. Soft, directional lighting highlights the texture and form of the art piece. Modern, sophisticated retail style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBXOCl1SkScpt65ASA8z326VQiAACcMRG_GdX1QAd-xCrmNq_yc9YKFx6dVmcPms2kf6bK3RLmgDCI5lUayhbhj8O6CEcUj8LwatjmjI5H8OC5n3g7k0oqUKZj9Iv7nSRayI4iWP4FQWbCdsOWgFsz9q_lmHN7cZb5mTEDp-90QbxIk3376WJ37nQ8xKt1za3Oqifp7Ni0XJNwC-KYKf11F36aoMn4Dvs4lNd0IySq8sJFdHKVoLJ8OXa6LlmcSvDK0TeU4mMz_5xVm"/>
+<button class="absolute top-sm left-sm bg-surface/80 p-xs rounded-full backdrop-blur-sm text-secondary active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-[20px]">favorite</span>
+</button>
+</div>
+<div class="p-md">
+<h3 class="font-label-md text-on-surface truncate">فازة سيراميك يدوية</h3>
+<p class="text-secondary font-semibold mt-xs">25.000 د.ك</p>
+</div>
+</div>
+<div class="w-[200px] flex-shrink-0 bg-surface rounded-xl overflow-hidden border border-outline-variant/30 shadow-sm hover:border-secondary/30 transition-all">
+<div class="relative">
+<img alt="Product" class="w-full h-[180px] object-cover" data-alt="A sleek, modern desk organizer made of high-quality dark walnut and brushed aluminum. It's arranged on a clean white desk next to a luxury fountain pen. The aesthetic is professional, organized, and high-end corporate. Lighting is crisp and bright, focusing on the product details." src="https://lh3.googleusercontent.com/aida-public/AB6AXuApVMv05zaUVnJy5W6yjSiz93PIVNFJbqX4A9unZTQUDcJi34ef_TUU3LsoggSQq-okhK7mDqF3cBmbk3dAKsMxNDWq4G-ooC-qHei3H6kCfl4NkIu92yWeKpjCe_I4CEplT5QUDVP0cpilrpMvEBxU9x9TJfJR_HMkMfU-nyqg59E1dmts1uV5lrm5oLLNFKSuWmeI8T4ciciBHCRnweMk30Np6Yry_buN63l-KqlBYS9JoZKv8UEfOEg2yPNZmHLCObIgzxmvnoa0"/>
+<button class="absolute top-sm left-sm bg-surface/80 p-xs rounded-full backdrop-blur-sm text-secondary active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-[20px]">favorite</span>
+</button>
+</div>
+<div class="p-md">
+<h3 class="font-label-md text-on-surface truncate">منظم مكتب خشبي</h3>
+<p class="text-secondary font-semibold mt-xs">18.500 د.ك</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Main Product Grid -->
+<section class="mt-xl px-lg">
+<div class="flex items-center justify-between mb-md">
+<h2 class="text-headline-md font-headline-md text-on-surface">اكتشف المنتجات</h2>
+<button class="flex items-center gap-xs text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">tune</span>
+<span class="text-label-md">تصفية</span>
+</button>
+</div>
+<div class="grid grid-cols-2 gap-md">
+<!-- Tile 1 -->
+<article class="flex flex-col gap-sm">
+<div class="relative aspect-square rounded-2xl overflow-hidden group">
+<img alt="Luxury Box" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="A luxury gift hamper box with a rich navy blue ribbon. Inside are artisanal Kuwaiti sweets and premium dates elegantly packaged. The box is set on a light wooden table in a high-end kitchen. The lighting is warm and inviting, emphasizing the premium quality of the gift. Corporate gift marketplace style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBf417qUbrfR_yC0M6Jhhzs9yBCWpA7njzZC39HQvebe6V-UrG5ScJbVGYg6CpBbJ7PqdgzwUjo6z6btvqb0Ir0DpOGkp3XhEur6inGoejtf4Zo_agMxu4OBQAH1zrKCRDD4Sl33VKkk10WX5LrY4chTk-nPbH2HCn2Xr8n9nQr_MAacM0nWnTDnfcB8Tsm0G2DXUgBlV1YeMeGo2N4U4BBlZOLLn7jdGb_QswTzPFG8hx644teGxHWnMRvSqyXk_kfJqfXRzFkxgyj"/>
+<div class="absolute top-md right-md pulsate-dot w-2 h-2 bg-secondary rounded-full z-10"></div>
+<button class="absolute top-md left-md bg-white/90 p-xs rounded-full shadow-sm text-on-surface active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-[20px]">favorite</span>
+</button>
+</div>
+<div class="flex flex-col">
+<h3 class="text-body-md font-label-md text-on-surface truncate">صندوق هدايا التمور الفاخرة</h3>
+<p class="text-[17px] font-semibold text-primary mt-1">15.000 د.ك</p>
+<div class="flex items-center gap-sm mt-md">
+<img alt="Vendor" class="w-6 h-6 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0gWIeNFpFx7LT8aEhwBGApOdoVUGJIECtZ1QzLsh02Aq0qhf99sNUzDNvMEx6KsdKBSGo8y_PVAbGE_3PtpfKvfLXSqn0Liyf9spp5aB1bghfdb54Cy4JF5sIh8O9f7mraqMa6HNHLtW_UOYyQ-O6fcdT7G-lNXQ8xmkl0cvsBn9NHjSv4eCe9bD1MqexHg0L50PxMWmWCNSIUTWPHXMTVu-WRCnK1XHzJgkYjmQU9Sk1lnh88WCznb7c4nSFoN829EdNo9nXt8yy"/>
+<div class="flex items-center gap-xs min-w-0">
+<span class="text-body-sm text-on-surface-variant truncate">عبير كروشي</span>
+<span class="material-symbols-outlined text-secondary text-[14px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Tile 2 -->
+<article class="flex flex-col gap-sm">
+<div class="relative aspect-square rounded-2xl overflow-hidden group">
+<img alt="Art Print" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="A framed modern abstract art print with Kuwaiti calligraphic elements. The colors are predominantly navy, gold, and white. The frame is minimal black. It's hanging on a pristine white wall in a modern office. Soft gallery lighting creates a sophisticated, reliable brand aesthetic for art collectors." src="https://lh3.googleusercontent.com/aida-public/AB6AXuATHPDH0hPG_1pbDLhnvoMvFSc8AoLnodUEzQ4i-ECnynKovhAhwatFKqbM5LEG1BKxYlW0vekRu7IZjr0wTVC89I8BkvGEpSb2owmsXifTfJ5jDmFqp4DZwjwMd6owrqwJRTaq0U5aawzM9fZLDdG41jsOdXG7MKchDgJBTfjwGA3fJHkL6dGYeahAz8VdpwAb08EkD_RXDgrsoN_xokZ1omfSbF3z0sytrfViEqNvhmH-WFxesKR3xgH6Ntk47ZUR4Br010UFml1g"/>
+<button class="absolute top-md left-md bg-white/90 p-xs rounded-full shadow-sm text-on-surface active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-[20px]">favorite</span>
+</button>
+</div>
+<div class="flex flex-col">
+<h3 class="text-body-md font-label-md text-on-surface truncate">لوحة تجريدية - حروف عربية</h3>
+<p class="text-[17px] font-semibold text-primary mt-1">45.000 د.ك</p>
+<div class="flex items-center gap-sm mt-md">
+<img alt="Vendor" class="w-6 h-6 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJskPXjE5t4_xNJw-V3E3EBAQrlv5uX7e3u7NzwYOS5lqPFfnq3bzZR3ugLLxg4NzhjSu1srZBg5dvXh-WQY4r30ptID1qr8xT_EpSGa9x4bAKT4YCbY2B_YOm4Ua1_EXTjpV_ZrcIo6kYAWSdQjwmBCMmcFBeWQAEJhWVjuHD1DhgceR0FhG4rHb_Y-tBxtFHpuqu75NyiEl_8ihcmkSBi4fU9VsrByFuRWiXoSwcVkblBjZsITqokn7qfaEDnLOtW4dPIa4FKNYJ"/>
+<div class="flex items-center gap-xs min-w-0">
+<span class="text-body-sm text-on-surface-variant truncate">فنون الفن</span>
+<span class="material-symbols-outlined text-secondary text-[14px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Tile 3 -->
+<article class="flex flex-col gap-sm">
+<div class="relative aspect-square rounded-2xl overflow-hidden group">
+<img alt="Home Decor" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="A high-end designer floor lamp with a minimalist metal base and a textured linen shade. The design is contemporary and architectural. It stands in a tastefully decorated living room with navy accents. The lighting is warm and ambient. High-end lifestyle photography for a premium home marketplace." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA0HBq9qdZfekwXKMoHe7hgE-bfiMKlJ4kHAnJ9X-dNSoupRUrvN90WdXSrAgb1kQRd92O7K7uXNrX13_jyduO3_Ouk4x5q2IvgCmEADC7aVd0pyUDn8qQH-HNHgzFBc9bYgEk_N4A4EPqnRTO0UN9KiI80lRR3ojMnw5ycH1HlUN74aQfOZ9oBfqREcEv9FoQUy-mpK_0dSGtULAU1Cz-vO8CjgQxXJKDyEM5gKho6aiEr8DDo4dL6UJF5mfoTwcfvg6wqxe1mEU1y"/>
+<div class="absolute top-md right-md pulsate-dot w-2 h-2 bg-secondary rounded-full z-10"></div>
+<button class="absolute top-md left-md bg-white/90 p-xs rounded-full shadow-sm text-on-surface active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-[20px]">favorite</span>
+</button>
+</div>
+<div class="flex flex-col">
+<h3 class="text-body-md font-label-md text-on-surface truncate">مصباح أرضي عصري</h3>
+<p class="text-[17px] font-semibold text-primary mt-1">32.000 د.ك</p>
+<div class="flex items-center gap-sm mt-md">
+<img alt="Vendor" class="w-6 h-6 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAiKI9ciXY8DPKal0DhDfSUVaqkn8WZ0pT_DKxOTmLby4Y48w2r5tEVQhMLZzrU_3I-VVnJ-GirB1pGcTriC7Z5Q-2mqAHRdiEHXl6mm0g0syxoPTLNxM45koqjhPnNcejg9FDHT6sFQvIUA5XXTs4wfjMXkIhMK_Sxu0HBK5WG89MJ3zoTtL2tD0cUNatk94B1BIp8iJQux-vICUZu2Oi67khklIn2aeRo-LzJYFKteoO50nqXewHKso0OZzDcnXS5iDposbCp5bah"/>
+<div class="flex items-center gap-xs min-w-0">
+<span class="text-body-sm text-on-surface-variant truncate">نور للتصميم</span>
+<span class="material-symbols-outlined text-secondary text-[14px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Tile 4 -->
+<article class="flex flex-col gap-sm">
+<div class="relative aspect-square rounded-2xl overflow-hidden group">
+<img alt="Jewelry" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="A stunning gold necklace with a delicate geometric pendant, displayed on a dark navy velvet bust. The jewelry is intricate and reflects a modern interpretation of traditional patterns. High-key lighting makes the gold sparkle. The aesthetic is extremely premium, targeted at luxury shoppers." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1Z4HujiUJQzVDxPS83hTTxisEN9yVn3DKyySnQZa4IkjPWiKS0Ep7w3A-XwpOJCW9Wt39WcqijaVbog62pREURIqKTylxRnnX9O9-RmwNTmsfF4e-0xVWCkWKn7phVDVsnk_OdKPNDmbBOai4pO1fV--EBndiRPHCD3jN8yT6705gG1JhMGY1sMDWb1iuqFsnp1x9g275t7jNX2lfovNvz9Y7_Yvef_vpwmgfLqJSFCGbNkc70qGXQx7UL4A-gpbLEAjAKQlm3WYi"/>
+<button class="absolute top-md left-md bg-white/90 p-xs rounded-full shadow-sm text-on-surface active:scale-90 transition-transform">
+<span class="material-symbols-outlined text-[20px]">favorite</span>
+</button>
+</div>
+<div class="flex flex-col">
+<h3 class="text-body-md font-label-md text-on-surface truncate">عقد ذهب عيار 18</h3>
+<p class="text-[17px] font-semibold text-primary mt-1">88.000 د.ك</p>
+<div class="flex items-center gap-sm mt-md">
+<img alt="Vendor" class="w-6 h-6 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDmasgxwUV3PdEwJtTGFUC8-kXLSzdgc3rECYUIlMiX38MrkEPyfm3fZpzH10TPN-DoRDd5chmjtzHHxIVl22XltWVMaQ24Xe0GtGF_c_WEbTCIT9uyD5lr80BXsQmMoWzKu5lDYRQ3ZkSarZRFrAizlQzgwW2RcpKZnbT8qoxpzAi7peGirGOnZPKDIEOr61gL_tPO8l_vgoyBoJ8PMQg45m4abEQyTOODKg5WZXfgdSNTOJM5CFRHOoQW0FZuqIhafKyu949xCcWe"/>
+<div class="flex items-center gap-xs min-w-0">
+<span class="text-body-sm text-on-surface-variant truncate">مجوهرات لؤلؤ</span>
+<span class="material-symbols-outlined text-secondary text-[14px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+</div>
+</div>
+</article>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Bar (As specified in JSON) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-md pb-safe-area pt-sm bg-surface/70 dark:bg-inverse-surface/70 glass-nav border-t border-outline-variant/20 dark:border-outline/10 shadow-sm rounded-t-xl">
+<!-- Home (Active) -->
+<a class="flex flex-col items-center justify-center bg-secondary-container dark:bg-on-secondary-fixed-variant text-on-secondary-container dark:text-secondary-fixed rounded-full px-lg py-xs transition-all duration-300 scale-90" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="text-label-md font-label-md-mobile">Home</span>
+</a>
+<!-- Search -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant px-lg py-xs hover:bg-surface-container-high dark:hover:bg-surface-container-highest rounded-full transition-all" href="#">
+<span class="material-symbols-outlined">search</span>
+<span class="text-label-md font-label-md-mobile">Search</span>
+</a>
+<!-- Favorites -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant px-lg py-xs hover:bg-surface-container-high dark:hover:bg-surface-container-highest rounded-full transition-all" href="#">
+<span class="material-symbols-outlined">favorite</span>
+<span class="text-label-md font-label-md-mobile">Favorites</span>
+</a>
+<!-- Account -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-surface-variant px-lg py-xs hover:bg-surface-container-high dark:hover:bg-surface-container-highest rounded-full transition-all" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-label-md font-label-md-mobile">Account</span>
+</a>
+</nav>
+<script>
+        // Simple scroll behavior for top bar shadow
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 20) {
+                header.classList.add('shadow-md');
+                header.classList.remove('border-b');
+            } else {
+                header.classList.remove('shadow-md');
+                header.classList.add('border-b');
+            }
+        });
+
+        // Click interaction for chips
+        const chips = document.querySelectorAll('section button');
+        chips.forEach(chip => {
+            chip.addEventListener('click', function() {
+                chips.forEach(c => {
+                    c.classList.remove('bg-primary-container', 'text-on-primary-fixed-variant');
+                    c.classList.add('bg-surface-container-high', 'text-on-surface');
+                });
+                this.classList.add('bg-primary-container', 'text-on-primary-fixed-variant');
+                this.classList.remove('bg-surface-container-high', 'text-on-surface');
+            });
+        });
+    </script>
+</body></html>

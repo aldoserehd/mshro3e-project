@@ -1,5 +1,5 @@
-import React from 'react';
-import { ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
+import React, { useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import i18n from '../../locales/i18n';
@@ -7,19 +7,21 @@ import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
 import Button from '../../ui/Button';
 import Card from '../../ui/Card';
-import RatingDots from '../../ui/RatingDots';
 import Avatar from '../../ui/Avatar';
+import PressableScale from '../../ui/PressableScale';
+import ContactSheet from '../../ui/ContactSheet';
 import { useService } from '../../data/hooks';
-import { vendorById } from '../../data/seed';
+import { vendorById, servicesForVendor } from '../../data/seed';
 import { palette, semantic, radius, spacing, shadowStyle, formatPrice, pickLocale } from '../../theme/ts';
 import type { RootStackScreenProps } from '../../navigation/types';
 
-export default function ServiceDetailScreen({ route, navigation }: RootStackScreenProps<'ServiceDetail'>) {
+export default function ProductDetailScreen({ route, navigation }: RootStackScreenProps<'ServiceDetail'>) {
   const { serviceId } = route.params;
-  const { data: service } = useService(serviceId);
+  const { data: product } = useService(serviceId);
   const { width } = useWindowDimensions();
+  const [showContact, setShowContact] = useState(false);
 
-  if (!service) {
+  if (!product) {
     return (
       <Screen>
         <View style={styles.notFound}>
@@ -28,128 +30,174 @@ export default function ServiceDetailScreen({ route, navigation }: RootStackScre
       </Screen>
     );
   }
-  const vendor = vendorById(service.vendorId);
+
+  const vendor = vendorById(product.vendorId);
+  const more = vendor ? servicesForVendor(vendor.id).filter((s) => s.id !== product.id).slice(0, 6) : [];
+  const prepHours = Math.round(product.durationMinutes / 60);
 
   return (
     <Screen>
       <ScrollView contentContainerStyle={{ paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
         <View>
-          <Image
-            source={{ uri: service.images[0] }}
-            style={{ width, height: width * 0.6 }}
-            contentFit="cover"
-            transition={200}
-          />
-          <View style={styles.backBtn}>
-            <Ionicons
-              name="chevron-back"
-              size={22}
-              color={palette.navy900}
-              onPress={() => navigation.goBack()}
-              suppressHighlighting
-            />
-          </View>
+          <Image source={{ uri: product.images[0] }} style={{ width, height: width * 0.95 }} contentFit="cover" />
+          <Pressable onPress={() => navigation.goBack()} style={[styles.iconBtn, { top: spacing.s5, end: spacing.s4 }]}>
+            <Ionicons name="arrow-back" size={20} color={palette.navy900} style={{ transform: [{ scaleX: -1 }] }} />
+          </Pressable>
+          <Pressable style={[styles.iconBtn, { top: spacing.s5, start: spacing.s4 }]}>
+            <Ionicons name="heart-outline" size={20} color={palette.navy900} />
+          </Pressable>
         </View>
 
         <View style={styles.body}>
-          <View style={styles.titleRow}>
-            <Text variant="pageTitle" style={{ flex: 1 }} numberOfLines={2}>
-              {pickLocale(service.title)}
-            </Text>
-            <Text variant="pageTitle" color={palette.navy900}>
-              {formatPrice(service.price, service.currency)}
-            </Text>
-          </View>
-
-          <View style={styles.metaRow}>
-            <View style={styles.chip}>
-              <Ionicons name="time-outline" size={14} color={palette.navy700} />
-              <Text variant="label" color={palette.navy700} style={{ marginStart: 4 }}>
-                {service.durationMinutes} {i18n.t('common.min')}
-              </Text>
-            </View>
-            {vendor && (
-              <View style={styles.chip}>
-                <Ionicons name="star" size={14} color="#F0B400" />
-                <Text variant="label" color={palette.navy700} style={{ marginStart: 4 }}>
-                  {vendor.rating.toFixed(1)} · {vendor.reviewCount}
-                </Text>
-              </View>
-            )}
-          </View>
-
-          {service.description && (
-            <View style={{ marginTop: spacing.s4 }}>
-              <Text variant="sectionTitle" style={{ marginBottom: spacing.s2 }}>
-                {i18n.t('service.about')}
-              </Text>
-              <Text variant="body" color={palette.neutral900}>
-                {pickLocale(service.description)}
-              </Text>
-            </View>
-          )}
-
           {vendor && (
-            <Card style={[styles.vendorCard, { marginTop: spacing.s5 }]}>
-              <Avatar
-                source={vendor.logoImage}
-                name={pickLocale(vendor.name)}
-                size={48}
-              />
+            <Card style={styles.vendorCard}>
+              <Avatar source={vendor.logoImage} name={pickLocale(vendor.name)} size={44} />
               <View style={{ flex: 1, marginStart: spacing.s3 }}>
-                <Text variant="cardTitle">{pickLocale(vendor.name)}</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                  <Text variant="cardTitle" numberOfLines={1}>{pickLocale(vendor.name)}</Text>
+                  {vendor.verifiedAt && (
+                    <Ionicons name="checkmark-circle" size={14} color={palette.navy600} />
+                  )}
+                </View>
                 <Text variant="caption" color={palette.neutral500}>
                   {vendor.address ? pickLocale(vendor.address) : ''}
                 </Text>
               </View>
-              <Ionicons name="chevron-back" size={18} color={palette.neutral500} style={{ transform: [{ scaleX: -1 }] }} />
+              <View style={styles.fastPill}>
+                <Ionicons name="flash" size={12} color="#2E7D45" />
+                <Text variant="microcopy" color="#2E7D45" style={{ marginStart: 4 }}>
+                  {i18n.t('vendor.fastDelivery')}
+                </Text>
+              </View>
             </Card>
+          )}
+
+          <View style={styles.titleRow}>
+            <Text variant="pageTitle" style={{ flex: 1 }} numberOfLines={2}>
+              {pickLocale(product.title)}
+            </Text>
+            <Text variant="pageTitle" color={palette.navy900}>
+              {formatPrice(product.price, product.currency)}
+            </Text>
+          </View>
+
+          {product.description && (
+            <Text variant="body" color={palette.neutral900} style={{ marginTop: spacing.s3 }}>
+              {pickLocale(product.description)}
+            </Text>
+          )}
+
+          {prepHours > 0 && (
+            <View style={styles.metaRow}>
+              <View style={styles.metaPill}>
+                <Ionicons name="resize-outline" size={14} color={palette.navy700} />
+                <Text variant="label" color={palette.navy700} style={{ marginStart: 4 }}>
+                  {i18n.t('product.sizeFor', { n: '10' })}
+                </Text>
+              </View>
+              <View style={styles.metaPill}>
+                <Ionicons name="time-outline" size={14} color={palette.navy700} />
+                <Text variant="label" color={palette.navy700} style={{ marginStart: 4 }}>
+                  {i18n.t('product.hours', { n: String(prepHours) })}
+                </Text>
+              </View>
+            </View>
+          )}
+
+          {more.length > 0 && (
+            <>
+              <View style={styles.sectionHeader}>
+                <Text variant="sectionTitle">{i18n.t('vendor.moreFromVendor')}</Text>
+                {vendor && (
+                  <Pressable onPress={() => navigation.navigate('VendorProfile', { vendorId: vendor.id })}>
+                    <Text variant="label" color={palette.navy600}>{i18n.t('common.seeAll')}</Text>
+                  </Pressable>
+                )}
+              </View>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: spacing.s3 }}>
+                {more.map((p) => (
+                  <PressableScale key={p.id} onPress={() => navigation.replace('ServiceDetail', { serviceId: p.id })}>
+                    <View style={styles.moreTile}>
+                      <Image source={{ uri: p.images[0] }} style={styles.moreImg} contentFit="cover" />
+                      <Text variant="label" numberOfLines={1} style={{ marginTop: 6 }}>
+                        {pickLocale(p.title)}
+                      </Text>
+                      <Text variant="cardTitle" color={palette.navy900}>
+                        {formatPrice(p.price, p.currency)}
+                      </Text>
+                    </View>
+                  </PressableScale>
+                ))}
+              </ScrollView>
+            </>
           )}
         </View>
       </ScrollView>
 
-      <View style={styles.bookBar}>
-        <View>
-          <Text variant="caption" color={palette.neutral500}>
-            {i18n.t('service.total')}
-          </Text>
-          <Text variant="pageTitle">{formatPrice(service.price, service.currency)}</Text>
-        </View>
-        {/* TODO Phase 1: replace booking CTA with WhatsApp deep-link to vendor */}
+      <View style={styles.footer}>
         <Button
-          title={i18n.t('service.bookNow')}
-          onPress={() => navigation.goBack()}
-          style={{ minWidth: 160 }}
+          title={i18n.t('product.contactWhatsapp')}
+          onPress={() => setShowContact(true)}
+          icon="logo-whatsapp"
+          style={{ flex: 1 }}
+        />
+        <View style={{ width: spacing.s2 }} />
+        <Button
+          title={i18n.t('product.messageInApp')}
+          variant="ghost"
+          onPress={() => setShowContact(true)}
+          style={{ flex: 1 }}
         />
       </View>
+
+      {vendor && (
+        <ContactSheet
+          visible={showContact}
+          onClose={() => setShowContact(false)}
+          product={product}
+          vendor={vendor}
+        />
+      )}
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
   notFound: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  backBtn: {
-    position: 'absolute', top: spacing.s5, start: spacing.s4,
-    width: 40, height: 40, borderRadius: 20,
-    backgroundColor: 'rgba(255,255,255,0.92)',
+  iconBtn: {
+    position: 'absolute',
+    width: 40, height: 40, borderRadius: 999,
+    backgroundColor: 'rgba(255,255,255,0.94)',
     alignItems: 'center', justifyContent: 'center',
     ...shadowStyle(2),
   },
   body: { padding: spacing.s5 },
-  titleRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.s3 },
-  metaRow: { flexDirection: 'row', gap: spacing.s2, marginTop: spacing.s3 },
-  chip: {
+  vendorCard: { flexDirection: 'row', alignItems: 'center', padding: spacing.s3, marginBottom: spacing.s4 },
+  fastPill: {
     flexDirection: 'row', alignItems: 'center',
-    backgroundColor: palette.navy100, paddingHorizontal: spacing.s3, paddingVertical: 6,
+    backgroundColor: '#E8F3EC',
+    paddingHorizontal: spacing.s2, paddingVertical: 4,
     borderRadius: 999,
   },
-  vendorCard: { flexDirection: 'row', alignItems: 'center', padding: spacing.s3 },
-  bookBar: {
+  titleRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.s3 },
+  metaRow: { flexDirection: 'row', gap: spacing.s2, marginTop: spacing.s4 },
+  metaPill: {
+    flexDirection: 'row', alignItems: 'center',
+    backgroundColor: palette.navy100,
+    paddingHorizontal: spacing.s3, paddingVertical: 6,
+    borderRadius: 999,
+  },
+  sectionHeader: {
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    marginTop: spacing.s5, marginBottom: spacing.s3,
+  },
+  moreTile: { width: 130, gap: 4 },
+  moreImg: { width: 130, height: 130, borderRadius: radius.lg, backgroundColor: palette.navy100 },
+  footer: {
     position: 'absolute', start: 0, end: 0, bottom: 0,
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    backgroundColor: semantic.surface,
+    flexDirection: 'row',
     paddingHorizontal: spacing.s5, paddingTop: spacing.s3, paddingBottom: spacing.s5,
+    backgroundColor: semantic.surface,
     borderTopWidth: 1, borderTopColor: palette.neutral200,
-    gap: spacing.s4,
   },
 });

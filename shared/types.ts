@@ -79,6 +79,7 @@ export interface Category {
   id: ID;
   name: LocalizedString;
   icon: string;          // ionicons / material name
+  emoji?: string;        // displayed in chips/rails
   slug: string;
   order: number;
   parentId?: ID;

@@ -55,7 +55,7 @@ export default function OnboardingScreen({ navigation }: RootStackScreenProps<'O
   const skip = () => navigation.replace('PhoneEntry');
 
   return (
-    <Screen background={semantic.bg}>
+    <Screen background={palette.navy900}>
       <View style={styles.topBar}>
         <Button title={i18n.t('onboarding.skip')} variant="ghost" size="sm" onPress={skip} />
       </View>
@@ -79,12 +79,12 @@ export default function OnboardingScreen({ navigation }: RootStackScreenProps<'O
                 resizeMode="contain"
               />
             </View>
-            <Text variant="pageTitle" weight="700" align="center" style={styles.title}>
+            <Text variant="pageTitle" weight="700" color={palette.white} align="center" style={styles.title}>
               {i18n.t(item.title)}
             </Text>
             <Text
               variant="body"
-              color={palette.neutral500}
+              color={palette.navy300}
               align="center"
               style={styles.body}
             >
@@ -99,7 +99,7 @@ export default function OnboardingScreen({ navigation }: RootStackScreenProps<'O
             key={i}
             style={[
               styles.dot,
-              { backgroundColor: i === index ? palette.navy900 : palette.navy200, width: i === index ? 24 : 8 },
+              { backgroundColor: i === index ? palette.white : palette.navy600, width: i === index ? 24 : 8 },
             ]}
           />
         ))}

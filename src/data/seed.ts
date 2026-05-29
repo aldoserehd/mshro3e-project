@@ -1,9 +1,6 @@
 /**
- * Kuwait-themed mock data. Same shape as Firestore docs will return later
- * so swapping is zero-touch via src/data/hooks.ts.
- *
- * Currency: KWD. Phone: +965 5XXXXXXX. Areas: Salmiya, Hawalli, Jabriya,
- * Farwaniya, Mishref, Fintas, Adailiya, Kuwait City.
+ * Kuwait home-business marketplace mock data.
+ * Service type is reused as "Product" — durationMinutes acts as prep-time hours.
  */
 import type {
   Category,
@@ -24,231 +21,143 @@ const u = (id: string, w = 1200) =>
   `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&q=80`;
 
 export const categories: Category[] = [
-  { id: 'cat-salons',       name: { ar: 'صالونات',         en: 'Salons' },        icon: 'cut-outline',         slug: 'salons',       order: 1 },
-  { id: 'cat-hospitality',  name: { ar: 'ضيافة وطعام',     en: 'Food' },          icon: 'restaurant-outline',  slug: 'hospitality',  order: 2 },
-  { id: 'cat-cleaning',     name: { ar: 'تنظيف',           en: 'Cleaning' },      icon: 'sparkles-outline',    slug: 'cleaning',     order: 3 },
-  { id: 'cat-maintenance',  name: { ar: 'صيانة',           en: 'Maintenance' },   icon: 'construct-outline',   slug: 'maintenance',  order: 4 },
-  { id: 'cat-tutoring',     name: { ar: 'دروس خصوصية',     en: 'Tutoring' },      icon: 'school-outline',      slug: 'tutoring',     order: 5 },
+  { id: 'cat-bakery',   emoji: '🧁', name: { ar: 'مخبوزات وحلويات', en: 'Bakes & sweets' },    icon: 'cafe-outline',         slug: 'bakery',   order: 1 },
+  { id: 'cat-perfumes', emoji: '🌹', name: { ar: 'عطور وبخور',       en: 'Perfumes & bukhoor' }, icon: 'sparkles-outline',     slug: 'perfumes', order: 2 },
+  { id: 'cat-jewelry',  emoji: '💍', name: { ar: 'مجوهرات',          en: 'Jewelry' },           icon: 'diamond-outline',      slug: 'jewelry',  order: 3 },
+  { id: 'cat-clothing', emoji: '👗', name: { ar: 'ملابس وعبايات',    en: 'Clothing' },          icon: 'shirt-outline',        slug: 'clothing', order: 4 },
+  { id: 'cat-beauty',   emoji: '💄', name: { ar: 'جمال وعناية',      en: 'Beauty & care' },     icon: 'flower-outline',       slug: 'beauty',   order: 5 },
+  { id: 'cat-decor',    emoji: '🏠', name: { ar: 'ديكور المنزل',     en: 'Home decor' },        icon: 'bed-outline',          slug: 'decor',    order: 6 },
+  { id: 'cat-kids',     emoji: '👶', name: { ar: 'أطفال ومواليد',    en: 'Kids & babies' },     icon: 'happy-outline',        slug: 'kids',     order: 7 },
+  { id: 'cat-art',      emoji: '🎨', name: { ar: 'فن ومطبوعات',      en: 'Art & prints' },      icon: 'color-palette-outline',slug: 'art',      order: 8 },
+  { id: 'cat-plants',   emoji: '🪴', name: { ar: 'نباتات',           en: 'Plants' },            icon: 'leaf-outline',         slug: 'plants',   order: 9 },
+  { id: 'cat-pets',     emoji: '🐾', name: { ar: 'حيوانات أليفة',    en: 'Pets' },              icon: 'paw-outline',          slug: 'pets',     order: 10 },
+  { id: 'cat-gifts',    emoji: '🎁', name: { ar: 'هدايا ومناسبات',   en: 'Gifts & occasions' }, icon: 'gift-outline',         slug: 'gifts',    order: 11 },
 ];
 
-const stdHours = {
-  0: [{ open: '10:00', close: '23:00' }], // Sun
-  1: [{ open: '10:00', close: '23:00' }], // Mon
-  2: [{ open: '10:00', close: '23:00' }], // Tue
-  3: [{ open: '10:00', close: '23:00' }], // Wed
-  4: [{ open: '10:00', close: '23:00' }], // Thu
-  5: [{ open: '14:00', close: '00:00' }], // Fri
-  6: [{ open: '10:00', close: '23:00' }], // Sat
+const std = {
+  0: [{ open: '10:00', close: '22:00' }],
+  1: [{ open: '10:00', close: '22:00' }],
+  2: [{ open: '10:00', close: '22:00' }],
+  3: [{ open: '10:00', close: '22:00' }],
+  4: [{ open: '10:00', close: '22:00' }],
+  5: [{ open: '14:00', close: '00:00' }],
+  6: [{ open: '10:00', close: '22:00' }],
 };
 
-export const vendors: Vendor[] = [
-  {
-    id: 'v-salmiya-cuts',
-    ownerUid: 'u-1',
-    name: { ar: 'صالون السالمية للحلاقة', en: 'Salmiya Cuts' },
-    slug: 'salmiya-cuts',
-    bio: {
-      ar: 'صالون رجالي بقصّات عصرية وحلاقة دقيقة. ١٠ سنوات في السالمية.',
-      en: 'Modern barbershop with precise cuts. 10 years in Salmiya.',
-    },
-    coverImage: u('1521590832167-7bcbfaa6381f'),
-    logoImage: logoFor('Salmiya Cuts'),
-    categoryIds: ['cat-salons'],
-    location: { lat: 29.3338, lng: 48.0728 },
-    address: { ar: 'السالمية، شارع سالم المبارك', en: 'Salmiya, Salem Al Mubarak St.' },
-    phone: '+96550000001',
-    whatsapp: '+96550000001',
-    workingHours: stdHours,
-    rating: 4.8, reviewCount: 312, status: 'active',
-    verifiedAt: now - 60 * DAY, createdAt: now - 400 * DAY, updatedAt: now - 2 * HOUR,
-  },
-  {
-    id: 'v-bayt-kuwait',
-    ownerUid: 'u-2',
-    name: { ar: 'مطعم بيت الكويت', en: 'Bayt Al Kuwait' },
-    slug: 'bayt-al-kuwait',
-    bio: {
-      ar: 'مأكولات كويتية أصيلة: مجبوس، مرقوق، جريش. توصيل سريع داخل الكويت.',
-      en: 'Authentic Kuwaiti dishes: machboos, margoog, jireesh. Fast delivery.',
-    },
-    coverImage: u('1555939594-58d7cb561ad1'),
-    logoImage: logoFor('Bayt Kuwait'),
-    categoryIds: ['cat-hospitality'],
-    location: { lat: 29.3759, lng: 47.9774 },
-    address: { ar: 'الكويت العاصمة، شارع فهد السالم', en: 'Kuwait City, Fahad Al Salem St.' },
-    phone: '+96550000002', whatsapp: '+96550000002',
-    workingHours: stdHours,
-    rating: 4.9, reviewCount: 528, status: 'active',
-    verifiedAt: now - 90 * DAY, createdAt: now - 500 * DAY, updatedAt: now - 18 * MIN,
-  },
-  {
-    id: 'v-fintas-laundry',
-    ownerUid: 'u-3',
-    name: { ar: 'مغسلة الفنطاس', en: 'Fintas Laundry' },
-    slug: 'fintas-laundry',
-    bio: {
-      ar: 'غسيل وكوي بنفس اليوم. استلام وتوصيل مجاني داخل المنطقة.',
-      en: 'Same-day wash & press. Free pickup & delivery within the area.',
-    },
-    coverImage: u('1582719478250-c89cae4dc85b'),
-    logoImage: logoFor('Fintas Laundry'),
-    categoryIds: ['cat-cleaning'],
-    location: { lat: 29.1758, lng: 48.1208 },
-    address: { ar: 'الفنطاس، قطعة ٥', en: 'Fintas, Block 5' },
-    phone: '+96550000003', whatsapp: '+96550000003',
-    workingHours: stdHours,
-    rating: 4.6, reviewCount: 184, status: 'active',
-    verifiedAt: now - 40 * DAY, createdAt: now - 300 * DAY, updatedAt: now - 45 * MIN,
-  },
-  {
-    id: 'v-ac-fast-kw',
-    ownerUid: 'u-4',
-    name: { ar: 'صيانة المكيفات السريعة', en: 'Fast AC Service' },
-    slug: 'fast-ac-kw',
-    bio: {
-      ar: 'فنّيون معتمدون لصيانة وتنظيف وتركيب المكيفات. حضور خلال ساعة في الفروانية وحولي.',
-      en: 'Certified AC techs. On-site within 1 hour in Farwaniya & Hawalli.',
-    },
-    coverImage: u('1581094794329-c8112a89af12'),
-    logoImage: logoFor('Fast AC'),
-    categoryIds: ['cat-maintenance'],
-    location: { lat: 29.2787, lng: 47.9586 },
-    address: { ar: 'الفروانية، قطعة ٣', en: 'Farwaniya, Block 3' },
-    phone: '+96560000001', whatsapp: '+96560000001',
-    workingHours: stdHours,
-    rating: 4.5, reviewCount: 96, status: 'active',
-    verifiedAt: now - 30 * DAY, createdAt: now - 250 * DAY, updatedAt: now - 5 * MIN,
-  },
-  {
-    id: 'v-lamsat-aldahab',
-    ownerUid: 'u-5',
-    name: { ar: 'كوافير لمسة الذهب', en: 'Lamsat Al Dahab' },
-    slug: 'lamsat-al-dahab',
-    bio: {
-      ar: 'صالون نسائي راقي في حولي. صبغة، تسريحات مناسبات، وعناية شعر.',
-      en: 'Upscale women\'s salon in Hawalli. Coloring, event styling, hair care.',
-    },
-    coverImage: u('1560066984-138dadb4c035'),
-    logoImage: logoFor('Lamsat Al Dahab'),
-    categoryIds: ['cat-salons'],
-    location: { lat: 29.3357, lng: 48.0292 },
-    address: { ar: 'حولي، شارع تونس', en: 'Hawalli, Tunis St.' },
-    phone: '+96550000005', whatsapp: '+96550000005',
-    workingHours: stdHours,
-    rating: 4.9, reviewCount: 412, status: 'active',
-    verifiedAt: now - 120 * DAY, createdAt: now - 600 * DAY, updatedAt: now - 30 * MIN,
-  },
-  {
-    id: 'v-najah-academy',
-    ownerUid: 'u-6',
-    name: { ar: 'أكاديمية النجاح', en: 'Najah Academy' },
-    slug: 'najah-academy',
-    bio: {
-      ar: 'دروس خصوصية للمتوسط والثانوي والجامعي. رياضيات، فيزياء، إنجليزي.',
-      en: 'Tutoring for middle, high school, and university. Math, physics, English.',
-    },
-    coverImage: u('1503676260728-1c00da094a0b'),
-    logoImage: logoFor('Najah Academy'),
-    categoryIds: ['cat-tutoring'],
-    location: { lat: 29.3148, lng: 48.0303 },
-    address: { ar: 'الجابرية، قطعة ٧', en: 'Jabriya, Block 7' },
-    phone: '+96599000001', whatsapp: '+96599000001',
-    workingHours: stdHours,
-    rating: 4.7, reviewCount: 142, status: 'active',
-    verifiedAt: now - 75 * DAY, createdAt: now - 350 * DAY, updatedAt: now - 3 * HOUR,
-  },
-  {
-    id: 'v-mishref-clean',
-    ownerUid: 'u-7',
-    name: { ar: 'تنظيف مشرف الشامل', en: 'Mishref Full Cleaning' },
-    slug: 'mishref-cleaning',
-    bio: {
-      ar: 'تنظيف شامل للبيوت والشقق والشاليهات. فريق نسائي وفريق رجالي.',
-      en: 'Deep cleaning for homes, apartments, and chalets. Both crews available.',
-    },
-    coverImage: u('1581578731548-c64695cc6952'),
-    logoImage: logoFor('Mishref Clean'),
-    categoryIds: ['cat-cleaning'],
-    location: { lat: 29.2956, lng: 48.0683 },
-    address: { ar: 'مشرف، قطعة ١', en: 'Mishref, Block 1' },
-    phone: '+96550000007', whatsapp: '+96550000007',
-    workingHours: stdHours,
-    rating: 4.4, reviewCount: 78, status: 'active',
-    verifiedAt: now - 20 * DAY, createdAt: now - 180 * DAY, updatedAt: now - 70 * MIN,
-  },
-  {
-    id: 'v-diwaniya-grill',
-    ownerUid: 'u-8',
-    name: { ar: 'مشاوي الديوانية', en: 'Diwaniya Grill' },
-    slug: 'diwaniya-grill',
-    bio: {
-      ar: 'مشاوي على الفحم: تكة، كباب، شيش طاووق. توصيل سريع.',
-      en: 'Charcoal grills: tikka, kebab, shish tawook. Fast delivery.',
-    },
-    coverImage: u('1555939594-58d7cb561ad1', 800),
-    logoImage: logoFor('Diwaniya Grill'),
-    categoryIds: ['cat-hospitality'],
-    location: { lat: 29.3503, lng: 47.9636 },
-    address: { ar: 'العديلية، شارع ٣', en: 'Adailiya, Street 3' },
-    phone: '+96560000008', whatsapp: '+96560000008',
-    workingHours: stdHours,
-    rating: 4.6, reviewCount: 234, status: 'active',
-    verifiedAt: now - 50 * DAY, createdAt: now - 280 * DAY, updatedAt: now - 8 * MIN,
-  },
-];
+const vendor = (
+  id: string,
+  ownerUid: string,
+  nameAr: string,
+  nameEn: string,
+  handle: string,
+  bioAr: string,
+  bioEn: string,
+  catId: string,
+  area: string,
+  coverId: string,
+  rating: number,
+  reviewCount: number,
+  tier: 'basic' | 'pro' | 'managed',
+): Vendor => ({
+  id,
+  ownerUid,
+  name: { ar: nameAr, en: nameEn },
+  slug: handle,
+  handle,
+  bio: { ar: bioAr, en: bioEn },
+  coverImage: u(coverId),
+  logoImage: logoFor(nameEn),
+  categoryIds: [catId],
+  location: { lat: 29.3338, lng: 48.0728 },
+  address: { ar: `${area}، الكويت`, en: `${area}, Kuwait` },
+  governorate: 'capital',
+  phone: '+96550000001',
+  whatsapp: '+96550000001',
+  workingHours: std,
+  rating,
+  reviewCount,
+  status: 'active',
+  tier,
+  verifiedAt: now - 60 * DAY,
+  createdAt: now - 200 * DAY,
+  updatedAt: now - 2 * HOUR,
+});
 
-const sImg = [
-  u('1562322140-8baeececf3df'),
-  u('1599351431202-1e0f0137899a'),
-  u('1503951914875-452162b0f3f1'),
-  u('1521590832167-7bcbfaa6381f'),
+export const vendors: Vendor[] = [
+  vendor('v-boutique-bakery',  'u-1', 'بوتيك بيكري',         'Boutique Bakery',    'boutique.bakery',  'حلويات وكيك مناسبات بلمسة فاخرة، صنع كويتي.',  'Artisan bakes and event cakes, made in Kuwait.', 'cat-bakery',   'العقيلة',  '1542826438-bd32f43d626f', 4.9, 312, 'pro'),
+  vendor('v-salmiya-oud',      'u-2', 'عود السالمية',        'Salmiya Oud',        'salmiya.oud',      'عود وبخور وعطور شرقية فاخرة.',                  'Premium oud, bukhoor and oriental perfumes.',     'cat-perfumes', 'السالمية', '1592945403244-b3fbafd7f539', 4.8, 184, 'pro'),
+  vendor('v-noor-jewelry',     'u-3', 'مجوهرات نور',          'Noor Jewelry',       'noor.jewelry',     'مجوهرات يدوية الصنع بتصاميم كويتية.',           'Handmade jewelry with Kuwaiti design.',           'cat-jewelry',  'حولي',     '1515562141207-7a88fb7ce338', 4.9, 412, 'pro'),
+  vendor('v-haya-abaya',       'u-4', 'هيا للعبايات',         'Haya Abayas',        'haya.abaya',       'عبايات تصاميم خاصة بقياسات مفصّلة.',           'Custom abayas tailored to your measurements.',    'cat-clothing', 'الجابرية', '1583391733956-3e0a91c5d9c5', 4.7, 96,  'basic'),
+  vendor('v-bayt-decor',       'u-5', 'بيت الديكور',          'Bayt Decor',         'bayt.decor',       'سيراميك ومنحوتات يدوية لتزيين بيتك.',          'Handmade ceramics and decor for your home.',      'cat-decor',    'مشرف',     '1556909114-f6e7ad7d3136', 4.8, 142, 'managed'),
+  vendor('v-rose-beauty',      'u-6', 'روز للتجميل',          'Rose Beauty',        'rose.beauty',      'منتجات عناية بالبشرة بمكونات طبيعية.',         'Natural skincare from a Kuwaiti studio.',         'cat-beauty',   'الفنطاس',  '1612817288484-6f916006741a', 4.6, 78,  'basic'),
+  vendor('v-little-things',    'u-7', 'لتل ثنغز',             'Little Things',      'little.things',    'هدايا وألعاب أطفال بصنع منزلي.',               'Handmade gifts and toys for kids.',               'cat-kids',     'بيان',     '1605664041952-4a2855d6e8b4', 4.8, 56,  'basic'),
+  vendor('v-khat-arabia',      'u-8', 'خط العربية',           'Khat Arabia',        'khat.arabia',      'لوحات خط عربي وحروف ديكور مخصصة.',            'Custom Arabic calligraphy art prints.',           'cat-art',      'السالمية', '1565647952915-15d8c5e2e3df', 4.9, 224, 'pro'),
 ];
 
 const KWD = 'KWD';
 
+const product = (
+  id: string,
+  vendorId: string,
+  titleAr: string,
+  titleEn: string,
+  price: number,
+  imgId: string,
+  categoryId: string,
+  descAr?: string,
+  descEn?: string,
+  prepHours = 24,
+): Service => ({
+  id,
+  vendorId,
+  title: { ar: titleAr, en: titleEn },
+  description: descAr ? { ar: descAr, en: descEn ?? descAr } : undefined,
+  images: [u(imgId)],
+  price,
+  currency: KWD,
+  durationMinutes: prepHours * 60,
+  categoryIds: [categoryId],
+  active: true,
+  createdAt: now - 60 * DAY,
+});
+
 export const services: Service[] = [
-  // Salmiya Cuts (4)
-  { id: 's-1',  vendorId: 'v-salmiya-cuts', title: { ar: 'قصّة شعر كلاسيكية',  en: 'Classic haircut' }, description: { ar: 'قصّ احترافي مع غسيل وتجفيف.',           en: 'Pro haircut, wash & blow dry.' },               images: [sImg[3]], price: 5,  currency: KWD, durationMinutes: 45, categoryIds: ['cat-salons'],     active: true, createdAt: now - 100 * DAY },
-  { id: 's-2',  vendorId: 'v-salmiya-cuts', title: { ar: 'حلاقة لحية ديلوكس',   en: 'Deluxe beard shave' }, description: { ar: 'منشفة ساخنة وزيوت مرطّبة.',           en: 'Hot towel + conditioning oils.' },              images: [sImg[3]], price: 7,  currency: KWD, durationMinutes: 40, categoryIds: ['cat-salons'],     active: true, createdAt: now - 90 * DAY },
-  { id: 's-3',  vendorId: 'v-salmiya-cuts', title: { ar: 'صبغة شعر',             en: 'Hair coloring' }, description: { ar: 'صبغة احترافية بألوان متعددة.',         en: 'Pro coloring, multiple shades.' },              images: [sImg[0]], price: 18, currency: KWD, durationMinutes: 90, categoryIds: ['cat-salons'],     active: true, createdAt: now - 80 * DAY },
-  { id: 's-4',  vendorId: 'v-salmiya-cuts', title: { ar: 'باقة العريس',          en: 'Groom package' }, description: { ar: 'قصّ، حلاقة، وغسيل وجه.',                 en: 'Cut, shave, and facial.' },                      images: [sImg[0]], price: 28, currency: KWD, durationMinutes: 120, categoryIds: ['cat-salons'],    active: true, createdAt: now - 70 * DAY },
+  // Boutique Bakery
+  product('p-bb-1', 'v-boutique-bakery', 'كيكة زعفران فاخرة',   'Luxury Saffron Cake',  15,    '1542826438-bd32f43d626f', 'cat-bakery', 'كيكة الزعفران الفاخرة محضّرة يدوياً بمكونات عالية الجودة. تنزّل قلوبها أعلى المخبوزات معاكم.', 'A luxury saffron cake, handmade with premium ingredients. Serves 10.', 24),
+  product('p-bb-2', 'v-boutique-bakery', 'كيكة فستق وردي',      'Rose Pistachio Cake',  8,     '1565958011703-44f9829ba187', 'cat-bakery', undefined, undefined, 24),
+  product('p-bb-3', 'v-boutique-bakery', 'كيكة الشوكولاتة',     'Chocolate Fudge Cake', 12.5,  '1606313564200-e75d5e30476c', 'cat-bakery', undefined, undefined, 24),
+  product('p-bb-4', 'v-boutique-bakery', 'عبوة كوكيز مشكّلة',   'Assorted Cookies Box', 6,     '1499636136210-6f4ee915583e', 'cat-bakery', undefined, undefined, 12),
 
-  // Bayt Al Kuwait (4)
-  { id: 's-5',  vendorId: 'v-bayt-kuwait',   title: { ar: 'مجبوس لحم لـ ٤ أشخاص', en: 'Lamb machboos for 4' }, description: { ar: 'مجبوس لحم كامل مع أرز وسلطة.',          en: 'Full lamb machboos with rice & salad.' },       images: [u('1555939594-58d7cb561ad1')], price: 22, currency: KWD, durationMinutes: 60, categoryIds: ['cat-hospitality'], active: true, createdAt: now - 60 * DAY },
-  { id: 's-6',  vendorId: 'v-bayt-kuwait',   title: { ar: 'مرقوق دجاج',            en: 'Chicken margoog' }, description: { ar: 'مرقوق على الطريقة الكويتية.',          en: 'Authentic Kuwaiti chicken margoog.' },          images: [u('1555939594-58d7cb561ad1')], price: 5,  currency: KWD, durationMinutes: 45, categoryIds: ['cat-hospitality'], active: true, createdAt: now - 55 * DAY },
-  { id: 's-7',  vendorId: 'v-bayt-kuwait',   title: { ar: 'جريش حلو',              en: 'Sweet jireesh' }, description: { ar: 'جريش بنكهة القرفة والهيل.',             en: 'Cinnamon-cardamom sweet jireesh.' },            images: [u('1555939594-58d7cb561ad1')], price: 9,  currency: KWD, durationMinutes: 75, categoryIds: ['cat-hospitality'], active: true, createdAt: now - 50 * DAY },
-  { id: 's-8',  vendorId: 'v-bayt-kuwait',   title: { ar: 'وجبة عزيمة لـ ١٠ أشخاص', en: 'Group platter for 10' }, description: { ar: 'مجبوس + سلطة + حلو + ماء.',         en: 'Machboos + salad + dessert + water.' },         images: [u('1555939594-58d7cb561ad1')], price: 55, currency: KWD, durationMinutes: 90, categoryIds: ['cat-hospitality'], active: true, createdAt: now - 45 * DAY },
+  // Salmiya Oud
+  product('p-so-1', 'v-salmiya-oud',     'دهن العود فاخر 6 مل', 'Premium Oud Oil 6ml',  45,    '1592945403244-b3fbafd7f539', 'cat-perfumes', undefined, undefined, 1),
+  product('p-so-2', 'v-salmiya-oud',     'بخور الفخر',           'Royal Bukhoor',        25,    '1599948128020-9a44505b58da', 'cat-perfumes', undefined, undefined, 1),
+  product('p-so-3', 'v-salmiya-oud',     'عطر مسك المساء',       'Misk Evening Perfume', 18,    '1574494661395-9b3b32fbc7c0', 'cat-perfumes', undefined, undefined, 1),
 
-  // Fintas Laundry (3)
-  { id: 's-9',  vendorId: 'v-fintas-laundry', title: { ar: 'غسيل وكوي ١٠ قطع',     en: 'Wash & press 10 items' }, description: { ar: 'استلام وتوصيل مجاني.',                  en: 'Free pickup & delivery.' },                     images: [u('1582719478250-c89cae4dc85b')], price: 4,  currency: KWD, durationMinutes: 1440, categoryIds: ['cat-cleaning'], active: true, createdAt: now - 60 * DAY },
-  { id: 's-10', vendorId: 'v-fintas-laundry', title: { ar: 'تنظيف عبايات وثياب رسمية', en: 'Formal wear cleaning' }, description: { ar: 'بخار خاص للأقمشة الحساسة.',          en: 'Steam clean for delicate fabrics.' },           images: [u('1582719478250-c89cae4dc85b')], price: 3,  currency: KWD, durationMinutes: 1440, categoryIds: ['cat-cleaning'], active: true, createdAt: now - 55 * DAY },
-  { id: 's-11', vendorId: 'v-fintas-laundry', title: { ar: 'سجاد ٢×٣',              en: 'Carpet 2×3m' }, description: { ar: 'تنظيف عميق وإزالة بقع.',                  en: 'Deep clean and stain removal.' },               images: [u('1582719478250-c89cae4dc85b')], price: 8,  currency: KWD, durationMinutes: 1440, categoryIds: ['cat-cleaning'], active: true, createdAt: now - 50 * DAY },
+  // Noor Jewelry
+  product('p-nj-1', 'v-noor-jewelry',    'قلادة ذهب 18',        'Gold Necklace 18k',    88,    '1515562141207-7a88fb7ce338', 'cat-jewelry', undefined, undefined, 48),
+  product('p-nj-2', 'v-noor-jewelry',    'خاتم لؤلؤ كويتي',     'Kuwaiti Pearl Ring',   45,    '1606760227091-3dd870d97f1d', 'cat-jewelry', undefined, undefined, 48),
+  product('p-nj-3', 'v-noor-jewelry',    'سوار مينا',           'Enamel Bracelet',      32,    '1599643478518-a784e5dc4c8f', 'cat-jewelry', undefined, undefined, 48),
 
-  // Fast AC (3)
-  { id: 's-12', vendorId: 'v-ac-fast-kw',    title: { ar: 'تنظيف مكيف سبليت',     en: 'Split AC cleaning' }, description: { ar: 'تنظيف فلتر ووحدة داخلية وخارجية.',       en: 'Filter + indoor + outdoor unit clean.' },       images: [u('1581094794329-c8112a89af12')], price: 12, currency: KWD, durationMinutes: 90, categoryIds: ['cat-maintenance'], active: true, createdAt: now - 60 * DAY },
-  { id: 's-13', vendorId: 'v-ac-fast-kw',    title: { ar: 'صيانة طارئة ٢٤ ساعة',   en: '24h emergency repair' }, description: { ar: 'حضور خلال ساعة بدون رسوم إضافية.',     en: 'On-site within 1 hour, no surcharge.' },        images: [u('1581094794329-c8112a89af12')], price: 18, currency: KWD, durationMinutes: 120, categoryIds: ['cat-maintenance'], active: true, createdAt: now - 55 * DAY },
-  { id: 's-14', vendorId: 'v-ac-fast-kw',    title: { ar: 'تركيب مكيف شباك',       en: 'Window AC install' }, description: { ar: 'تركيب كامل مع ضمان شهر.',                en: 'Full install with 1-month warranty.' },         images: [u('1581094794329-c8112a89af12')], price: 25, currency: KWD, durationMinutes: 180, categoryIds: ['cat-maintenance'], active: true, createdAt: now - 50 * DAY },
+  // Haya Abayas
+  product('p-ha-1', 'v-haya-abaya',      'عباية كلاسيكية',      'Classic Abaya',        35,    '1583391733956-3e0a91c5d9c5', 'cat-clothing', undefined, undefined, 72),
+  product('p-ha-2', 'v-haya-abaya',      'عباية فاخرة مطرّزة',  'Embroidered Abaya',    65,    '1495121605193-b116b5b9c5fe', 'cat-clothing', undefined, undefined, 72),
 
-  // Lamsat Al Dahab (4)
-  { id: 's-15', vendorId: 'v-lamsat-aldahab', title: { ar: 'تسريحة مناسبات',        en: 'Event styling' }, description: { ar: 'تسريحة كاملة مع تثبيت.',                 en: 'Full styling with setting.' },                  images: [sImg[0]], price: 20, currency: KWD, durationMinutes: 90, categoryIds: ['cat-salons'],     active: true, createdAt: now - 60 * DAY },
-  { id: 's-16', vendorId: 'v-lamsat-aldahab', title: { ar: 'صبغة بلون كامل',         en: 'Full hair color' }, description: { ar: 'صبغة دائمة بألوان حديثة.',              en: 'Permanent color, modern shades.' },             images: [sImg[0]], price: 35, currency: KWD, durationMinutes: 150, categoryIds: ['cat-salons'],    active: true, createdAt: now - 55 * DAY },
-  { id: 's-17', vendorId: 'v-lamsat-aldahab', title: { ar: 'بروتين شعر',             en: 'Hair protein treatment' }, description: { ar: 'علاج بروتين لتنعيم الشعر.',          en: 'Protein treatment for smooth hair.' },          images: [sImg[0]], price: 45, currency: KWD, durationMinutes: 180, categoryIds: ['cat-salons'],    active: true, createdAt: now - 50 * DAY },
-  { id: 's-18', vendorId: 'v-lamsat-aldahab', title: { ar: 'باقة العروس',            en: 'Bride package' }, description: { ar: 'مكياج + تسريحة + بروفة سابقة.',          en: 'Makeup + styling + prior trial.' },             images: [sImg[0]], price: 80, currency: KWD, durationMinutes: 240, categoryIds: ['cat-salons'],    active: true, createdAt: now - 45 * DAY },
+  // Bayt Decor
+  product('p-bd-1', 'v-bayt-decor',      'فازة سيراميك يدوية',  'Handmade Ceramic Vase', 25,   '1556909114-f6e7ad7d3136', 'cat-decor', undefined, undefined, 24),
+  product('p-bd-2', 'v-bayt-decor',      'شمعة لافندر معطرة',   'Lavender Scented Candle', 12, '1602874801006-2bd1ddc8b9c6', 'cat-decor', undefined, undefined, 24),
+  product('p-bd-3', 'v-bayt-decor',      'مرآة أرضية',          'Floor Mirror',          32,   '1554995207-c18c203602cb', 'cat-decor', undefined, undefined, 24),
 
-  // Najah Academy (3)
-  { id: 's-19', vendorId: 'v-najah-academy',  title: { ar: 'حصة رياضيات (ساعة)',     en: 'Math session (1h)' }, description: { ar: 'متوسط/ثانوي. درس فردي مع تمارين.',     en: 'Middle/high school. 1-on-1 with practice.' },   images: [u('1503676260728-1c00da094a0b')], price: 6,  currency: KWD, durationMinutes: 60, categoryIds: ['cat-tutoring'], active: true, createdAt: now - 60 * DAY },
-  { id: 's-20', vendorId: 'v-najah-academy',  title: { ar: 'حصة فيزياء (ساعة)',      en: 'Physics session (1h)' }, description: { ar: 'ثانوي وأول جامعي.',                    en: 'High school and freshman.' },                   images: [u('1503676260728-1c00da094a0b')], price: 7,  currency: KWD, durationMinutes: 60, categoryIds: ['cat-tutoring'], active: true, createdAt: now - 55 * DAY },
-  { id: 's-21', vendorId: 'v-najah-academy',  title: { ar: 'باقة ٨ حصص شهرية',        en: '8-session monthly bundle' }, description: { ar: 'أي مادة، ٨ حصص بسعر مخفّض.',        en: 'Any subject, 8 sessions at a discount.' },      images: [u('1503676260728-1c00da094a0b')], price: 40, currency: KWD, durationMinutes: 60, categoryIds: ['cat-tutoring'], active: true, createdAt: now - 50 * DAY },
+  // Rose Beauty
+  product('p-rb-1', 'v-rose-beauty',     'كريم ترطيب طبيعي',    'Natural Moisturizer',   14,   '1612817288484-6f916006741a', 'cat-beauty', undefined, undefined, 24),
+  product('p-rb-2', 'v-rose-beauty',     'مقشّر شفاه',          'Lip Scrub',             6,    '1556228720-da4c1c44e2c2', 'cat-beauty', undefined, undefined, 24),
 
-  // Mishref Cleaning (3)
-  { id: 's-22', vendorId: 'v-mishref-clean',  title: { ar: 'تنظيف شقة ٢ غرفة',       en: 'Apartment cleaning 2BR' }, description: { ar: 'تنظيف شامل ٣ ساعات تقريباً.',         en: 'Full clean, ~3 hours.' },                       images: [u('1581578731548-c64695cc6952')], price: 15, currency: KWD, durationMinutes: 180, categoryIds: ['cat-cleaning'], active: true, createdAt: now - 60 * DAY },
-  { id: 's-23', vendorId: 'v-mishref-clean',  title: { ar: 'تنظيف بيت ٤ غرف',        en: 'Villa cleaning 4BR' }, description: { ar: 'فريق ٢ بنفس الجودة.',                  en: '2-person crew, same quality.' },                images: [u('1581578731548-c64695cc6952')], price: 35, currency: KWD, durationMinutes: 360, categoryIds: ['cat-cleaning'], active: true, createdAt: now - 55 * DAY },
-  { id: 's-24', vendorId: 'v-mishref-clean',  title: { ar: 'تنظيف بعد البناء',       en: 'Post-construction clean' }, description: { ar: 'إزالة غبار وبقع البناء.',           en: 'Construction dust and stain removal.' },        images: [u('1581578731548-c64695cc6952')], price: 50, currency: KWD, durationMinutes: 480, categoryIds: ['cat-cleaning'], active: true, createdAt: now - 50 * DAY },
+  // Little Things
+  product('p-lt-1', 'v-little-things',   'صندوق مولود ذهبي',    'Newborn Gift Box',      25,   '1605664041952-4a2855d6e8b4', 'cat-kids', undefined, undefined, 48),
+  product('p-lt-2', 'v-little-things',   'دمية محبوكة يدوياً',   'Handmade Plush',        15,   '1558877385-be88be4daeb1', 'cat-kids', undefined, undefined, 48),
 
-  // Diwaniya Grill (3)
-  { id: 's-25', vendorId: 'v-diwaniya-grill', title: { ar: 'تكة لحم نص كيلو',        en: 'Lamb tikka 500g' }, description: { ar: 'مع خبز عربي وسلطة.',                    en: 'With Arabic bread and salad.' },                images: [u('1555939594-58d7cb561ad1', 800)], price: 6, currency: KWD, durationMinutes: 30, categoryIds: ['cat-hospitality'], active: true, createdAt: now - 60 * DAY },
-  { id: 's-26', vendorId: 'v-diwaniya-grill', title: { ar: 'شيش طاووق ٢ سيخ',         en: 'Shish tawook 2 skewers' }, description: { ar: 'دجاج متبّل ومشوي على الفحم.',      en: 'Marinated chicken, charcoal grilled.' },        images: [u('1555939594-58d7cb561ad1', 800)], price: 4, currency: KWD, durationMinutes: 30, categoryIds: ['cat-hospitality'], active: true, createdAt: now - 55 * DAY },
-  { id: 's-27', vendorId: 'v-diwaniya-grill', title: { ar: 'مشاوي عائلية',           en: 'Family grill platter' }, description: { ar: 'تكة + كباب + طاووق + رز.',          en: 'Tikka + kebab + tawook + rice.' },              images: [u('1555939594-58d7cb561ad1', 800)], price: 22, currency: KWD, durationMinutes: 45, categoryIds: ['cat-hospitality'], active: true, createdAt: now - 50 * DAY },
+  // Khat Arabia
+  product('p-ka-1', 'v-khat-arabia',     'لوحة فنية حروف عربية', 'Arabic Letters Art',   45,   '1565647952915-15d8c5e2e3df', 'cat-art', undefined, undefined, 72),
+  product('p-ka-2', 'v-khat-arabia',     'لوحة بسم الله',        'Bismillah Calligraphy', 65,  '1551806235-aab1ac21c11d', 'cat-art', undefined, undefined, 72),
 ];
 
 export const reviews: Review[] = vendors.flatMap((v, vi) =>
