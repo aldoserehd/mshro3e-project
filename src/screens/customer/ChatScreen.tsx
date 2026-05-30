@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
+import Logo from '../../ui/Logo';
 import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
 import { vendorById, serviceById } from '../../data/seed';
@@ -78,11 +79,7 @@ export default function ChatScreen({ route, navigation }: RootStackScreenProps<'
             <Ionicons name="arrow-back" size={20} color={palette.navy900} style={{ transform: [{ scaleX: -1 }] }} />
           </Pressable>
           <View style={styles.vendor}>
-            <Image
-              source={vendor.logoImage ? { uri: vendor.logoImage } : undefined}
-              style={styles.vendorAvatar}
-              contentFit="cover"
-            />
+            <Logo name={vendor.name.en} size={44} />
             <View style={{ flex: 1, marginStart: spacing.s3 }}>
               <Text variant="cardTitle" numberOfLines={1}>{pickLocale(vendor.name)}</Text>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>

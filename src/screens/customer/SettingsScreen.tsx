@@ -69,9 +69,6 @@ export default function SettingsScreen({ navigation }: RootStackScreenProps<'Set
               <Text variant="body" weight="600" style={{ flex: 1, marginStart: spacing.s3 }}>
                 {k === 'ar' ? 'العربية' : 'English'}
               </Text>
-              <Text variant="caption" color={palette.neutral500}>
-                {k === 'ar' ? 'RTL' : 'LTR'}
-              </Text>
             </Pressable>
           ))}
         </Card>

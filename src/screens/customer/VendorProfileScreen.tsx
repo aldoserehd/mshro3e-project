@@ -2,6 +2,7 @@ import React from 'react';
 import { Linking, Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
+import Logo from '../../ui/Logo';
 import { LinearGradient } from 'expo-linear-gradient';
 import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
@@ -65,11 +66,7 @@ export default function VendorProfileScreen({ route, navigation }: RootStackScre
         {/* Identity */}
         <View style={styles.identityWrap}>
           <View style={styles.logoRing}>
-            <Image
-              source={vendor.logoImage ? { uri: vendor.logoImage } : undefined}
-              style={styles.logo}
-              contentFit="contain"
-            />
+            <Logo name={vendor.name.en} size={88} />
           </View>
           <View style={styles.nameRow}>
             <Text variant="pageTitle" weight="700">{pickLocale(vendor.name)}</Text>

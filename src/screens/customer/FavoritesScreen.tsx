@@ -3,6 +3,7 @@ import { Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 're
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInDown } from 'react-native-reanimated';
+import Logo from '../../ui/Logo';
 import i18n from '../../locales/i18n';
 import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
@@ -119,11 +120,7 @@ export default function FavoritesScreen({ navigation }: MainTabsScreenProps<'Fav
                 onPress={() => navigation.navigate('VendorProfile', { vendorId: v.id })}
               >
                 <View style={styles.vendorCard}>
-                  <Image
-                    source={v.logoImage ? { uri: v.logoImage } : undefined}
-                    style={styles.vendorLogo}
-                    contentFit="cover"
-                  />
+                  <Logo name={v.name.en} size={48} />
                   <View style={{ flex: 1, marginStart: spacing.s3 }}>
                     <Text variant="cardTitle">{pickLocale(v.name)}</Text>
                     <Text variant="caption" color={palette.neutral500}>

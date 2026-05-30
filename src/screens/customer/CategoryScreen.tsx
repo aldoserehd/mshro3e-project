@@ -3,6 +3,7 @@ import { FlatList, Pressable, ScrollView, StyleSheet, useWindowDimensions, View 
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInDown } from 'react-native-reanimated';
+import Logo from '../../ui/Logo';
 import i18n from '../../locales/i18n';
 import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
@@ -117,11 +118,7 @@ const ProductTile: React.FC<{ product: Service; width: number; onPress: () => vo
         </Text>
         {vendor && (
           <View style={styles.vendorStrip}>
-            <Image
-              source={vendor.logoImage ? { uri: vendor.logoImage } : undefined}
-              style={styles.vendorAvatar}
-              contentFit="cover"
-            />
+            <Logo name={vendor.name.en} size={20} />
             <Text variant="caption" color={palette.neutral500} numberOfLines={1} style={{ flex: 1, marginStart: 4 }}>
               {pickLocale(vendor.name)}
             </Text>

@@ -18,6 +18,7 @@ import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
 import PressableScale from '../../ui/PressableScale';
 import PulseDot from '../../ui/PulseDot';
+import Logo from '../../ui/Logo';
 import { useCategories, useFeaturedVendors, useServices, useVendors } from '../../data/hooks';
 import { palette, radius, semantic, shadowStyle, spacing, formatPrice, pickLocale } from '../../theme/ts';
 import type { Service, Vendor, Category } from '@shared/types';
@@ -164,7 +165,7 @@ export default function HomeScreen({ navigation }: MainTabsScreenProps<'Home'>) 
             <View key={c.id} style={{ marginTop: spacing.s6 }}>
               <View style={styles.blockHeader}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.s2 }}>
-                  <Text style={{ fontSize: 22 }}>{c.emoji ?? '🏷️'}</Text>
+                  <Text style={{ fontSize: 22, lineHeight: 28, includeFontPadding: false }}>{c.emoji ?? '🏷️'}</Text>
                   <Text variant="sectionTitle">{pickLocale(c.name)}</Text>
                 </View>
                 <Pressable onPress={() => navigation.navigate('Category', { categoryId: c.id })}>
@@ -231,7 +232,9 @@ const CategoryTile: React.FC<{ category: Category; onPress: () => void }> = ({ c
   <PressableScale onPress={onPress}>
     <View style={styles.catTile}>
       <View style={styles.catEmojiWrap}>
-        <Text style={{ fontSize: 28 }}>{category.emoji ?? '🏷️'}</Text>
+        <Text style={{ fontSize: 28, lineHeight: 34, textAlign: 'center', includeFontPadding: false }}>
+          {category.emoji ?? '🏷️'}
+        </Text>
       </View>
       <Text variant="label" weight="600" align="center" numberOfLines={2} style={styles.catLabel}>
         {pickLocale(category.name)}
@@ -250,11 +253,7 @@ const StoryItem: React.FC<{ vendor: Vendor; onPress: () => void }> = ({ vendor, 
         style={styles.storyRing}
       >
         <View style={styles.storyInner}>
-          <Image
-            source={vendor.logoImage ? { uri: vendor.logoImage } : undefined}
-            style={styles.storyAvatar}
-            contentFit="contain"
-          />
+          <Logo name={vendor.name.en} size={64} style={styles.storyAvatar} />
         </View>
       </LinearGradient>
       <Text variant="microcopy" weight="500" color={palette.neutral900} numberOfLines={1} style={styles.storyLabel}>
@@ -268,11 +267,7 @@ const VendorCard: React.FC<{ vendor: Vendor; products: Service[]; onPress: () =>
   <PressableScale onPress={onPress}>
     <View style={styles.vendorCard}>
       <View style={styles.vendorCardHead}>
-        <Image
-          source={vendor.logoImage ? { uri: vendor.logoImage } : undefined}
-          style={styles.vendorCardLogo}
-          contentFit="contain"
-        />
+        <Logo name={vendor.name.en} size={40} />
         <View style={{ flex: 1, marginStart: spacing.s3 }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
             <Text variant="label" weight="700" numberOfLines={1}>{pickLocale(vendor.name)}</Text>
@@ -320,7 +315,7 @@ const ProductCardHorizontal: React.FC<{ product: Service; onPress: () => void }>
           </Text>
           {vendor && (
             <View style={styles.vendorStripSmall}>
-              <Image source={vendor.logoImage ? { uri: vendor.logoImage } : undefined} style={styles.vendorAvatarSmall} contentFit="contain" />
+              <Logo name={vendor.name.en} size={18} />
               <Text variant="caption" color={palette.neutral500} numberOfLines={1} style={{ flex: 1, marginStart: 4 }}>
                 {pickLocale(vendor.name)}
               </Text>
@@ -357,7 +352,7 @@ const ProductTile: React.FC<{ product: Service; width: number; live: boolean; on
         </Text>
         {vendor && (
           <View style={styles.vendorStripSmall}>
-            <Image source={vendor.logoImage ? { uri: vendor.logoImage } : undefined} style={styles.vendorAvatarSmall} contentFit="contain" />
+            <Logo name={vendor.name.en} size={18} />
             <Text variant="caption" color={palette.neutral500} numberOfLines={1} style={{ flex: 1, marginStart: 4 }}>
               {pickLocale(vendor.name)}
             </Text>

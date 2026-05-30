@@ -7,7 +7,7 @@ import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
 import Button from '../../ui/Button';
 import Card from '../../ui/Card';
-import Avatar from '../../ui/Avatar';
+import Logo from '../../ui/Logo';
 import PressableScale from '../../ui/PressableScale';
 import ContactSheet from '../../ui/ContactSheet';
 import { useService } from '../../data/hooks';
@@ -51,7 +51,7 @@ export default function ProductDetailScreen({ route, navigation }: RootStackScre
         <View style={styles.body}>
           {vendor && (
             <Card style={styles.vendorCard}>
-              <Avatar source={vendor.logoImage} name={pickLocale(vendor.name)} size={44} />
+              <Logo name={vendor.name.en} size={44} />
               <View style={{ flex: 1, marginStart: spacing.s3 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
                   <Text variant="cardTitle" numberOfLines={1}>{pickLocale(vendor.name)}</Text>

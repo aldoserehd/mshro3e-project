@@ -117,19 +117,12 @@ const TabIcon: React.FC<{
   inactive: keyof typeof Ionicons.glyphMap;
 }> = ({ focused, active, inactive }) => {
   const opacity = useSharedValue(focused ? 1 : 0);
-  const scale = useSharedValue(1);
 
   useEffect(() => {
     opacity.value = withTiming(focused ? 1 : 0, { duration: 180 });
-    if (focused) {
-      // Brief punch on activation: 1 → 1.12 → 1
-      scale.value = withTiming(1.12, { duration: 120 }, () => {
-        scale.value = withTiming(1, { duration: 160 });
-      });
-    }
-  }, [focused, opacity, scale]);
+  }, [focused, opacity]);
 
-  const activeStyle = useAnimatedStyle(() => ({ opacity: opacity.value, transform: [{ scale: scale.value }] }));
+  const activeStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
   const inactiveStyle = useAnimatedStyle(() => ({ opacity: 1 - opacity.value }));
 
   return (

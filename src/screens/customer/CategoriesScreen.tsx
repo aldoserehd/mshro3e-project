@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255,255,255,0.10)',
     alignItems: 'center', justifyContent: 'center',
   },
-  blockEmoji: { fontSize: 26, lineHeight: 30, includeFontPadding: false, textAlign: 'center' },
+  blockEmoji: { fontSize: 24, lineHeight: 32, includeFontPadding: false, textAlign: 'center' },
   blockBody: { gap: 2 },
 
   empty: { padding: spacing.s7, alignItems: 'center', justifyContent: 'center' },
