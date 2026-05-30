@@ -29,9 +29,19 @@ export default {
 
   tabs: {
     home: 'الرئيسية',
-    search: 'بحث',
+    search: 'التصنيفات',
     favorites: 'المفضلة',
     account: 'حسابي',
+  },
+
+  cats: {
+    title: 'تصفّح حسب التصنيف',
+    subtitle: 'اختر تصنيفاً لاكتشاف منتجاته',
+    searchPlaceholder: 'ابحث داخل التصنيفات…',
+    sortAll: 'الكل',
+    sortPopular: 'الأكثر شعبية',
+    sortNew: 'الأحدث',
+    productCount: '{n} منتج',
   },
 
   home: {

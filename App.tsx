@@ -11,6 +11,7 @@ import { IBMPlexSansArabic_400Regular, IBMPlexSansArabic_500Medium, IBMPlexSansA
 
 import AppNavigator from './src/navigation/AppNavigator';
 import { palette, semantic } from './src/theme/ts';
+import { useLocaleStore } from './src/stores/locale';
 
 // Force Arabic RTL on first launch. Persists across app reloads.
 if (!I18nManager.isRTL) {
@@ -55,13 +56,16 @@ export default function App() {
     onReady();
   }, [onReady]);
 
+  const locale = useLocaleStore((s) => s.locale);
+
   if (!ready) return null;
 
   return (
     <GestureHandlerRootView style={styles.root}>
       <SafeAreaProvider>
         <StatusBar barStyle="dark-content" backgroundColor={semantic.bg} />
-        <AppNavigator />
+        {/* `key` forces a full re-render when locale flips, so every i18n.t() call picks up the new strings. */}
+        <AppNavigator key={locale} />
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

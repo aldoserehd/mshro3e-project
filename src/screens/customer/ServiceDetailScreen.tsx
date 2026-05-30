@@ -156,6 +156,7 @@ export default function ProductDetailScreen({ route, navigation }: RootStackScre
           onClose={() => setShowContact(false)}
           product={product}
           vendor={vendor}
+          onMessageInApp={() => navigation.navigate('Chat', { vendorId: vendor.id, productId: product.id })}
         />
       )}
     </Screen>

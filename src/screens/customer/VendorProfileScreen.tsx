@@ -1,442 +1,327 @@
-import React, { useState } from 'react';
-import {
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  View,
-  useWindowDimensions,
-} from 'react-native';
+import React from 'react';
+import { Linking, Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import Animated, {
-  interpolate,
-  useAnimatedScrollHandler,
-  useAnimatedStyle,
-  useSharedValue,
-} from 'react-native-reanimated';
-import i18n from '../../locales/i18n';
 import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
-import Button from '../../ui/Button';
-import Avatar from '../../ui/Avatar';
 import Card from '../../ui/Card';
-import RatingDots from '../../ui/RatingDots';
 import PressableScale from '../../ui/PressableScale';
-import { useReviews, useService, useServices, useVendor } from '../../data/hooks';
-import { palette, pickLocale, radius, rtl, semantic, shadowStyle, spacing } from '../../theme/ts';
-import { RootStackScreenProps } from '../../navigation/types';
+import { useVendor, useServices } from '../../data/hooks';
+import { palette, radius, semantic, shadowStyle, spacing, formatPrice, pickLocale } from '../../theme/ts';
+import { useLocaleStore } from '../../stores/locale';
+import type { RootStackScreenProps } from '../../navigation/types';
 
-type Tab = 'about' | 'services' | 'reviews' | 'gallery';
-const TABS: Tab[] = ['about', 'services', 'reviews', 'gallery'];
+const cleanPhone = (raw: string) => raw.replace(/[^\d]/g, '');
 
-const HERO_H = 220;
-const LOGO_SIZE = 72;
-
-const AScrollView = Animated.ScrollView;
-
-export default function VendorProfileScreen({ navigation, route }: RootStackScreenProps<'VendorProfile'>) {
+export default function VendorProfileScreen({ route, navigation }: RootStackScreenProps<'VendorProfile'>) {
   const { vendorId } = route.params;
   const { data: vendor } = useVendor(vendorId);
-  const { data: services } = useServices(vendorId);
-  const { data: reviews } = useReviews(vendorId);
-  const [tab, setTab] = useState<Tab>('about');
-  const scrollY = useSharedValue(0);
+  const { data: allProducts } = useServices();
+  const { locale } = useLocaleStore();
   const { width } = useWindowDimensions();
+  const tileWidth = (width - spacing.s5 * 2 - spacing.s3) / 2;
 
-  const scrollHandler = useAnimatedScrollHandler({
-    onScroll: (e) => {
-      scrollY.value = e.contentOffset.y;
-    },
-  });
+  if (!vendor) return null;
 
-  const coverStyle = useAnimatedStyle(() => ({
-    transform: [
-      {
-        translateY: interpolate(scrollY.value, [-150, 0, 200], [-75, 0, -100], 'clamp'),
-      },
-      {
-        scale: interpolate(scrollY.value, [-150, 0], [1.3, 1], 'clamp'),
-      },
-    ],
-  }));
+  const products = allProducts.filter((p) => p.vendorId === vendor.id);
+  const isPro = vendor.tier === 'pro' || vendor.tier === 'managed';
 
-  if (!vendor) {
-    return (
-      <Screen>
-        <View style={styles.center}>
-          <Text>Not found</Text>
-        </View>
-      </Screen>
-    );
-  }
+  const openWhatsapp = () => {
+    const ph = cleanPhone(vendor.whatsapp ?? vendor.phone ?? '');
+    if (!ph) return;
+    Linking.openURL(`https://wa.me/${ph}`).catch(() => {});
+  };
 
-  const gallery = services.slice(0, 6).map((s) => s.images[0]).filter(Boolean);
+  const callPhone = () => {
+    if (!vendor.phone) return;
+    Linking.openURL(`tel:${vendor.phone}`).catch(() => {});
+  };
 
   return (
-    <Screen background={semantic.surface} statusBar="light">
-      {/* Floating back/share */}
-      <View style={styles.floatBar}>
-        <Pressable
-          onPress={() => navigation.goBack()}
-          style={styles.floatBtn}
-          hitSlop={8}
-        >
-          <Ionicons name={rtl() ? 'chevron-forward' : 'chevron-back'} size={20} color={palette.navy900} />
-        </Pressable>
-        <View style={{ flex: 1 }} />
-        <Pressable style={styles.floatBtn} hitSlop={8}>
-          <Ionicons name="share-outline" size={18} color={palette.navy900} />
-        </Pressable>
-        <View style={{ width: spacing.s2 }} />
-        <Pressable style={styles.floatBtn} hitSlop={8}>
-          <Ionicons name="heart-outline" size={18} color={palette.navy900} />
-        </Pressable>
-      </View>
-
-      <AScrollView
-        onScroll={scrollHandler}
-        scrollEventThrottle={16}
-        contentContainerStyle={{ paddingBottom: 120 }}
-        showsVerticalScrollIndicator={false}
-      >
+    <Screen>
+      <ScrollView contentContainerStyle={{ paddingBottom: 120 }} showsVerticalScrollIndicator={false}>
         {/* Cover */}
-        <View style={[styles.coverContainer, { width }]}>
-          <Animated.View style={[StyleSheet.absoluteFillObject, coverStyle]}>
-            <Image
-              source={{ uri: vendor.coverImage }}
-              style={StyleSheet.absoluteFillObject}
-              contentFit="cover"
-              transition={200}
-            />
-            <LinearGradient
-              colors={['transparent', 'rgba(10,16,32,0.6)']}
-              style={StyleSheet.absoluteFillObject}
-            />
-          </Animated.View>
+        <View style={[styles.cover, { width }]}>
+          <Image
+            source={vendor.coverImage ? { uri: vendor.coverImage } : undefined}
+            style={StyleSheet.absoluteFill}
+            contentFit="cover"
+          />
+          <LinearGradient
+            colors={['transparent', 'rgba(10,16,32,0.55)']}
+            style={StyleSheet.absoluteFill}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
+          />
+          <Pressable onPress={() => navigation.goBack()} style={styles.backBtn}>
+            <Ionicons name="arrow-back" size={20} color={palette.navy900} style={{ transform: [{ scaleX: -1 }] }} />
+          </Pressable>
+          <Pressable style={styles.shareBtn}>
+            <Ionicons name="share-outline" size={20} color={palette.navy900} />
+          </Pressable>
         </View>
 
-        {/* Hero card body */}
-        <View style={styles.heroBody}>
-          <View style={styles.logoWrap}>
-            <Avatar source={vendor.logoImage} name={pickLocale(vendor.name)} size={LOGO_SIZE} ring={4} />
+        {/* Identity */}
+        <View style={styles.identityWrap}>
+          <View style={styles.logoRing}>
+            <Image
+              source={vendor.logoImage ? { uri: vendor.logoImage } : undefined}
+              style={styles.logo}
+              contentFit="contain"
+            />
           </View>
-          <View style={styles.titleRow}>
-            <Text variant="sectionTitle" weight="700" numberOfLines={1} style={{ flex: 1 }}>
-              {pickLocale(vendor.name)}
-            </Text>
+          <View style={styles.nameRow}>
+            <Text variant="pageTitle" weight="700">{pickLocale(vendor.name)}</Text>
             {vendor.verifiedAt && (
-              <View style={styles.verifiedBadge}>
-                <Ionicons name="checkmark-circle" size={16} color={palette.navy500} />
-                <Text variant="microcopy" color={palette.navy500} weight="500" style={{ marginStart: 4 }}>
-                  {i18n.t('vendor.verified')}
+              <Ionicons name="checkmark-circle" size={18} color={palette.navy600} />
+            )}
+            {isPro && (
+              <View style={styles.tierPill}>
+                <Text variant="microcopy" color="#fff" weight="600">
+                  {vendor.tier === 'managed' ? 'Managed' : 'Pro'}
                 </Text>
               </View>
             )}
           </View>
-          <View style={styles.metaRow}>
-            <RatingDots value={vendor.rating} reviewCount={vendor.reviewCount} size={14} />
-            <View style={styles.dot} />
-            <Text variant="label" color={palette.neutral500}>
-              {i18n.t('vendor.distance', { n: '1.8' })}
+          {vendor.address && (
+            <Text variant="caption" color={palette.neutral500}>
+              <Ionicons name="location" size={12} color={palette.neutral500} /> {pickLocale(vendor.address)}
             </Text>
-            <View style={styles.dot} />
-            <Text variant="label" color={palette.neutral500}>
-              {i18n.t('vendor.responseTime', { n: 5 })}
-            </Text>
+          )}
+        </View>
+
+        {/* Stats strip */}
+        <View style={styles.statsRow}>
+          <View style={styles.stat}>
+            <Text variant="cardTitle" weight="700">{vendor.rating.toFixed(1)}</Text>
+            <Text variant="microcopy" color={palette.neutral500}>{locale === 'ar' ? 'تقييم' : 'Rating'}</Text>
           </View>
-          <View style={styles.ctaRow}>
-            <View style={{ flex: 1, marginEnd: spacing.s2 }}>
-              <Button
-                title={i18n.t('vendor.bookNow')}
-                variant="primary"
-                size="md"
-                fullWidth
-                onPress={() => {
-                  const first = services[0];
-                  if (first) navigation.navigate('ServiceDetail', { serviceId: first.id });
-                }}
-              />
-            </View>
-            <View style={{ flex: 1, marginStart: spacing.s2 }}>
-              <Button title={i18n.t('vendor.contact')} variant="secondary" size="md" fullWidth icon="chatbubble-ellipses-outline" />
-            </View>
+          <View style={styles.statDiv} />
+          <View style={styles.stat}>
+            <Text variant="cardTitle" weight="700">{products.length}</Text>
+            <Text variant="microcopy" color={palette.neutral500}>{locale === 'ar' ? 'منتج' : 'Products'}</Text>
+          </View>
+          <View style={styles.statDiv} />
+          <View style={styles.stat}>
+            <Text variant="cardTitle" weight="700">{vendor.reviewCount}</Text>
+            <Text variant="microcopy" color={palette.neutral500}>{locale === 'ar' ? 'مراجعة' : 'Reviews'}</Text>
           </View>
         </View>
 
-        {/* Tabs */}
-        <View style={styles.tabsRow}>
-          {TABS.map((t) => {
-            const active = tab === t;
-            return (
-              <Pressable key={t} onPress={() => setTab(t)} style={styles.tabBtn}>
-                <Text
-                  variant="label"
-                  weight={active ? '600' : '500'}
-                  color={active ? palette.navy900 : palette.neutral500}
-                >
-                  {i18n.t(`vendor.tabs.${t}`)}
-                </Text>
-                {active && <View style={styles.tabUnderline} />}
-              </Pressable>
-            );
-          })}
+        {/* Contact actions */}
+        <View style={styles.actionsRow}>
+          <ActionBtn icon="logo-whatsapp" label="WhatsApp" onPress={openWhatsapp} primary />
+          <ActionBtn
+            icon="chatbubble-ellipses-outline"
+            label={locale === 'ar' ? 'محادثة' : 'Chat'}
+            onPress={() => navigation.navigate('Chat', { vendorId: vendor.id })}
+          />
+          <ActionBtn
+            icon="call-outline"
+            label={locale === 'ar' ? 'اتصال' : 'Call'}
+            onPress={callPhone}
+          />
         </View>
 
-        {/* Tab content */}
-        <View style={styles.tabContent}>
-          {tab === 'about' && vendor.bio && (
-            <View>
-              <Text variant="body" color={palette.neutral900} style={{ lineHeight: 26 }}>
-                {pickLocale(vendor.bio)}
-              </Text>
-              <View style={styles.aboutSection}>
-                <Text variant="cardTitle" weight="600">
-                  {i18n.t('vendor.workingHours')}
-                </Text>
-                <View style={styles.hoursList}>
-                  {Object.entries(vendor.workingHours).map(([day, slots]) => {
-                    const first = slots?.[0];
-                    if (!first) return null;
-                    return (
-                      <View key={day} style={styles.hoursRow}>
-                        <Text variant="label" color={palette.neutral500}>
-                          {dayName(parseInt(day, 10))}
-                        </Text>
-                        <Text variant="label" weight="500" forceLtr>
-                          {first.open} — {first.close}
-                        </Text>
-                      </View>
-                    );
-                  })}
+        {/* Bio */}
+        {vendor.bio && (
+          <Card style={styles.bioCard}>
+            <Text variant="body" color={palette.neutral900}>{pickLocale(vendor.bio)}</Text>
+          </Card>
+        )}
+
+        {/* Info card */}
+        <Card style={styles.infoCard}>
+          <InfoRow icon="time-outline" label={locale === 'ar' ? 'ساعات العمل' : 'Hours'} value={locale === 'ar' ? '10 ص — 10 م يومياً' : '10 AM — 10 PM daily'} />
+          <Divider />
+          <InfoRow icon="call-outline" label={locale === 'ar' ? 'الهاتف' : 'Phone'} value={vendor.phone ?? '—'} mono />
+          {vendor.whatsapp && (
+            <>
+              <Divider />
+              <InfoRow icon="logo-whatsapp" label="WhatsApp" value={vendor.whatsapp} mono />
+            </>
+          )}
+          {isPro && (
+            <>
+              <Divider />
+              <InfoRow icon="globe-outline" label={locale === 'ar' ? 'الموقع الإلكتروني' : 'Website'} value={`mshro3e.com/@${vendor.handle ?? vendor.slug}`} />
+            </>
+          )}
+          <Divider />
+          <InfoRow icon="card-outline" label={locale === 'ar' ? 'الدفع' : 'Payment'} value={
+            isPro
+              ? (locale === 'ar' ? 'KNET · Apple Pay (عبر البائع)' : 'KNET · Apple Pay (vendor handled)')
+              : (locale === 'ar' ? 'بالتنسيق مع البائع مباشرة' : 'Arrange directly with the vendor')
+          } />
+        </Card>
+
+        {/* Products */}
+        <View style={styles.productsHead}>
+          <Text variant="sectionTitle">{locale === 'ar' ? 'المنتجات' : 'Products'}</Text>
+          <Text variant="label" color={palette.navy600}>{products.length}</Text>
+        </View>
+        <View style={styles.grid}>
+          {products.map((p) => (
+            <PressableScale
+              key={p.id}
+              onPress={() => navigation.navigate('ServiceDetail', { serviceId: p.id })}
+            >
+              <View style={{ width: tileWidth, marginBottom: spacing.s4 }}>
+                <View style={styles.tileImgWrap}>
+                  <Image source={{ uri: p.images[0] }} style={styles.tileImg} contentFit="cover" />
                 </View>
+                <Text variant="label" weight="600" numberOfLines={1} style={{ marginTop: 8 }}>
+                  {pickLocale(p.title)}
+                </Text>
+                <Text variant="cardTitle" color={palette.navy900} weight="700">
+                  {formatPrice(p.price, p.currency)}
+                </Text>
               </View>
-            </View>
-          )}
-
-          {tab === 'services' && (
-            <View style={styles.servicesGrid}>
-              {services.length === 0 ? (
-                <Text variant="body" color={palette.neutral500} align="center">
-                  {i18n.t('vendor.noServices')}
-                </Text>
-              ) : (
-                services.map((s) => (
-                  <PressableScale
-                    key={s.id}
-                    onPress={() => navigation.navigate('ServiceDetail', { serviceId: s.id })}
-                    style={[styles.serviceTile, { width: (width - spacing.s5 * 2 - spacing.s3) / 2 }]}
-                  >
-                    <View style={styles.serviceImageWrap}>
-                      <Image source={{ uri: s.images[0] }} style={StyleSheet.absoluteFillObject} contentFit="cover" transition={150} />
-                    </View>
-                    <View style={styles.serviceBody}>
-                      <Text variant="label" weight="600" numberOfLines={2}>
-                        {pickLocale(s.title)}
-                      </Text>
-                      <View style={styles.servicePriceRow}>
-                        <Text variant="cardTitle" weight="700" forceLtr>
-                          {s.price} ر.س
-                        </Text>
-                        <View style={styles.durationPill}>
-                          <Text variant="microcopy" color={palette.navy900} weight="500" forceLtr>
-                            {s.durationMinutes} د
-                          </Text>
-                        </View>
-                      </View>
-                    </View>
-                  </PressableScale>
-                ))
-              )}
-            </View>
-          )}
-
-          {tab === 'reviews' && (
-            <View>
-              {reviews.length === 0 ? (
-                <Text variant="body" color={palette.neutral500} align="center">
-                  {i18n.t('vendor.noReviews')}
-                </Text>
-              ) : (
-                reviews.map((r) => (
-                  <Card key={r.id} padding="md" style={{ marginBottom: spacing.s3 }}>
-                    <View style={styles.reviewHead}>
-                      <Avatar name="عميل" size={32} />
-                      <View style={{ flex: 1, marginStart: spacing.s2 }}>
-                        <Text variant="label" weight="600">
-                          عميل #{r.id.slice(-3)}
-                        </Text>
-                        <RatingDots value={r.rating} size={11} showNumber={false} />
-                      </View>
-                      <Text variant="microcopy" color={palette.neutral500} forceLtr>
-                        {Math.max(1, Math.round((Date.now() - r.createdAt) / 86400000))}d
-                      </Text>
-                    </View>
-                    {r.comment && (
-                      <Text variant="body" style={{ marginTop: spacing.s2 }}>
-                        {r.comment}
-                      </Text>
-                    )}
-                  </Card>
-                ))
-              )}
-            </View>
-          )}
-
-          {tab === 'gallery' && (
-            <View style={styles.gallery}>
-              {gallery.map((g, i) => (
-                <View key={i} style={[styles.galleryItem, { width: (width - spacing.s5 * 2 - spacing.s2 * 2) / 3 }]}>
-                  <Image source={{ uri: g }} style={StyleSheet.absoluteFillObject} contentFit="cover" transition={150} />
-                </View>
-              ))}
-            </View>
-          )}
+            </PressableScale>
+          ))}
         </View>
-      </AScrollView>
+      </ScrollView>
     </Screen>
   );
 }
 
-function dayName(d: number): string {
-  const ar = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
-  const en = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  return rtl() ? ar[d] : en[d];
-}
+const ActionBtn: React.FC<{
+  icon: keyof typeof import('@expo/vector-icons').Ionicons.glyphMap;
+  label: string;
+  onPress: () => void;
+  primary?: boolean;
+}> = ({ icon, label, onPress, primary }) => (
+  <PressableScale onPress={onPress}>
+    <View style={[styles.actionBtn, primary && styles.actionBtnPrimary]}>
+      <Ionicons name={icon} size={20} color={primary ? '#fff' : palette.navy900} />
+      <Text variant="label" weight="600" color={primary ? '#fff' : palette.navy900} style={{ marginTop: 4 }}>
+        {label}
+      </Text>
+    </View>
+  </PressableScale>
+);
+
+const InfoRow: React.FC<{
+  icon: keyof typeof import('@expo/vector-icons').Ionicons.glyphMap;
+  label: string;
+  value: string;
+  mono?: boolean;
+}> = ({ icon, label, value, mono }) => (
+  <View style={styles.infoRow}>
+    <View style={styles.infoIcon}>
+      <Ionicons name={icon} size={16} color={palette.navy700} />
+    </View>
+    <View style={{ flex: 1, marginStart: spacing.s3 }}>
+      <Text variant="caption" color={palette.neutral500}>{label}</Text>
+      <Text variant="body" weight={mono ? '500' : '400'} style={mono ? { letterSpacing: 0.3 } : undefined}>
+        {value}
+      </Text>
+    </View>
+  </View>
+);
+
+const Divider = () => <View style={styles.divider} />;
 
 const styles = StyleSheet.create({
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  floatBar: {
-    position: 'absolute',
-    top: 8,
-    start: spacing.s4,
-    end: spacing.s4,
-    flexDirection: 'row',
-    zIndex: 10,
+  cover: {
+    height: 220,
+    backgroundColor: palette.navy200,
+    position: 'relative',
   },
-  floatBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: radius.full,
-    backgroundColor: 'rgba(255,255,255,0.9)',
+  backBtn: {
+    position: 'absolute', top: spacing.s5, end: spacing.s4,
+    width: 40, height: 40, borderRadius: 999,
+    backgroundColor: 'rgba(255,255,255,0.94)',
+    alignItems: 'center', justifyContent: 'center',
+    ...shadowStyle(2),
+  },
+  shareBtn: {
+    position: 'absolute', top: spacing.s5, start: spacing.s4,
+    width: 40, height: 40, borderRadius: 999,
+    backgroundColor: 'rgba(255,255,255,0.94)',
+    alignItems: 'center', justifyContent: 'center',
+    ...shadowStyle(2),
+  },
+  identityWrap: {
     alignItems: 'center',
-    justifyContent: 'center',
-    ...shadowStyle(1),
-  },
-  coverContainer: {
-    height: HERO_H,
-    backgroundColor: palette.navy100,
-    overflow: 'hidden',
-  },
-  heroBody: {
-    backgroundColor: semantic.surface,
-    marginTop: -spacing.s5,
-    borderTopLeftRadius: radius.xl,
-    borderTopRightRadius: radius.xl,
     paddingHorizontal: spacing.s5,
-    paddingBottom: spacing.s4,
+    marginTop: -42,
+    gap: 4,
   },
-  logoWrap: {
-    marginTop: -(LOGO_SIZE / 2),
-    alignSelf: 'flex-start',
+  logoRing: {
+    width: 96, height: 96, borderRadius: 999,
+    backgroundColor: '#fff',
+    padding: 4,
+    ...shadowStyle(2),
   },
-  titleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: spacing.s3,
-  },
-  verifiedBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.s2,
-    paddingVertical: 4,
-    backgroundColor: palette.navy100,
-    borderRadius: radius.full,
-    marginStart: spacing.s2,
-  },
-  metaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: spacing.s2,
-  },
-  dot: {
-    width: 3,
-    height: 3,
-    borderRadius: radius.full,
-    backgroundColor: palette.navy300,
-    marginHorizontal: spacing.s2,
-  },
-  ctaRow: {
-    flexDirection: 'row',
-    marginTop: spacing.s4,
-  },
-  tabsRow: {
-    flexDirection: 'row',
-    paddingHorizontal: spacing.s5,
-    borderBottomWidth: 1,
-    borderBottomColor: semantic.border,
-  },
-  tabBtn: {
-    paddingVertical: spacing.s3,
-    marginEnd: spacing.s5,
-    alignItems: 'center',
-  },
-  tabUnderline: {
-    position: 'absolute',
-    bottom: -1,
-    left: 0,
-    right: 0,
-    height: 2,
+  logo: { width: '100%', height: '100%', borderRadius: 999, backgroundColor: palette.navy100 },
+  nameRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: spacing.s3 },
+  tierPill: {
     backgroundColor: palette.navy900,
-    borderRadius: radius.full,
+    paddingHorizontal: spacing.s2, paddingVertical: 2,
+    borderRadius: 999,
+    marginStart: spacing.s1,
   },
-  tabContent: {
-    paddingHorizontal: spacing.s5,
-    paddingTop: spacing.s4,
-  },
-  aboutSection: { marginTop: spacing.s5 },
-  hoursList: { marginTop: spacing.s3 },
-  hoursRow: {
+  statsRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: spacing.s2,
-    borderBottomWidth: 1,
-    borderBottomColor: palette.navy100,
-  },
-  servicesGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  serviceTile: {
-    backgroundColor: palette.white,
+    backgroundColor: semantic.surface,
     borderRadius: radius.lg,
-    marginBottom: spacing.s3,
-    overflow: 'hidden',
-    ...shadowStyle(1),
+    marginHorizontal: spacing.s5,
+    marginTop: spacing.s4,
+    paddingVertical: spacing.s4,
+    borderWidth: 1, borderColor: palette.navy100,
   },
-  serviceImageWrap: { width: '100%', aspectRatio: 1, backgroundColor: palette.navy100 },
-  serviceBody: { padding: spacing.s3 },
-  servicePriceRow: {
+  stat: { flex: 1, alignItems: 'center' },
+  statDiv: { width: 1, backgroundColor: palette.navy100, marginVertical: 4 },
+  actionsRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: spacing.s2,
+    paddingHorizontal: spacing.s5,
+    marginTop: spacing.s4,
+    gap: spacing.s2,
   },
-  durationPill: {
-    paddingHorizontal: spacing.s2,
-    paddingVertical: 2,
-    backgroundColor: palette.navy100,
-    borderRadius: radius.full,
+  actionBtn: {
+    flex: 1, paddingVertical: spacing.s3,
+    backgroundColor: semantic.surface,
+    borderWidth: 1, borderColor: palette.navy200,
+    borderRadius: radius.lg,
+    alignItems: 'center', justifyContent: 'center',
+    minWidth: 90,
   },
-  reviewHead: { flexDirection: 'row', alignItems: 'center' },
-  gallery: { flexDirection: 'row', flexWrap: 'wrap' },
-  galleryItem: {
-    aspectRatio: 1,
-    backgroundColor: palette.navy100,
-    borderRadius: radius.md,
+  actionBtnPrimary: {
+    backgroundColor: palette.navy900,
+    borderColor: palette.navy900,
+  },
+  bioCard: {
+    margin: spacing.s5,
+    marginBottom: 0,
+    padding: spacing.s4,
+  },
+  infoCard: {
+    margin: spacing.s5,
+    padding: 0,
     overflow: 'hidden',
-    marginEnd: spacing.s2,
-    marginBottom: spacing.s2,
   },
+  infoRow: {
+    flexDirection: 'row', alignItems: 'center',
+    paddingHorizontal: spacing.s4, paddingVertical: spacing.s3,
+  },
+  infoIcon: {
+    width: 32, height: 32, borderRadius: 999,
+    backgroundColor: palette.navy100,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  divider: { height: 1, backgroundColor: palette.navy100, marginStart: 60 },
+  productsHead: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingHorizontal: spacing.s5,
+    marginTop: spacing.s4,
+    marginBottom: spacing.s3,
+  },
+  grid: {
+    flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between',
+    paddingHorizontal: spacing.s5,
+  },
+  tileImgWrap: { position: 'relative' },
+  tileImg: { width: '100%', aspectRatio: 1, borderRadius: radius.lg, backgroundColor: palette.navy100 },
 });

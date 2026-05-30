@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import i18n from '../../locales/i18n';
 import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
@@ -31,7 +32,7 @@ export default function FavoritesScreen({ navigation }: MainTabsScreenProps<'Fav
   return (
     <Screen>
       <View style={styles.headerBar}>
-        <Pressable hitSlop={12}>
+        <Pressable onPress={() => navigation.navigate('Settings')} hitSlop={12}>
           <Ionicons name="menu" size={26} color={palette.neutral900} />
         </Pressable>
         <Text variant="cardTitle" weight="700">Mshro3e</Text>

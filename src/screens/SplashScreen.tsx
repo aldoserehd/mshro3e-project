@@ -28,7 +28,9 @@ export default function SplashScreen({ navigation }: RootStackScreenProps<'Splas
       withTiming(1, { duration: 220 }),
     );
     const t = setTimeout(() => {
-      navigation.replace('Onboarding');
+      // DEV: skip directly to MainTabs to view UI without auth.
+      // To enable the auth flow, swap to `navigation.replace('SignUp')`.
+      navigation.replace('MainTabs');
     }, 700);
     return () => clearTimeout(t);
   }, [navigation, opacity, scale]);

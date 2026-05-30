@@ -13,6 +13,7 @@ interface Props {
   onClose: () => void;
   product: Service;
   vendor: Vendor;
+  onMessageInApp?: () => void;
 }
 
 const buildMessage = (productTitle: string, priceStr: string) =>
@@ -20,7 +21,7 @@ const buildMessage = (productTitle: string, priceStr: string) =>
 
 const cleanPhone = (raw: string) => raw.replace(/[^\d]/g, '');
 
-export const ContactSheet: React.FC<Props> = ({ visible, onClose, product, vendor }) => {
+export const ContactSheet: React.FC<Props> = ({ visible, onClose, product, vendor, onMessageInApp }) => {
   const productTitle = pickLocale(product.title);
   const priceStr = formatPrice(product.price, product.currency);
   const message = buildMessage(productTitle, priceStr);
@@ -70,7 +71,10 @@ export const ContactSheet: React.FC<Props> = ({ visible, onClose, product, vendo
           <Button
             title={i18n.t('contact.sendInApp')}
             variant="ghost"
-            onPress={onClose}
+            onPress={() => {
+              onClose();
+              onMessageInApp?.();
+            }}
           />
         </Pressable>
       </Pressable>

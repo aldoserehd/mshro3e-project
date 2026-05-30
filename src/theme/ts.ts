@@ -123,7 +123,22 @@ const CURRENCY_SYMBOL_AR: Record<string, string> = {
   USD: '$',
 };
 
-export function formatPrice(amount: number, currency = 'KWD', locale: 'ar' | 'en' = I18nManager.isRTL ? 'ar' : 'en'): string {
+/**
+ * Module-level current locale. Kept in sync by `setCurrentLocale` from the locale store.
+ * This makes `pickLocale()` and `formatPrice()` react to runtime language toggle
+ * without requiring an app reload (I18nManager.isRTL only flips on reload).
+ */
+let CURRENT_LOCALE: 'ar' | 'en' = I18nManager.isRTL ? 'ar' : 'en';
+
+export function setCurrentLocale(l: 'ar' | 'en'): void {
+  CURRENT_LOCALE = l;
+}
+
+export function getCurrentLocale(): 'ar' | 'en' {
+  return CURRENT_LOCALE;
+}
+
+export function formatPrice(amount: number, currency = 'KWD', locale: 'ar' | 'en' = CURRENT_LOCALE): string {
   const symbol = locale === 'ar' ? (CURRENCY_SYMBOL_AR[currency] ?? currency) : currency;
   return locale === 'ar' ? `${amount} ${symbol}` : `${symbol} ${amount}`;
 }
@@ -133,7 +148,7 @@ export function formatPrice(amount: number, currency = 'KWD', locale: 'ar' | 'en
  */
 export function pickLocale<T extends { ar: string; en: string }>(
   obj: T,
-  locale: 'ar' | 'en' = I18nManager.isRTL ? 'ar' : 'en',
+  locale: 'ar' | 'en' = CURRENT_LOCALE,
 ): string {
   return obj[locale] || obj.en || obj.ar;
 }

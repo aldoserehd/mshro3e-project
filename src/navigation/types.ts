@@ -7,9 +7,15 @@ export type RootStackParamList = {
   Onboarding: undefined;
   PhoneEntry: undefined;
   CodeVerify: { phone: string };
+  SignIn: undefined;
+  SignUp: undefined;
+  Preferences: undefined;
   MainTabs: undefined;
   VendorProfile: { vendorId: string };
   ServiceDetail: { serviceId: string };
+  Category: { categoryId: string };
+  Settings: undefined;
+  Chat: { vendorId: string; productId?: string };
 };
 
 export type MainTabsParamList = {

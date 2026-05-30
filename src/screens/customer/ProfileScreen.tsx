@@ -8,6 +8,7 @@ import Card from '../../ui/Card';
 import Avatar from '../../ui/Avatar';
 import PressableScale from '../../ui/PressableScale';
 import { palette, radius, semantic, spacing, shadowStyle } from '../../theme/ts';
+import { useLocaleStore } from '../../stores/locale';
 import type { MainTabsScreenProps } from '../../navigation/types';
 
 interface RowProps {
@@ -37,16 +38,16 @@ const Row: React.FC<RowProps> = ({ icon, label, trailing, onPress, destructive }
 );
 
 const LangToggle: React.FC = () => {
-  const [lang, setLang] = React.useState<'ar' | 'en'>('ar');
+  const { locale, setLocale } = useLocaleStore();
   return (
     <View style={styles.langWrap}>
       {(['en', 'ar'] as const).map((k) => (
         <Pressable
           key={k}
-          onPress={() => setLang(k)}
-          style={[styles.langChip, lang === k && styles.langChipActive]}
+          onPress={() => setLocale(k)}
+          style={[styles.langChip, locale === k && styles.langChipActive]}
         >
-          <Text variant="microcopy" color={lang === k ? '#fff' : palette.navy700}>
+          <Text variant="microcopy" color={locale === k ? '#fff' : palette.navy700}>
             {k.toUpperCase()}
           </Text>
         </Pressable>
@@ -55,12 +56,12 @@ const LangToggle: React.FC = () => {
   );
 };
 
-export default function AccountScreen(_: MainTabsScreenProps<'Account'>) {
+export default function AccountScreen({ navigation }: MainTabsScreenProps<'Account'>) {
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.scroll}>
         <View style={styles.headerBar}>
-          <Pressable hitSlop={12}>
+          <Pressable onPress={() => navigation.navigate('Settings')} hitSlop={12}>
             <Ionicons name="menu" size={26} color={palette.neutral900} />
           </Pressable>
           <Text variant="cardTitle" weight="700">Mshro3e</Text>
@@ -83,7 +84,6 @@ export default function AccountScreen(_: MainTabsScreenProps<'Account'>) {
 
         <View style={styles.list}>
           <Row icon="person-outline"        label={i18n.t('account.rows.profile')} />
-          <Row icon="location-outline"      label={i18n.t('account.rows.addresses')} />
           <Row icon="notifications-outline" label={i18n.t('account.rows.notifications')} />
           <Row
             icon="language-outline"

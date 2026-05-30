@@ -48,11 +48,11 @@ export default function OnboardingScreen({ navigation }: RootStackScreenProps<'O
     if (index < slides.length - 1) {
       listRef.current?.scrollToOffset({ offset: (index + 1) * width, animated: true });
     } else {
-      navigation.replace('PhoneEntry');
+      navigation.replace('MainTabs');
     }
   };
 
-  const skip = () => navigation.replace('PhoneEntry');
+  const skip = () => navigation.replace('MainTabs');
 
   return (
     <Screen background={palette.navy900}>

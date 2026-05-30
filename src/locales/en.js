@@ -27,7 +27,17 @@ export default {
     verify: 'Verify',
   },
 
-  tabs: { home: 'Home', search: 'Search', favorites: 'Favorites', account: 'Account' },
+  tabs: { home: 'Home', search: 'Categories', favorites: 'Favorites', account: 'Account' },
+
+  cats: {
+    title: 'Browse by category',
+    subtitle: 'Pick a category to discover its products',
+    searchPlaceholder: 'Search within categories…',
+    sortAll: 'All',
+    sortPopular: 'Most popular',
+    sortNew: 'Newest',
+    productCount: '{n} products',
+  },
 
   home: {
     greeting: 'Welcome',

@@ -16,7 +16,7 @@ import { motion, palette, radius, semantic, shadowStyle, spacing } from '../them
 
 const ICONS: Record<string, { active: keyof typeof Ionicons.glyphMap; inactive: keyof typeof Ionicons.glyphMap }> = {
   Home: { active: 'home', inactive: 'home-outline' },
-  Search: { active: 'search', inactive: 'search-outline' },
+  Search: { active: 'grid', inactive: 'grid-outline' },
   Favorites: { active: 'heart', inactive: 'heart-outline' },
   Account: { active: 'person', inactive: 'person-outline' },
 };
@@ -117,12 +117,19 @@ const TabIcon: React.FC<{
   inactive: keyof typeof Ionicons.glyphMap;
 }> = ({ focused, active, inactive }) => {
   const opacity = useSharedValue(focused ? 1 : 0);
+  const scale = useSharedValue(1);
 
   useEffect(() => {
     opacity.value = withTiming(focused ? 1 : 0, { duration: 180 });
-  }, [focused, opacity]);
+    if (focused) {
+      // Brief punch on activation: 1 → 1.12 → 1
+      scale.value = withTiming(1.12, { duration: 120 }, () => {
+        scale.value = withTiming(1, { duration: 160 });
+      });
+    }
+  }, [focused, opacity, scale]);
 
-  const activeStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
+  const activeStyle = useAnimatedStyle(() => ({ opacity: opacity.value, transform: [{ scale: scale.value }] }));
   const inactiveStyle = useAnimatedStyle(() => ({ opacity: 1 - opacity.value }));
 
   return (
