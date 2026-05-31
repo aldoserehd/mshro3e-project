@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { doc, updateDoc } from 'firebase/firestore';
 import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
 import Button from '../../ui/Button';
@@ -9,13 +10,17 @@ import { palette, radius, semantic, spacing, pickLocale } from '../../theme/ts';
 import { useLocaleStore } from '../../stores/locale';
 import { useUserStore } from '../../stores/user';
 import { useCategories } from '../../data/hooks';
+import { firebaseDb } from '@shared/firebase';
+import { COL } from '@shared/firestore-paths';
 import type { RootStackScreenProps } from '../../navigation/types';
 
 export default function PreferencesScreen({ navigation }: RootStackScreenProps<'Preferences'>) {
   const { locale } = useLocaleStore();
   const setPrefs = useUserStore((s) => s.setPreferredCategories);
+  const uid = useUserStore((s) => s.user?.uid);
   const { data: categories } = useCategories();
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [saving, setSaving] = useState(false);
 
   const t = locale === 'ar'
     ? {
@@ -42,8 +47,23 @@ export default function PreferencesScreen({ navigation }: RootStackScreenProps<'
     });
   };
 
-  const onContinue = () => {
-    setPrefs(Array.from(selected));
+  const onContinue = async () => {
+    if (saving) return;
+    setSaving(true);
+    const ids = Array.from(selected);
+    setPrefs(ids);
+    if (uid) {
+      try {
+        await updateDoc(doc(firebaseDb(), COL.users, uid), {
+          preferredCategoryIds: ids,
+        });
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.warn('[prefs] failed to persist preferredCategoryIds', e);
+        // Non-fatal — continue to MainTabs so the user is not blocked.
+      }
+    }
+    setSaving(false);
     navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] });
   };
 
@@ -99,7 +119,7 @@ export default function PreferencesScreen({ navigation }: RootStackScreenProps<'
             {t.minHint.replace('{n}', String(3 - selected.size))}
           </Text>
         )}
-        <Button title={t.cta} onPress={onContinue} disabled={!enough} />
+        <Button title={t.cta} onPress={onContinue} disabled={!enough || saving} />
       </View>
     </Screen>
   );

@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
+import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
 import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
 import Button from '../../ui/Button';
@@ -9,6 +11,8 @@ import { Chevron } from '../../ui/Chevron';
 import { palette, radius, semantic, spacing, shadowStyle } from '../../theme/ts';
 import { useLocaleStore } from '../../stores/locale';
 import { useUserStore } from '../../stores/user';
+import { firebaseAuth, firebaseDb } from '@shared/firebase';
+import { COL } from '@shared/firestore-paths';
 import type { RootStackScreenProps } from '../../navigation/types';
 
 interface FieldProps {
@@ -53,7 +57,8 @@ export default function SignUpScreen({ navigation }: RootStackScreenProps<'SignU
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
-  const [errors, setErrors] = useState<Partial<Record<'name' | 'email' | 'phone' | 'password', string>>>({});
+  const [errors, setErrors] = useState<Partial<Record<'name' | 'email' | 'phone' | 'password' | 'form', string>>>({});
+  const [submitting, setSubmitting] = useState(false);
 
   const t = locale === 'ar'
     ? {
@@ -64,12 +69,14 @@ export default function SignUpScreen({ navigation }: RootStackScreenProps<'SignU
         phone: 'رقم الجوال',
         password: 'كلمة المرور',
         signUp: 'إنشاء حساب',
+        signingUp: 'جاري الإنشاء…',
         haveAccount: 'لديك حساب؟',
         signIn: 'تسجيل الدخول',
         errReq: 'حقل مطلوب',
         errEmail: 'بريد إلكتروني غير صحيح',
         errPhone: 'رقم جوال غير صحيح',
         errPwShort: 'كلمة المرور قصيرة جداً (٦+ أحرف)',
+        errSignUp: 'تعذّر إنشاء الحساب. حاول مرة أخرى.',
       }
     : {
         title: 'Create your account',
@@ -79,12 +86,14 @@ export default function SignUpScreen({ navigation }: RootStackScreenProps<'SignU
         phone: 'Phone number',
         password: 'Password',
         signUp: 'Sign up',
+        signingUp: 'Signing up…',
         haveAccount: 'Have an account?',
         signIn: 'Sign in',
         errReq: 'Required',
         errEmail: 'Invalid email',
         errPhone: 'Invalid phone',
         errPwShort: 'Password too short (6+ chars)',
+        errSignUp: 'Could not create the account. Try again.',
       };
 
   const validate = (): boolean => {
@@ -100,10 +109,54 @@ export default function SignUpScreen({ navigation }: RootStackScreenProps<'SignU
     return Object.keys(e).length === 0;
   };
 
-  const onSubmit = () => {
-    if (!validate()) return;
-    signUp({ name: name.trim(), email: email.trim(), phone: phone.trim(), password });
-    navigation.replace('Preferences');
+  const onSubmit = async () => {
+    if (!validate() || submitting) return;
+    setSubmitting(true);
+    setErrors((prev) => ({ ...prev, form: undefined }));
+    const trimmedName = name.trim();
+    const trimmedEmail = email.trim();
+    const trimmedPhone = phone.trim();
+    try {
+      const cred = await createUserWithEmailAndPassword(
+        firebaseAuth(),
+        trimmedEmail,
+        password,
+      );
+      try {
+        await updateProfile(cred.user, { displayName: trimmedName });
+      } catch {
+        // non-fatal — profile name is also stored in Firestore
+      }
+      await setDoc(doc(firebaseDb(), COL.users, cred.user.uid), {
+        uid: cred.user.uid,
+        name: trimmedName,
+        email: trimmedEmail,
+        phone: trimmedPhone,
+        preferredCategoryIds: [],
+        createdAt: serverTimestamp(),
+      });
+      signUp({
+        uid: cred.user.uid,
+        name: trimmedName,
+        email: trimmedEmail,
+        phone: trimmedPhone,
+        password,
+      });
+      navigation.replace('Preferences');
+    } catch (e) {
+      const code = (e as { code?: string }).code;
+      let msg = (e as { message?: string }).message ?? t.errSignUp;
+      if (code === 'auth/email-already-in-use') {
+        msg = locale === 'ar' ? 'البريد مستخدم مسبقاً.' : 'Email already in use.';
+      } else if (code === 'auth/invalid-email') {
+        msg = t.errEmail;
+      } else if (code === 'auth/weak-password') {
+        msg = t.errPwShort;
+      }
+      setErrors((prev) => ({ ...prev, form: msg }));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -150,7 +203,18 @@ export default function SignUpScreen({ navigation }: RootStackScreenProps<'SignU
             <Field icon="lock-closed-outline" placeholder={t.password} value={password} onChangeText={setPassword} secureTextEntry error={errors.password} />
           </View>
 
-          <Button title={t.signUp} onPress={onSubmit} style={{ marginTop: spacing.s5 }} />
+          {errors.form && (
+            <Text variant="caption" color="#B91C1C" style={{ marginTop: spacing.s3 }}>
+              {errors.form}
+            </Text>
+          )}
+
+          <Button
+            title={submitting ? t.signingUp : t.signUp}
+            onPress={onSubmit}
+            disabled={submitting}
+            style={{ marginTop: spacing.s5 }}
+          />
 
           <View style={styles.bottomRow}>
             <Text variant="body" color={palette.neutral500}>{t.haveAccount}</Text>

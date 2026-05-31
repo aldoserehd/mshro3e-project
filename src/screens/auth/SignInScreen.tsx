@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
 import Button from '../../ui/Button';
@@ -9,32 +11,94 @@ import { Chevron } from '../../ui/Chevron';
 import { palette, radius, semantic, spacing } from '../../theme/ts';
 import { useLocaleStore } from '../../stores/locale';
 import { useUserStore } from '../../stores/user';
+import { firebaseAuth, firebaseDb } from '@shared/firebase';
+import { COL } from '@shared/firestore-paths';
 import type { RootStackScreenProps } from '../../navigation/types';
 
 export default function SignInScreen({ navigation }: RootStackScreenProps<'SignIn'>) {
   const { locale } = useLocaleStore();
-  const signIn = useUserStore((s) => s.signIn);
+  const hydrate = useUserStore((s) => s.hydrate);
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [err, setErr] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   const t = locale === 'ar'
     ? { title: 'مرحباً بعودتك', subtitle: 'سجّل دخولك للمتابعة',
         identifier: 'البريد أو رقم الجوال', password: 'كلمة المرور',
-        signIn: 'تسجيل الدخول', noAccount: 'ليس لديك حساب؟', signUp: 'إنشاء حساب',
-        forgot: 'نسيت كلمة المرور؟', err: 'الرجاء تعبئة الحقول' }
+        signIn: 'تسجيل الدخول', signingIn: 'جاري الدخول…',
+        noAccount: 'ليس لديك حساب؟', signUp: 'إنشاء حساب',
+        forgot: 'نسيت كلمة المرور؟', err: 'الرجاء تعبئة الحقول',
+        errBadCreds: 'البريد أو كلمة المرور غير صحيحة.',
+        errGeneric: 'تعذّر تسجيل الدخول.' }
     : { title: 'Welcome back', subtitle: 'Sign in to continue',
         identifier: 'Email or phone', password: 'Password',
-        signIn: 'Sign in', noAccount: "Don't have an account?", signUp: 'Sign up',
-        forgot: 'Forgot password?', err: 'Please fill in all fields' };
+        signIn: 'Sign in', signingIn: 'Signing in…',
+        noAccount: "Don't have an account?", signUp: 'Sign up',
+        forgot: 'Forgot password?', err: 'Please fill in all fields',
+        errBadCreds: 'Wrong email or password.',
+        errGeneric: 'Could not sign in.' };
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     if (!identifier.trim() || !password) {
       setErr(t.err);
       return;
     }
-    signIn(identifier.trim(), password);
-    navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] });
+    if (submitting) return;
+    setSubmitting(true);
+    setErr('');
+    try {
+      const cred = await signInWithEmailAndPassword(
+        firebaseAuth(),
+        identifier.trim(),
+        password,
+      );
+      try {
+        const snap = await getDoc(doc(firebaseDb(), COL.users, cred.user.uid));
+        if (snap.exists()) {
+          const data = snap.data() as {
+            name?: string;
+            email?: string;
+            phone?: string;
+            preferredCategoryIds?: string[];
+          };
+          hydrate({
+            uid: cred.user.uid,
+            name: data.name ?? cred.user.displayName ?? '',
+            email: data.email ?? cred.user.email ?? identifier.trim(),
+            phone: data.phone ?? '',
+            preferredCategoryIds: data.preferredCategoryIds ?? [],
+            isAuthenticated: true,
+          });
+        } else {
+          hydrate({
+            uid: cred.user.uid,
+            name: cred.user.displayName ?? '',
+            email: cred.user.email ?? identifier.trim(),
+            phone: '',
+            preferredCategoryIds: [],
+            isAuthenticated: true,
+          });
+        }
+      } catch {
+        // hydration failure is non-fatal — the auth listener will retry
+      }
+      navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] });
+    } catch (e) {
+      const code = (e as { code?: string }).code;
+      if (
+        code === 'auth/invalid-credential' ||
+        code === 'auth/wrong-password' ||
+        code === 'auth/user-not-found' ||
+        code === 'auth/invalid-email'
+      ) {
+        setErr(t.errBadCreds);
+      } else {
+        setErr((e as { message?: string }).message ?? t.errGeneric);
+      }
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -95,7 +159,12 @@ export default function SignInScreen({ navigation }: RootStackScreenProps<'SignI
             <Text variant="label" color={palette.navy600}>{t.forgot}</Text>
           </Pressable>
 
-          <Button title={t.signIn} onPress={onSubmit} style={{ marginTop: spacing.s5 }} />
+          <Button
+            title={submitting ? t.signingIn : t.signIn}
+            onPress={onSubmit}
+            disabled={submitting}
+            style={{ marginTop: spacing.s5 }}
+          />
 
           <View style={styles.bottomRow}>
             <Text variant="body" color={palette.neutral500}>{t.noAccount}</Text>

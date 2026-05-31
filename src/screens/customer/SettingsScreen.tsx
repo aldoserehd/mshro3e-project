@@ -1,5 +1,5 @@
-import React from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import React, { useState } from 'react';
+import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import i18n from '../../locales/i18n';
@@ -10,6 +10,7 @@ import PressableScale from '../../ui/PressableScale';
 import { palette, radius, semantic, shadowStyle, spacing } from '../../theme/ts';
 import { useLocaleStore } from '../../stores/locale';
 import { useThemeStore, type ThemeMode } from '../../stores/theme';
+import { seedFirestore } from '../../lib/seed-firestore';
 import type { RootStackScreenProps } from '../../navigation/types';
 
 type RowProps = {
@@ -39,6 +40,36 @@ const Row: React.FC<RowProps> = ({ icon, label, description, trailing, onPress }
 
 export default function SettingsScreen({ navigation }: RootStackScreenProps<'Settings'>) {
   const { locale, setLocale } = useLocaleStore();
+  const [seeding, setSeeding] = useState(false);
+
+  const onSeed = async () => {
+    if (seeding) return;
+    setSeeding(true);
+    try {
+      const res = await seedFirestore();
+      if (res.ok) {
+        const counts = res.counts;
+        const msg = res.alreadySeeded
+          ? locale === 'ar'
+            ? 'البيانات موجودة مسبقاً.'
+            : 'Already seeded.'
+          : locale === 'ar'
+            ? `تم: ${counts.categories} تصنيف، ${counts.vendors} بائع، ${counts.products} منتج، ${counts.reviews} مراجعة.`
+            : `Done: ${counts.categories} categories, ${counts.vendors} vendors, ${counts.products} products, ${counts.reviews} reviews.`;
+        Alert.alert(locale === 'ar' ? 'تم التحميل' : 'Seed complete', msg);
+      } else {
+        Alert.alert(
+          locale === 'ar' ? 'فشل التحميل' : 'Seed failed',
+          res.error ?? 'Unknown error',
+        );
+      }
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      Alert.alert(locale === 'ar' ? 'فشل التحميل' : 'Seed failed', message);
+    } finally {
+      setSeeding(false);
+    }
+  };
 
   return (
     <Screen>
@@ -109,6 +140,33 @@ export default function SettingsScreen({ navigation }: RootStackScreenProps<'Set
               : 'Mshro3e only lists products. Payment and delivery are arranged directly with the vendor via WhatsApp, or the vendor\'s own KNET (Pro tier).'}
           </Text>
         </Card>
+
+        {/* Dev-only Firestore seed button */}
+        {__DEV__ && (
+          <View style={{ marginTop: spacing.s4 }}>
+            <Text variant="microcopy" color={palette.neutral500} style={styles.sectionLabel}>
+              {locale === 'ar' ? 'تطوير' : 'DEV'}
+            </Text>
+            <Row
+              icon="cloud-upload-outline"
+              label={
+                seeding
+                  ? locale === 'ar'
+                    ? 'جاري التحميل…'
+                    : 'Seeding…'
+                  : locale === 'ar'
+                    ? 'تحميل البيانات (تطوير)'
+                    : 'Seed Firestore (dev)'
+              }
+              description={
+                locale === 'ar'
+                  ? 'نسخ بيانات العرض إلى Firestore'
+                  : 'Copy demo data to Firestore'
+              }
+              onPress={onSeed}
+            />
+          </View>
+        )}
 
         {/* Upgrade banner */}
         <PressableScale>

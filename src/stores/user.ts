@@ -6,28 +6,32 @@ export interface UserProfile {
   email: string;
   phone: string;
   preferredCategoryIds: string[];
-  /** When user signs up, this becomes true so we can route past auth. */
+  /** When user logs in, this becomes true so we can route past auth. */
   isAuthenticated: boolean;
 }
 
 interface UserState {
   user: UserProfile | null;
-  signUp: (input: Pick<UserProfile, 'name' | 'email' | 'phone'> & { password: string }) => void;
-  signIn: (identifier: string, password: string) => void;
+  /** Local mirror after a successful Firebase Auth signUp. */
+  signUp: (input: Pick<UserProfile, 'name' | 'email' | 'phone'> & { password?: string; uid?: string }) => void;
+  /** Local mirror after a successful Firebase Auth signIn. */
+  signIn: (identifier: string, password?: string) => void;
+  /** Hydrate the store from a Firestore users/{uid} doc (called by the auth listener). */
+  hydrate: (profile: UserProfile) => void;
   signOut: () => void;
   setPreferredCategories: (ids: string[]) => void;
 }
 
 /**
- * Local-only user store for the demo flow.
- * Real Firebase auth will replace `signUp` / `signIn` later.
+ * Local user store. Firebase Auth is the source of truth — this store mirrors
+ * the signed-in user so screens can render synchronously without re-querying.
  */
 export const useUserStore = create<UserState>((set) => ({
   user: null,
-  signUp: ({ name, email, phone }) =>
+  signUp: ({ name, email, phone, uid }) =>
     set({
       user: {
-        uid: `demo-${Date.now()}`,
+        uid: uid ?? `demo-${Date.now()}`,
         name,
         email,
         phone,
@@ -39,13 +43,14 @@ export const useUserStore = create<UserState>((set) => ({
     set({
       user: {
         uid: `demo-${Date.now()}`,
-        name: 'فهد المهاجري',
-        email: identifier.includes('@') ? identifier : 'fahad@mshro3e.kw',
-        phone: identifier.startsWith('+') ? identifier : '+965 5000 1234',
+        name: '',
+        email: identifier.includes('@') ? identifier : '',
+        phone: identifier.startsWith('+') ? identifier : '',
         preferredCategoryIds: [],
         isAuthenticated: true,
       },
     }),
+  hydrate: (profile) => set({ user: profile }),
   signOut: () => set({ user: null }),
   setPreferredCategories: (ids) =>
     set((s) => (s.user ? { user: { ...s.user, preferredCategoryIds: ids } } : s)),

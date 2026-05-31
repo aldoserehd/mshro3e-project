@@ -12,6 +12,7 @@ import i18n from '../locales/i18n';
 import Text from '../ui/Text';
 import { RootStackScreenProps } from '../navigation/types';
 import { palette, spacing } from '../theme/ts';
+import { useUserStore } from '../stores/user';
 
 /**
  * Polished splash screen. No artificial delay — fades in app brand briefly
@@ -20,6 +21,7 @@ import { palette, spacing } from '../theme/ts';
 export default function SplashScreen({ navigation }: RootStackScreenProps<'Splash'>) {
   const opacity = useSharedValue(0);
   const scale = useSharedValue(0.9);
+  const user = useUserStore((s) => s.user);
 
   useEffect(() => {
     opacity.value = withTiming(1, { duration: 320, easing: Easing.out(Easing.cubic) });
@@ -28,12 +30,16 @@ export default function SplashScreen({ navigation }: RootStackScreenProps<'Splas
       withTiming(1, { duration: 220 }),
     );
     const t = setTimeout(() => {
-      // DEV: skip directly to MainTabs to view UI without auth.
-      // To enable the auth flow, swap to `navigation.replace('SignUp')`.
-      navigation.replace('MainTabs');
+      // Route based on Firebase Auth state (hydrated by App.tsx auth listener).
+      // To revert to the dev bypass, swap the line below for: navigation.replace('MainTabs');
+      if (user) {
+        navigation.replace('MainTabs');
+      } else {
+        navigation.replace('SignIn');
+      }
     }, 700);
     return () => clearTimeout(t);
-  }, [navigation, opacity, scale]);
+  }, [navigation, opacity, scale, user]);
 
   const brand = useAnimatedStyle(() => ({
     opacity: opacity.value,
