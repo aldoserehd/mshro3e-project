@@ -7,9 +7,10 @@
  */
 
 import { initializeApp, getApps, type FirebaseApp } from 'firebase/app';
-import { getAuth, type Auth } from 'firebase/auth';
+import { getAuth, initializeAuth, type Auth } from 'firebase/auth';
 import { getFirestore, type Firestore } from 'firebase/firestore';
 import { getStorage, type FirebaseStorage } from 'firebase/storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 let _config: { apiKey: string; authDomain: string; projectId: string; storageBucket: string; messagingSenderId: string; appId: string } | null = null;
 try {
@@ -36,8 +37,27 @@ export const firebaseApp = (): FirebaseApp => {
   return _app;
 };
 
+// `getReactNativePersistence` is exported from `firebase/auth` but its type isn't
+// in the v11 .d.ts. Use a typed require so TS doesn't choke.
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { getReactNativePersistence } = require('firebase/auth') as {
+  getReactNativePersistence: (storage: unknown) => unknown;
+};
+
 let _auth: Auth | null = null;
-export const firebaseAuth = (): Auth => (_auth ??= getAuth(firebaseApp()));
+export const firebaseAuth = (): Auth => {
+  if (_auth) return _auth;
+  const app = firebaseApp();
+  try {
+    _auth = initializeAuth(app, {
+      persistence: getReactNativePersistence(AsyncStorage) as never,
+    });
+  } catch {
+    // Auth is already initialized (hot reload), fall back to getAuth.
+    _auth = getAuth(app);
+  }
+  return _auth;
+};
 
 let _db: Firestore | null = null;
 export const firebaseDb = (): Firestore => (_db ??= getFirestore(firebaseApp()));

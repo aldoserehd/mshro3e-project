@@ -1,0 +1,47 @@
+rules_version = '2';
+
+// Mshro3e Firestore security rules.
+// Free customer browse: anyone can read public catalog.
+// Only signed-in users can write their own user doc.
+// Owner-side writes will use the Admin SDK from the Next.js admin app.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Public catalog — anyone can read, only signed-in users can seed/write
+    match /categories/{id} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    match /vendors/{id} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    match /products/{id} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    match /reviews/{id} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+
+    // User profile — read/write only your own doc
+    match /users/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow create: if request.auth != null && request.auth.uid == uid;
+      allow update: if request.auth != null && request.auth.uid == uid;
+      allow delete: if false;
+    }
+
+    // Seed marker — only signed-in users can read/write
+    match /_meta/{id} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Subscriptions (vendor side, future) — placeholder strict
+    match /subscriptions/{id} {
+      allow read, write: if false;
+    }
+  }
+}
