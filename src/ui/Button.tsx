@@ -140,7 +140,7 @@ function palettesFor(v: ButtonVariant): { textColor: string; borderColor: string
 function getInterpColors(v: ButtonVariant): { rest: string; pressed: string } | null {
   switch (v) {
     case 'primary':
-      return { rest: palette.navy900, pressed: palette.navy700 };
+      return { rest: palette.brand, pressed: palette.brandDark };
     case 'secondary':
       return { rest: palette.white, pressed: palette.navy50 };
     case 'ghost':

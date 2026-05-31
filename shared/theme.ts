@@ -4,23 +4,38 @@
  * Tailwind config in admin/ extends these. RN consumes them directly.
  */
 
+/**
+ * Stitch v2 "Kuwaiti Artisans" palette — soft blue accent (#415c9d) on a
+ * near-white canvas (#faf8ff), WhatsApp green for contact CTAs.
+ * The `navy*` ramp keys are kept (screens reference them widely) but their
+ * VALUES were remapped to this blue family so the whole app re-skins at once.
+ *   navy500 = the accent (#415c9d)
+ *   navy900 = deep hero navy (#001a41-ish), still high-contrast for text
+ *   navy50  = app background (#faf8ff)
+ */
 export const palette = {
-  navy950: '#05080F',
-  navy900: '#0A1020',
-  navy800: '#111A33',
-  navy700: '#1B2A4E',
-  navy600: '#243B6B',
-  navy500: '#2E4A8A',
-  navy400: '#5B7AB8',
-  navy300: '#8FA4CC',
-  navy200: '#C2CFE3',
-  navy100: '#E2E8F2',
-  navy50:  '#F4F6FB',
+  navy950: '#000f24',
+  navy900: '#001a41', // deep navy — hero backgrounds (tertiary-container)
+  navy800: '#15294f',
+  navy700: '#2a4686', // dark accent / pressed (on-secondary-container)
+  navy600: '#34528f',
+  navy500: '#415c9d', // ★ ACCENT — buttons, links, active states
+  navy400: '#6e87bf',
+  navy300: '#9db7ff', // light-blue chips (secondary-container)
+  navy200: '#c2cfe3',
+  navy100: '#dde2f9', // light fills / hover
+  navy50:  '#faf8ff', // ★ app background
   black:   '#000000',
   white:   '#FFFFFF',
-  neutral900: '#14171F',
-  neutral500: '#6B7280',
-  neutral200: '#E5E7EB',
+  // Brand + functional aliases (preferred over navy* for new code)
+  brand:      '#415c9d',
+  brandDark:  '#2a4686',
+  brandSoft:  '#9db7ff',
+  brandFixed: '#dde2f9',
+  whatsapp:   '#25D366',
+  neutral900: '#181b24',
+  neutral500: '#46464c',
+  neutral200: '#e0e2ed',
 } as const;
 
 export type PaletteToken = keyof typeof palette;
@@ -29,11 +44,12 @@ export const semantic = {
   bg: palette.navy50,
   bgDark: palette.navy950,
   surface: palette.white,
-  surfaceAlt: palette.navy50,
+  surfaceAlt: '#f2f3ff',
   surfaceDark: palette.navy900,
   surfaceDarkAlt: palette.navy800,
-  brand: palette.navy900,
-  brandHover: palette.navy700,
+  brand: palette.brand,
+  brandHover: palette.brandDark,
+  whatsapp: palette.whatsapp,
   text: palette.neutral900,
   textMuted: palette.neutral500,
   textOnDark: palette.white,
@@ -41,8 +57,8 @@ export const semantic = {
   border: palette.neutral200,
   borderStrong: palette.navy200,
   borderOnDark: palette.navy700,
-  link: palette.navy500,
-  focus: palette.navy600,
+  link: palette.brand,
+  focus: palette.brand,
 } as const;
 
 export const spacing = {
