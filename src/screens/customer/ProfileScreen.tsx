@@ -9,6 +9,10 @@ import Avatar from '../../ui/Avatar';
 import PressableScale from '../../ui/PressableScale';
 import { palette, radius, semantic, spacing, shadowStyle } from '../../theme/ts';
 import { useLocaleStore } from '../../stores/locale';
+import { useUserStore } from '../../stores/user';
+import { firebaseAuth } from '@shared/firebase';
+import { signOut } from 'firebase/auth';
+import { Alert } from 'react-native';
 import type { MainTabsScreenProps } from '../../navigation/types';
 
 interface RowProps {
@@ -57,6 +61,25 @@ const LangToggle: React.FC = () => {
 };
 
 export default function AccountScreen({ navigation }: MainTabsScreenProps<'Account'>) {
+  const { locale } = useLocaleStore();
+  const onLogout = () => {
+    Alert.alert(
+      locale === 'ar' ? 'تسجيل الخروج' : 'Log out',
+      locale === 'ar' ? 'هل تريد تسجيل الخروج من حسابك؟' : 'Are you sure you want to log out?',
+      [
+        { text: locale === 'ar' ? 'إلغاء' : 'Cancel', style: 'cancel' },
+        {
+          text: locale === 'ar' ? 'تسجيل الخروج' : 'Log out',
+          style: 'destructive',
+          onPress: async () => {
+            try { await signOut(firebaseAuth()); } catch { /* fall through */ }
+            useUserStore.getState().signOut();
+            navigation.reset({ index: 0, routes: [{ name: 'SignIn' as never }] });
+          },
+        },
+      ],
+    );
+  };
   return (
     <Screen>
       <ScrollView contentContainerStyle={styles.scroll}>
@@ -83,15 +106,19 @@ export default function AccountScreen({ navigation }: MainTabsScreenProps<'Accou
         </View>
 
         <View style={styles.list}>
-          <Row icon="person-outline"        label={i18n.t('account.rows.profile')} />
-          <Row icon="notifications-outline" label={i18n.t('account.rows.notifications')} />
+          <Row icon="person-outline"        label={i18n.t('account.rows.profile')}
+               onPress={() => navigation.navigate('Settings')} />
+          <Row icon="notifications-outline" label={i18n.t('account.rows.notifications')}
+               onPress={() => navigation.navigate('Info', { topic: 'notifications' })} />
           <Row
             icon="language-outline"
             label={i18n.t('account.rows.language')}
             trailing={<LangToggle />}
           />
-          <Row icon="help-circle-outline"   label={i18n.t('account.rows.support')} />
-          <Row icon="log-out-outline"       label={i18n.t('account.rows.logout')} destructive />
+          <Row icon="help-circle-outline"   label={i18n.t('account.rows.support')}
+               onPress={() => navigation.navigate('Info', { topic: 'help' })} />
+          <Row icon="log-out-outline"       label={i18n.t('account.rows.logout')} destructive
+               onPress={onLogout} />
         </View>
 
         <PressableScale>

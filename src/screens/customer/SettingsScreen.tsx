@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { signOut } from 'firebase/auth';
 import i18n from '../../locales/i18n';
 import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
@@ -10,6 +11,8 @@ import PressableScale from '../../ui/PressableScale';
 import { palette, radius, semantic, shadowStyle, spacing } from '../../theme/ts';
 import { useLocaleStore } from '../../stores/locale';
 import { useThemeStore, type ThemeMode } from '../../stores/theme';
+import { useUserStore } from '../../stores/user';
+import { firebaseAuth } from '@shared/firebase';
 import { seedFirestore } from '../../lib/seed-firestore';
 import type { RootStackScreenProps } from '../../navigation/types';
 
@@ -115,10 +118,14 @@ export default function SettingsScreen({ navigation }: RootStackScreenProps<'Set
           {locale === 'ar' ? 'التطبيق' : 'APP'}
         </Text>
         <View style={{ gap: spacing.s2 }}>
-          <Row icon="notifications-outline"      label={locale === 'ar' ? 'الإشعارات' : 'Notifications'} />
-          <Row icon="information-circle-outline" label={locale === 'ar' ? 'عن مشروعي' : 'About Mshro3e'} />
-          <Row icon="help-circle-outline"        label={locale === 'ar' ? 'المساعدة والدعم' : 'Help & support'} />
-          <Row icon="shield-checkmark-outline"   label={locale === 'ar' ? 'سياسة الخصوصية' : 'Privacy policy'} />
+          <Row icon="notifications-outline"      label={locale === 'ar' ? 'الإشعارات' : 'Notifications'}
+               onPress={() => navigation.navigate('Info', { topic: 'notifications' })} />
+          <Row icon="information-circle-outline" label={locale === 'ar' ? 'عن مشروعي' : 'About Mshro3e'}
+               onPress={() => navigation.navigate('Info', { topic: 'about' })} />
+          <Row icon="help-circle-outline"        label={locale === 'ar' ? 'المساعدة والدعم' : 'Help & support'}
+               onPress={() => navigation.navigate('Info', { topic: 'help' })} />
+          <Row icon="shield-checkmark-outline"   label={locale === 'ar' ? 'سياسة الخصوصية' : 'Privacy policy'}
+               onPress={() => navigation.navigate('Info', { topic: 'privacy' })} />
         </View>
 
         {/* Payments — info-only since we don't process */}
@@ -192,7 +199,31 @@ export default function SettingsScreen({ navigation }: RootStackScreenProps<'Set
           </View>
         </PressableScale>
 
-        <Pressable style={styles.logoutBtn}>
+        <Pressable
+          style={styles.logoutBtn}
+          onPress={() => {
+            Alert.alert(
+              locale === 'ar' ? 'تسجيل الخروج' : 'Log out',
+              locale === 'ar' ? 'هل تريد تسجيل الخروج من حسابك؟' : 'Are you sure you want to log out?',
+              [
+                { text: locale === 'ar' ? 'إلغاء' : 'Cancel', style: 'cancel' },
+                {
+                  text: locale === 'ar' ? 'تسجيل الخروج' : 'Log out',
+                  style: 'destructive',
+                  onPress: async () => {
+                    try {
+                      await signOut(firebaseAuth());
+                    } catch {
+                      // fall through — still clear local state
+                    }
+                    useUserStore.getState().signOut();
+                    navigation.reset({ index: 0, routes: [{ name: 'SignIn' }] });
+                  },
+                },
+              ],
+            );
+          }}
+        >
           <Ionicons name="log-out-outline" size={18} color="#B91C1C" />
           <Text variant="button" color="#B91C1C" style={{ marginStart: spacing.s2 }}>
             {locale === 'ar' ? 'تسجيل الخروج' : 'Log out'}

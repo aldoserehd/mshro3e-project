@@ -20,6 +20,7 @@ import ServiceDetailScreen from '../screens/customer/ServiceDetailScreen';
 import CategoryScreen from '../screens/customer/CategoryScreen';
 import SettingsScreen from '../screens/customer/SettingsScreen';
 import ChatScreen from '../screens/customer/ChatScreen';
+import InfoScreen from '../screens/customer/InfoScreen';
 
 import BlurTabBar from '../ui/BlurTabBar';
 import { palette, semantic } from '../theme/ts';
@@ -81,6 +82,7 @@ export default function AppNavigator() {
         <Stack.Screen name="Category" component={CategoryScreen} />
         <Stack.Screen name="Settings" component={SettingsScreen} />
         <Stack.Screen name="Chat" component={ChatScreen} />
+        <Stack.Screen name="Info" component={InfoScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
