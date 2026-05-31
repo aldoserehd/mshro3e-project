@@ -59,6 +59,11 @@ export default function App() {
   useEffect(() => {
     let cancelled = false;
     let unsub: (() => void) | null = null;
+    // Safety net: never block the splash longer than 3s on the auth listener.
+    // If Firebase init hangs or fails silently we still want the app to boot.
+    const safety = setTimeout(() => {
+      if (!cancelled) setAuthReady(true);
+    }, 3000);
     try {
       unsub = onAuthStateChanged(firebaseAuth(), async (fbUser) => {
         if (cancelled) return;
@@ -118,6 +123,7 @@ export default function App() {
     }
     return () => {
       cancelled = true;
+      clearTimeout(safety);
       if (unsub) unsub();
     };
   }, []);

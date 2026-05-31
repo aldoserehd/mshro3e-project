@@ -30,13 +30,11 @@ export default function SplashScreen({ navigation }: RootStackScreenProps<'Splas
       withTiming(1, { duration: 220 }),
     );
     const t = setTimeout(() => {
-      // Route based on Firebase Auth state (hydrated by App.tsx auth listener).
-      // To revert to the dev bypass, swap the line below for: navigation.replace('MainTabs');
-      if (user) {
-        navigation.replace('MainTabs');
-      } else {
-        navigation.replace('SignIn');
-      }
+      // DEV BYPASS: skip auth so the UI is viewable while we debug crashes.
+      // To enable the real auth flow, swap to the if/else below:
+      //   if (user) navigation.replace('MainTabs'); else navigation.replace('SignIn');
+      void user; // silence unused warning
+      navigation.replace('MainTabs');
     }, 700);
     return () => clearTimeout(t);
   }, [navigation, opacity, scale, user]);
