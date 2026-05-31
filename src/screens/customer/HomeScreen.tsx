@@ -10,202 +10,119 @@ import {
 } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
-import Animated, { FadeInDown } from 'react-native-reanimated';
-import { Chevron } from '../../ui/Chevron';
 import i18n from '../../locales/i18n';
 import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
 import PressableScale from '../../ui/PressableScale';
-import PulseDot from '../../ui/PulseDot';
 import Logo from '../../ui/Logo';
-import { useCategories, useFeaturedVendors, useServices, useVendors } from '../../data/hooks';
+import { useCategories, useServices, useVendors } from '../../data/hooks';
 import { palette, radius, semantic, shadowStyle, spacing, formatPrice, pickLocale } from '../../theme/ts';
 import type { Service, Vendor, Category } from '@shared/types';
-import { vendorById } from '../../data/seed';
 import { useLocaleStore } from '../../stores/locale';
 import { MainTabsScreenProps } from '../../navigation/types';
 
 export default function HomeScreen({ navigation }: MainTabsScreenProps<'Home'>) {
   const { data: categories } = useCategories();
-  const { data: featured } = useFeaturedVendors();
   const { data: vendors } = useVendors();
   const { data: products } = useServices();
   const { width } = useWindowDimensions();
   const { locale } = useLocaleStore();
-  const tileWidth = (width - spacing.s5 * 2 - spacing.s3) / 2;
+  const gridTile = (width - spacing.s5 * 2 - spacing.s3) / 2;
 
-  // Group products by category for the section blocks
-  const productsByCategory = React.useMemo(() => {
-    const map: Record<string, Service[]> = {};
-    for (const c of categories) {
-      map[c.id] = products.filter((p) => p.categoryIds.includes(c.id));
-    }
-    return map;
-  }, [categories, products]);
+  // Live vendor lookup (Firestore) — replaces the stale seed helper.
+  const vendorMap = React.useMemo(() => {
+    const m: Record<string, Vendor> = {};
+    for (const v of vendors) m[v.id] = v;
+    return m;
+  }, [vendors]);
+
+  const today = products.slice(0, 8);
+  const collection = products.slice(8, 12).length >= 2 ? products.slice(8, 12) : products.slice(0, 4);
 
   return (
     <Screen>
+      {/* ── Top bar: location · brand · search ── */}
+      <View style={styles.topBar}>
+        <Pressable style={styles.locationPill} hitSlop={8}>
+          <Ionicons name="location" size={16} color={palette.brand} />
+          <Text variant="label" weight="600" color={palette.neutral900} style={{ marginStart: 4 }}>
+            {locale === 'ar' ? 'السالمية' : 'Salmiya'}
+          </Text>
+          <Ionicons name="chevron-down" size={14} color={palette.neutral500} style={{ marginStart: 2 }} />
+        </Pressable>
+        <Text variant="cardTitle" weight="700" color={palette.brand}>Mshro3e</Text>
+        <Pressable onPress={() => navigation.navigate('Search')} hitSlop={8} style={styles.iconBtn}>
+          <Ionicons name="search" size={20} color={palette.neutral900} />
+        </Pressable>
+      </View>
+
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        {/* ───── HERO TOP BAR ───── */}
-        <View style={styles.heroWrap}>
-          <LinearGradient
-            colors={[palette.navy900, palette.navy800]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={StyleSheet.absoluteFill}
+        {/* ── Search field ── */}
+        <Pressable onPress={() => navigation.navigate('Search')} style={styles.searchBar}>
+          <Ionicons name="search" size={20} color={palette.neutral500} />
+          <TextInput
+            editable={false}
+            placeholder={i18n.t('home.searchHint')}
+            placeholderTextColor={palette.neutral500}
+            style={styles.searchInput}
+            pointerEvents="none"
           />
-          {/* Subtle dot pattern overlay */}
-          <View style={styles.dotPattern} pointerEvents="none">
-            {Array.from({ length: 60 }).map((_, i) => (
-              <View
-                key={i}
-                style={{
-                  position: 'absolute',
-                  left: (i * 37) % width,
-                  top: ((i * 53) % 100) + 20,
-                  width: 3, height: 3, borderRadius: 999,
-                  backgroundColor: 'rgba(255,255,255,0.06)',
-                }}
-              />
-            ))}
-          </View>
-
-          <View style={styles.topRow}>
-            <Pressable onPress={() => navigation.navigate('Settings')} hitSlop={12} style={styles.iconBtnDark}>
-              <Ionicons name="menu" size={22} color="#fff" />
-            </Pressable>
-            <Text variant="cardTitle" weight="800" color="#fff" style={{ letterSpacing: -0.3 }}>Mshro3e</Text>
-            <Pressable hitSlop={12} style={styles.iconBtnDark}>
-              <Ionicons name="mail-outline" size={22} color="#fff" />
-              <View style={styles.badge} />
-            </Pressable>
-          </View>
-
-          <Text variant="hero" color="#fff" weight="700" style={{ fontSize: 26, lineHeight: 32 }}>
-            {locale === 'ar' ? 'اكتشف الكويت،' : 'Discover Kuwait,'}
-          </Text>
-          <Text variant="pageTitle" color={palette.navy300} weight="500" style={{ marginTop: 2 }}>
-            {locale === 'ar' ? 'صنع بأيدي كويتية 🇰🇼' : 'made by Kuwaiti hands 🇰🇼'}
-          </Text>
-
-          <Pressable onPress={() => navigation.navigate('Search')} style={styles.searchBar}>
-            <Ionicons name="search" size={20} color={palette.neutral500} />
-            <TextInput
-              editable={false}
-              placeholder={i18n.t('home.searchHint')}
-              placeholderTextColor={palette.neutral500}
-              style={styles.searchInput}
-            />
-            <View style={styles.searchFilter}>
-              <Ionicons name="options-outline" size={16} color="#fff" />
-            </View>
-          </Pressable>
-        </View>
-
-        {/* ───── CATEGORY GRID — Uber Eats style ───── */}
-        <View style={styles.catGrid}>
-          {categories.slice(0, 8).map((c) => (
-            <View key={c.id} style={{ width: '25%' }}>
-              <CategoryTile
-                category={c}
-                onPress={() => navigation.navigate('Category', { categoryId: c.id })}
-              />
-            </View>
-          ))}
-        </View>
-        <Pressable
-          onPress={() => navigation.navigate('Search')}
-          style={styles.seeAllCats}
-        >
-          <Text variant="label" weight="600" color={palette.navy900}>
-            {locale === 'ar' ? `عرض كل التصنيفات (${categories.length})` : `Show all categories (${categories.length})`}
-          </Text>
-          <Chevron direction="forward" size={16} color={palette.navy900} />
         </Pressable>
 
-        {/* ───── VENDOR STORIES ───── */}
-        <SectionHeader title={i18n.t('home.storiesTitle')} />
-        <FlatList
-          data={featured}
+        {/* ── Category chips ── */}
+        <ScrollView
           horizontal
-          keyExtractor={(v) => v.id}
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.storiesRow}
-          renderItem={({ item }) => (
-            <StoryItem
-              vendor={item}
-              onPress={() => navigation.navigate('VendorProfile', { vendorId: item.id })}
-            />
-          )}
-        />
-
-        {/* ───── TRENDING VENDORS — horizontal multi-product cards ───── */}
-        <SectionHeader title={locale === 'ar' ? 'محلات رائجة' : 'Trending shops'} onSeeAll={() => navigation.navigate('Search')} />
-        <FlatList
-          data={vendors.slice(0, 6)}
-          horizontal
-          keyExtractor={(v) => v.id}
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.vendorCardsRow}
-          renderItem={({ item }) => (
-            <VendorCard
-              vendor={item}
-              products={products.filter((p) => p.vendorId === item.id).slice(0, 3)}
-              onPress={() => navigation.navigate('VendorProfile', { vendorId: item.id })}
-            />
-          )}
-        />
-
-        {/* ───── PER-CATEGORY BLOCKS — FB Marketplace style ───── */}
-        {categories.slice(0, 4).map((c) => {
-          const list = productsByCategory[c.id] ?? [];
-          if (list.length === 0) return null;
-          return (
-            <View key={c.id} style={{ marginTop: spacing.s6 }}>
-              <View style={styles.blockHeader}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.s2 }}>
-                  <Text style={{ fontSize: 22, lineHeight: 28, includeFontPadding: false }}>{c.emoji ?? '🏷️'}</Text>
-                  <Text variant="sectionTitle">{pickLocale(c.name)}</Text>
-                </View>
-                <Pressable onPress={() => navigation.navigate('Category', { categoryId: c.id })}>
-                  <Text variant="label" color={palette.navy600}>{i18n.t('home.viewAll')}</Text>
-                </Pressable>
+          contentContainerStyle={styles.chipRow}
+        >
+          <View style={[styles.chip, styles.chipActive]}>
+            <Text variant="label" weight="600" color="#fff">{locale === 'ar' ? 'الكل' : 'All'}</Text>
+          </View>
+          {categories.map((c) => (
+            <PressableScale key={c.id} onPress={() => navigation.navigate('Category', { categoryId: c.id })}>
+              <View style={styles.chip}>
+                <Text style={styles.chipEmoji}>{c.emoji ?? '🏷️'}</Text>
+                <Text variant="label" weight="600" color={palette.neutral900}>{pickLocale(c.name)}</Text>
               </View>
-              <FlatList
-                data={list.slice(0, 6)}
-                horizontal
-                keyExtractor={(p) => p.id}
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.blockRow}
-                renderItem={({ item }) => (
-                  <ProductCardHorizontal
-                    product={item}
-                    onPress={() => navigation.navigate('ServiceDetail', { serviceId: item.id })}
-                  />
-                )}
-              />
-            </View>
-          );
-        })}
+            </PressableScale>
+          ))}
+        </ScrollView>
 
-        {/* ───── DISCOVER GRID with live tiles ───── */}
-        <View style={[styles.blockHeader, { marginTop: spacing.s6 }]}>
-          <Text variant="sectionTitle">{i18n.t('home.discoverTitle')}</Text>
-          <Pressable onPress={() => navigation.navigate('Search')} style={styles.filterBtn}>
-            <Ionicons name="options-outline" size={16} color={palette.navy700} />
-            <Text variant="label" color={palette.navy700} style={{ marginStart: 4 }}>
-              {locale === 'ar' ? 'تصفية' : 'Filter'}
-            </Text>
-          </Pressable>
+        {/* ── Available Today ── */}
+        <SectionHeader
+          title={i18n.t('home.availableToday')}
+          onSeeAll={() => navigation.navigate('Search')}
+        />
+        {today.length === 0 ? (
+          <EmptyHint locale={locale} />
+        ) : (
+          <FlatList
+            data={today}
+            horizontal
+            keyExtractor={(p) => p.id}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.todayRow}
+            renderItem={({ item }) => (
+              <TallProductCard
+                product={item}
+                vendor={vendorMap[item.vendorId]}
+                onPress={() => navigation.navigate('ServiceDetail', { serviceId: item.id })}
+              />
+            )}
+          />
+        )}
+
+        {/* ── Occasion collection ── */}
+        <View style={styles.collectionHead}>
+          <Text variant="sectionTitle" weight="700">{i18n.t('home.gatheringTonight')}</Text>
+          <Text variant="body" color={palette.neutral500}>{i18n.t('home.gatheringSub')}</Text>
         </View>
         <View style={styles.grid}>
-          {products.slice(0, 8).map((p, idx) => (
-            <ProductTile
+          {collection.map((p) => (
+            <SquareProductCard
               key={p.id}
               product={p}
-              width={tileWidth}
-              live={idx % 3 === 0}
+              width={gridTile}
               onPress={() => navigation.navigate('ServiceDetail', { serviceId: p.id })}
             />
           ))}
@@ -215,316 +132,140 @@ export default function HomeScreen({ navigation }: MainTabsScreenProps<'Home'>) 
   );
 }
 
-// ──────────────────────────────────────────────────────────────────────
+// ── components ──
 
 const SectionHeader: React.FC<{ title: string; onSeeAll?: () => void }> = ({ title, onSeeAll }) => (
-  <View style={styles.blockHeader}>
-    <Text variant="sectionTitle">{title}</Text>
+  <View style={styles.sectionHead}>
+    <Text variant="sectionTitle" weight="700">{title}</Text>
     {onSeeAll && (
-      <Pressable onPress={onSeeAll}>
-        <Text variant="label" color={palette.navy600}>{i18n.t('home.viewAll')}</Text>
+      <Pressable onPress={onSeeAll} hitSlop={8}>
+        <Text variant="label" weight="600" color={palette.brand}>{i18n.t('home.viewAll')}</Text>
       </Pressable>
     )}
   </View>
 );
 
-const CategoryTile: React.FC<{ category: Category; onPress: () => void }> = ({ category, onPress }) => (
+const TallProductCard: React.FC<{ product: Service; vendor?: Vendor; onPress: () => void }> = ({ product, vendor, onPress }) => (
   <PressableScale onPress={onPress}>
-    <View style={styles.catTile}>
-      <View style={styles.catEmojiWrap}>
-        <Text style={{ fontSize: 28, lineHeight: 34, textAlign: 'center', includeFontPadding: false }}>
-          {category.emoji ?? '🏷️'}
-        </Text>
-      </View>
-      <Text variant="label" weight="600" align="center" numberOfLines={2} style={styles.catLabel}>
-        {pickLocale(category.name)}
-      </Text>
-    </View>
-  </PressableScale>
-);
-
-const StoryItem: React.FC<{ vendor: Vendor; onPress: () => void }> = ({ vendor, onPress }) => (
-  <PressableScale onPress={onPress}>
-    <View style={styles.storyWrap}>
-      <LinearGradient
-        colors={[palette.navy900, palette.navy500, palette.navy200]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.storyRing}
-      >
-        <View style={styles.storyInner}>
-          <Logo name={vendor.name.en} size={64} style={styles.storyAvatar} />
-        </View>
-      </LinearGradient>
-      <Text variant="microcopy" weight="500" color={palette.neutral900} numberOfLines={1} style={styles.storyLabel}>
-        {pickLocale(vendor.name)}
-      </Text>
-    </View>
-  </PressableScale>
-);
-
-const VendorCard: React.FC<{ vendor: Vendor; products: Service[]; onPress: () => void }> = ({ vendor, products, onPress }) => (
-  <PressableScale onPress={onPress}>
-    <View style={styles.vendorCard}>
-      <View style={styles.vendorCardHead}>
-        <Logo name={vendor.name.en} size={40} />
-        <View style={{ flex: 1, marginStart: spacing.s3 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-            <Text variant="label" weight="700" numberOfLines={1}>{pickLocale(vendor.name)}</Text>
-            {vendor.verifiedAt && (
-              <Ionicons name="checkmark-circle" size={12} color={palette.navy600} />
-            )}
-          </View>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-            <Ionicons name="star" size={11} color="#F0B400" />
-            <Text variant="microcopy" color={palette.neutral500}>
-              {vendor.rating.toFixed(1)} · {vendor.reviewCount}
-            </Text>
-          </View>
-        </View>
-      </View>
-      <View style={styles.vendorCardImgs}>
-        {products.slice(0, 3).map((p, i) => (
-          <Image
-            key={p.id}
-            source={{ uri: p.images[0] }}
-            style={[styles.vendorCardImg, i > 0 && { marginStart: 2 }]}
-            contentFit="cover"
-          />
-        ))}
-      </View>
-    </View>
-  </PressableScale>
-);
-
-const ProductCardHorizontal: React.FC<{ product: Service; onPress: () => void }> = ({ product, onPress }) => {
-  const vendor = vendorById(product.vendorId);
-  return (
-    <PressableScale onPress={onPress}>
-      <View style={styles.hProductCard}>
-        <View style={{ position: 'relative' }}>
-          <Image source={{ uri: product.images[0] }} style={styles.hProductImg} contentFit="cover" />
-          <Pressable style={styles.hProductHeart} hitSlop={8}>
-            <Ionicons name="heart-outline" size={14} color={palette.navy900} />
-          </Pressable>
-        </View>
-        <View style={{ padding: spacing.s3, gap: 2 }}>
-          <Text variant="label" weight="600" numberOfLines={1}>{pickLocale(product.title)}</Text>
-          <Text variant="cardTitle" color={palette.navy900} weight="700">
+    <View style={styles.tallCard}>
+      <View style={styles.tallImgWrap}>
+        <Image source={{ uri: product.images[0] }} style={styles.tallImg} contentFit="cover" transition={150} />
+        <View style={styles.priceBadge}>
+          <Text variant="label" weight="700" color={palette.neutral900}>
             {formatPrice(product.price, product.currency)}
           </Text>
-          {vendor && (
-            <View style={styles.vendorStripSmall}>
-              <Logo name={vendor.name.en} size={18} />
-              <Text variant="caption" color={palette.neutral500} numberOfLines={1} style={{ flex: 1, marginStart: 4 }}>
-                {pickLocale(vendor.name)}
-              </Text>
-              {vendor.verifiedAt && <Ionicons name="checkmark-circle" size={11} color={palette.navy600} />}
-            </View>
-          )}
         </View>
       </View>
-    </PressableScale>
-  );
-};
-
-const ProductTile: React.FC<{ product: Service; width: number; live: boolean; onPress: () => void }> = ({
-  product, width, live, onPress,
-}) => {
-  const vendor = vendorById(product.vendorId);
-  return (
-    <PressableScale onPress={onPress}>
-      <View style={{ width, marginBottom: spacing.s4 }}>
-        <View style={styles.tileImgWrap}>
-          <Image source={{ uri: product.images[0] }} style={styles.tileImg} contentFit="cover" />
-          {live && (
-            <View style={styles.pulseWrap}><PulseDot size={8} /></View>
-          )}
-          <Pressable style={styles.heart} hitSlop={8}>
-            <Ionicons name="heart-outline" size={14} color={palette.navy900} />
-          </Pressable>
-        </View>
-        <Text variant="label" weight="600" numberOfLines={1} style={{ marginTop: 10 }}>
-          {pickLocale(product.title)}
-        </Text>
-        <Text variant="cardTitle" color={palette.navy900} weight="700">
-          {formatPrice(product.price, product.currency)}
-        </Text>
+      <View style={styles.tallBody}>
         {vendor && (
-          <View style={styles.vendorStripSmall}>
-            <Logo name={vendor.name.en} size={18} />
-            <Text variant="caption" color={palette.neutral500} numberOfLines={1} style={{ flex: 1, marginStart: 4 }}>
+          <View style={styles.vendorRow}>
+            <Text variant="caption" color={palette.neutral500} numberOfLines={1} style={{ flexShrink: 1 }}>
               {pickLocale(vendor.name)}
             </Text>
-            {vendor.verifiedAt && <Ionicons name="checkmark-circle" size={11} color={palette.navy600} />}
+            {vendor.verifiedAt && <Ionicons name="checkmark-circle" size={12} color={palette.brand} style={{ marginStart: 3 }} />}
           </View>
         )}
+        <Text variant="cardTitle" weight="600" numberOfLines={1}>{pickLocale(product.title)}</Text>
       </View>
-    </PressableScale>
-  );
-};
+    </View>
+  </PressableScale>
+);
+
+const SquareProductCard: React.FC<{ product: Service; width: number; onPress: () => void }> = ({ product, width, onPress }) => (
+  <PressableScale onPress={onPress}>
+    <View style={[styles.sqCard, { width }]}>
+      <Image source={{ uri: product.images[0] }} style={styles.sqImg} contentFit="cover" transition={150} />
+      <View style={{ padding: spacing.s3 }}>
+        <Text variant="label" weight="600" numberOfLines={1}>{pickLocale(product.title)}</Text>
+        <Text variant="cardTitle" weight="700" color={palette.brand} style={{ marginTop: 2 }}>
+          {formatPrice(product.price, product.currency)}
+        </Text>
+      </View>
+    </View>
+  </PressableScale>
+);
+
+const EmptyHint: React.FC<{ locale: 'ar' | 'en' }> = ({ locale }) => (
+  <View style={styles.empty}>
+    <Ionicons name="storefront-outline" size={40} color={palette.navy300} />
+    <Text variant="body" color={palette.neutral500} align="center" style={{ marginTop: spacing.s2 }}>
+      {locale === 'ar' ? 'لا توجد منتجات بعد — حمّل البيانات من الإعدادات.' : 'No products yet — seed data from Settings.'}
+    </Text>
+  </View>
+);
 
 const styles = StyleSheet.create({
-  scroll: { paddingBottom: 120 },
-
-  // Hero
-  heroWrap: {
-    paddingHorizontal: spacing.s5,
-    paddingTop: spacing.s4,
-    paddingBottom: spacing.s7,
-    borderBottomStartRadius: radius.xl,
-    borderBottomEndRadius: radius.xl,
-    overflow: 'hidden',
-  },
-  dotPattern: { ...StyleSheet.absoluteFillObject },
-  topRow: {
+  topBar: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    marginBottom: spacing.s5,
+    paddingHorizontal: spacing.s5, paddingVertical: spacing.s3,
+    backgroundColor: semantic.surface,
+    borderBottomWidth: 1, borderBottomColor: palette.neutral200,
   },
-  iconBtnDark: {
-    width: 40, height: 40, borderRadius: 999,
-    backgroundColor: 'rgba(255,255,255,0.12)',
+  locationPill: {
+    flexDirection: 'row', alignItems: 'center',
+    backgroundColor: palette.navy50,
+    paddingHorizontal: spacing.s3, height: 34, borderRadius: 999,
+  },
+  iconBtn: {
+    width: 38, height: 38, borderRadius: 999,
+    backgroundColor: palette.navy50,
     alignItems: 'center', justifyContent: 'center',
-    position: 'relative',
   },
-  badge: {
-    position: 'absolute', top: 9, end: 11,
-    width: 8, height: 8, borderRadius: 999,
-    backgroundColor: '#F0B400',
-    borderWidth: 1, borderColor: palette.navy900,
-  },
+  scroll: { paddingBottom: 130 },
   searchBar: {
     flexDirection: 'row', alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: radius.full,
-    paddingHorizontal: spacing.s4,
-    height: 50,
-    gap: spacing.s2,
-    marginTop: spacing.s5,
-    ...shadowStyle(2),
-  },
-  searchInput: { flex: 1, fontSize: 14, color: palette.neutral900, textAlign: 'right' },
-  searchFilter: {
-    width: 32, height: 32, borderRadius: 999,
-    backgroundColor: palette.navy900,
-    alignItems: 'center', justifyContent: 'center',
-  },
-
-  // Categories grid
-  catGrid: {
-    flexDirection: 'row', flexWrap: 'wrap',
-    paddingHorizontal: spacing.s4,
-    paddingTop: spacing.s5,
-    gap: 0,
-  },
-  catTile: {
-    alignItems: 'center',
-    paddingVertical: spacing.s2,
-    paddingHorizontal: 4,
-    height: 108,
-    justifyContent: 'flex-start',
-  },
-  catEmojiWrap: {
-    width: 60, height: 60, borderRadius: radius.lg,
     backgroundColor: semantic.surface,
-    borderWidth: 1, borderColor: palette.navy100,
-    alignItems: 'center', justifyContent: 'center',
-    marginBottom: 6,
+    borderWidth: 1, borderColor: palette.neutral200,
+    borderRadius: radius.lg,
+    marginHorizontal: spacing.s5, marginTop: spacing.s4,
+    paddingHorizontal: spacing.s4, height: 52, gap: spacing.s2,
+    ...shadowStyle(1),
   },
-  catLabel: { textAlign: 'center', minHeight: 32 },
-  seeAllCats: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+  searchInput: { flex: 1, fontSize: 15, color: palette.neutral900, textAlign: 'right' },
+  chipRow: { paddingHorizontal: spacing.s5, paddingTop: spacing.s4, gap: spacing.s2 },
+  chip: {
+    flexDirection: 'row', alignItems: 'center',
     backgroundColor: semantic.surface,
-    borderWidth: 1, borderColor: palette.navy100,
-    marginHorizontal: spacing.s5,
-    marginTop: spacing.s2,
-    paddingVertical: spacing.s3,
-    borderRadius: radius.full,
-    gap: spacing.s2,
+    borderWidth: 1, borderColor: palette.neutral200,
+    paddingHorizontal: spacing.s4, height: 38, borderRadius: 999,
   },
-
-  // Section header (shared)
-  blockHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: spacing.s5,
-    marginTop: spacing.s6,
-    marginBottom: spacing.s3,
+  chipActive: { backgroundColor: palette.brand, borderColor: palette.brand },
+  chipEmoji: { fontSize: 15, marginEnd: 5, lineHeight: 20 },
+  sectionHead: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingHorizontal: spacing.s5, marginTop: spacing.s6, marginBottom: spacing.s3,
   },
-
-  // Stories
-  storiesRow: { paddingHorizontal: spacing.s5, gap: spacing.s4 },
-  storyWrap: { alignItems: 'center', width: 76 },
-  storyRing: {
-    width: 70, height: 70, borderRadius: 999,
-    padding: 2,
-    alignItems: 'center', justifyContent: 'center',
-  },
-  storyInner: {
-    width: '100%', height: '100%', borderRadius: 999,
-    padding: 2,
-    backgroundColor: semantic.bg,
-    alignItems: 'center', justifyContent: 'center',
-  },
-  storyAvatar: { width: '100%', height: '100%', borderRadius: 999, backgroundColor: palette.navy100 },
-  storyLabel: { width: 76, marginTop: 6, textAlign: 'center' },
-
-  // Vendor cards (trending)
-  vendorCardsRow: { paddingHorizontal: spacing.s5, gap: spacing.s3 },
-  vendorCard: {
+  todayRow: { paddingHorizontal: spacing.s5, gap: spacing.s4, paddingBottom: spacing.s2 },
+  tallCard: {
     width: 230,
     backgroundColor: semantic.surface,
     borderRadius: radius.xl,
-    padding: spacing.s3,
-    borderWidth: 1, borderColor: palette.navy100,
-    ...shadowStyle(1),
-  },
-  vendorCardHead: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.s3 },
-  vendorCardLogo: { width: 40, height: 40, borderRadius: 999, backgroundColor: palette.navy100 },
-  vendorCardImgs: { flexDirection: 'row', borderRadius: radius.md, overflow: 'hidden' },
-  vendorCardImg: { flex: 1, height: 90, backgroundColor: palette.navy100 },
-
-  // Block (category) rows
-  blockRow: { paddingHorizontal: spacing.s5, gap: spacing.s3 },
-  hProductCard: {
-    width: 180,
-    backgroundColor: semantic.surface,
-    borderRadius: radius.xl,
     overflow: 'hidden',
-    borderWidth: 1, borderColor: palette.navy100,
+    borderWidth: 1, borderColor: palette.neutral200,
+    ...shadowStyle(2),
+  },
+  tallImgWrap: { position: 'relative' },
+  tallImg: { width: '100%', height: 270, backgroundColor: palette.navy100 },
+  priceBadge: {
+    position: 'absolute', top: spacing.s3, end: spacing.s3,
+    backgroundColor: 'rgba(255,255,255,0.92)',
+    paddingHorizontal: spacing.s3, paddingVertical: 5, borderRadius: radius.lg,
     ...shadowStyle(1),
   },
-  hProductImg: { width: '100%', height: 140, backgroundColor: palette.navy100 },
-  hProductHeart: {
-    position: 'absolute', top: spacing.s2, end: spacing.s2,
-    width: 28, height: 28, borderRadius: 999,
-    backgroundColor: 'rgba(255,255,255,0.95)',
-    alignItems: 'center', justifyContent: 'center',
-  },
-
-  // Discover grid
-  filterBtn: {
-    flexDirection: 'row', alignItems: 'center',
-    backgroundColor: semantic.surface,
-    borderWidth: 1, borderColor: palette.navy200,
-    paddingHorizontal: spacing.s3, height: 32, borderRadius: 999,
-  },
+  tallBody: { padding: spacing.s4, gap: 4 },
+  vendorRow: { flexDirection: 'row', alignItems: 'center' },
+  collectionHead: { paddingHorizontal: spacing.s5, marginTop: spacing.s6, marginBottom: spacing.s3, gap: 2 },
   grid: {
     flexDirection: 'row', flexWrap: 'wrap',
-    paddingHorizontal: spacing.s5,
-    justifyContent: 'space-between',
+    paddingHorizontal: spacing.s5, justifyContent: 'space-between', gap: spacing.s3,
   },
-  tileImgWrap: { position: 'relative' },
-  tileImg: { width: '100%', aspectRatio: 1, borderRadius: radius.lg, backgroundColor: palette.navy100 },
-  pulseWrap: { position: 'absolute', top: spacing.s2, start: spacing.s2 },
-  heart: {
-    position: 'absolute', top: spacing.s2, end: spacing.s2,
-    width: 30, height: 30, borderRadius: 999,
-    backgroundColor: 'rgba(255,255,255,0.95)',
-    alignItems: 'center', justifyContent: 'center',
+  sqCard: {
+    backgroundColor: semantic.surface,
+    borderRadius: radius.xl, overflow: 'hidden',
+    borderWidth: 1, borderColor: palette.neutral200,
+    marginBottom: spacing.s3,
     ...shadowStyle(1),
   },
-  vendorStripSmall: { flexDirection: 'row', alignItems: 'center', marginTop: 6 },
-  vendorAvatarSmall: { width: 18, height: 18, borderRadius: 999, backgroundColor: palette.navy100 },
+  sqImg: { width: '100%', aspectRatio: 1, backgroundColor: palette.navy100 },
+  empty: { padding: spacing.s7, alignItems: 'center', justifyContent: 'center' },
 });

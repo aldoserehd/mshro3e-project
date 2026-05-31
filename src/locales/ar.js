@@ -45,15 +45,18 @@ export default {
   },
 
   home: {
-    greeting: 'أهلاً بك',
-    searchHint: 'ابحث عن منتج أو محل',
+    greeting: 'حياك',
+    searchHint: 'دوّر على حلا، عبايات، هدايا…',
     storiesTitle: 'قصص البائعين',
-    newTitle: 'جديد على مشروعي',
+    newTitle: 'يديد على مشروعي',
+    availableToday: 'متوفر اليوم',
+    gatheringTonight: 'عندك عزيمة الليلة؟',
+    gatheringSub: 'أطباق تناسب ديوانيتك.',
     discoverTitle: 'اكتشف المنتجات',
     pickedTitle: 'اخترنا لك',
     bestSellersTitle: 'الأكثر مبيعاً',
     viewAll: 'عرض الكل',
-    liveNow: 'متوفر الآن',
+    liveNow: 'متوفر الحين',
   },
 
   categories: {

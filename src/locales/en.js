@@ -41,9 +41,12 @@ export default {
 
   home: {
     greeting: 'Welcome',
-    searchHint: 'Search a product or vendor',
+    searchHint: 'Search treats, abayas, gifts…',
     storiesTitle: 'Vendor stories',
     newTitle: 'New on Mshro3e',
+    availableToday: 'Available Today',
+    gatheringTonight: 'Gathering tonight?',
+    gatheringSub: 'Perfect platters for your diwaniya.',
     discoverTitle: 'Discover products',
     pickedTitle: 'Picked for you',
     bestSellersTitle: 'Best sellers',
