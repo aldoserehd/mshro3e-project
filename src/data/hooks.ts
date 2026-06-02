@@ -23,6 +23,28 @@ import {
 import type { Vendor, Service, Category, Review } from '@shared/types';
 import { firebaseDb } from '@shared/firebase';
 import { COL } from '@shared/firestore-paths';
+import {
+  categories as seedCategories,
+  vendors as seedVendors,
+  services as seedServices,
+  reviews as seedReviews,
+  servicesForVendor,
+  reviewsForVendor,
+  vendorById,
+  serviceById,
+} from './seed';
+
+/**
+ * DEMO MOCK FALLBACK — TEMPORARY.
+ * When `true`, any hook whose Firestore query comes back empty (or errors,
+ * e.g. rules not published / no network) transparently serves the bundled
+ * Kuwaiti seed data so the app is fully viewable with zero backend setup.
+ * Real Firestore data, when present, always wins.
+ *
+ * TO REMOVE for production: set this to `false` (or revert the commit titled
+ * "demo: seed-data fallback in hooks"). No other code changes needed.
+ */
+export const MOCK_FALLBACK = true;
 
 export interface HookResult<T> {
   data: T;
@@ -82,6 +104,9 @@ export function useCategories(): HookResult<Category[]> {
     }
   }, []);
 
+  if (MOCK_FALLBACK && data.length === 0) {
+    return { data: seedCategories, loading: false, error };
+  }
   return { data, loading, error };
 }
 
@@ -122,8 +147,9 @@ export function useVendors(filter?: VendorFilter): HookResult<Vendor[]> {
     }
   }, []);
 
+  const usingMock = MOCK_FALLBACK && rows.length === 0;
   const data = useMemo(() => {
-    let list = rows;
+    let list = usingMock ? seedVendors : rows;
     if (filter?.categoryId) {
       list = list.filter((v) => v.categoryIds?.includes(filter.categoryId!));
     }
@@ -138,9 +164,9 @@ export function useVendors(filter?: VendorFilter): HookResult<Vendor[]> {
       }
     }
     return list;
-  }, [rows, filter?.categoryId, filter?.query]);
+  }, [rows, usingMock, filter?.categoryId, filter?.query]);
 
-  return { data, loading, error };
+  return { data, loading: usingMock ? false : loading, error };
 }
 
 export function useVendor(id: string | undefined): HookResult<Vendor | undefined> {
@@ -187,6 +213,10 @@ export function useVendor(id: string | undefined): HookResult<Vendor | undefined
     }
   }, [id]);
 
+  if (MOCK_FALLBACK && !data) {
+    const mock = vendorById(id ?? '');
+    if (mock) return { data: mock, loading: false, error };
+  }
   return { data, loading, error };
 }
 
@@ -228,6 +258,10 @@ export function useServices(vendorId?: string): HookResult<Service[]> {
     }
   }, [vendorId]);
 
+  if (MOCK_FALLBACK && data.length === 0) {
+    const mock = vendorId ? servicesForVendor(vendorId) : seedServices;
+    return { data: mock, loading: false, error };
+  }
   return { data, loading, error };
 }
 
@@ -275,6 +309,10 @@ export function useService(id: string | undefined): HookResult<Service | undefin
     }
   }, [id]);
 
+  if (MOCK_FALLBACK && !data) {
+    const mock = serviceById(id ?? '');
+    if (mock) return { data: mock, loading: false, error };
+  }
   return { data, loading, error };
 }
 
@@ -316,6 +354,10 @@ export function useReviews(vendorId?: string): HookResult<Review[]> {
     }
   }, [vendorId]);
 
+  if (MOCK_FALLBACK && data.length === 0) {
+    const mock = vendorId ? reviewsForVendor(vendorId) : seedReviews;
+    return { data: mock, loading: false, error };
+  }
   return { data, loading, error };
 }
 
