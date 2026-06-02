@@ -9,7 +9,8 @@ import Text from '../../ui/Text';
 import PressableScale from '../../ui/PressableScale';
 import PulseDot from '../../ui/PulseDot';
 import { useCategories, useServices } from '../../data/hooks';
-import { palette, radius, semantic, shadowStyle, spacing, pickLocale } from '../../theme/ts';
+import { palette, radius, shadowStyle, spacing, pickLocale } from '../../theme/ts';
+import { useColors } from '../../theme/colors';
 import { useLocaleStore } from '../../stores/locale';
 import type { Category } from '@shared/types';
 import type { MainTabsScreenProps } from '../../navigation/types';
@@ -20,6 +21,7 @@ export default function CategoriesScreen({ navigation }: MainTabsScreenProps<'Se
   const { data: categories } = useCategories();
   const { data: products } = useServices();
   const { locale } = useLocaleStore();
+  const c = useColors();
   const { width } = useWindowDimensions();
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<Sort>('all');
@@ -111,9 +113,13 @@ export default function CategoriesScreen({ navigation }: MainTabsScreenProps<'Se
             <Pressable
               key={s}
               onPress={() => setSort(s)}
-              style={[styles.sortChip, sort === s && styles.sortChipActive]}
+              style={[
+                styles.sortChip,
+                { backgroundColor: c.surface, borderColor: c.border },
+                sort === s && { backgroundColor: c.brand, borderColor: c.brand },
+              ]}
             >
-              <Text variant="label" weight="600" color={sort === s ? '#fff' : palette.navy900}>
+              <Text variant="label" weight="600" color={sort === s ? '#fff' : c.text}>
                 {i18n.t(`cats.sort${s.charAt(0).toUpperCase()}${s.slice(1)}`)}
               </Text>
             </Pressable>
@@ -135,8 +141,8 @@ export default function CategoriesScreen({ navigation }: MainTabsScreenProps<'Se
 
         {filtered.length === 0 && (
           <View style={styles.empty}>
-            <Ionicons name="search-outline" size={48} color={palette.navy300} />
-            <Text variant="body" color={palette.neutral500} style={{ marginTop: spacing.s3 }}>
+            <Ionicons name="search-outline" size={48} color={c.textMuted} />
+            <Text variant="body" color={c.textMuted} style={{ marginTop: spacing.s3 }}>
               {locale === 'ar' ? 'لا توجد تصنيفات مطابقة' : 'No matching categories'}
             </Text>
           </View>
@@ -260,11 +266,9 @@ const styles = StyleSheet.create({
   sortChip: {
     paddingHorizontal: spacing.s4, height: 36,
     borderRadius: 999,
-    backgroundColor: semantic.surface,
-    borderWidth: 1, borderColor: palette.navy200,
+    borderWidth: 1,
     alignItems: 'center', justifyContent: 'center',
   },
-  sortChipActive: { backgroundColor: palette.navy900, borderColor: palette.navy900 },
 
   grid: {
     flexDirection: 'row', flexWrap: 'wrap',

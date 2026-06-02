@@ -12,7 +12,8 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import Text from './Text';
-import { motion, palette, radius, semantic, shadowStyle, spacing } from '../theme/ts';
+import { motion, radius, shadowStyle, spacing } from '../theme/ts';
+import { useColors } from '../theme/colors';
 
 const ICONS: Record<string, { active: keyof typeof Ionicons.glyphMap; inactive: keyof typeof Ionicons.glyphMap }> = {
   Home: { active: 'home', inactive: 'home-outline' },
@@ -29,6 +30,7 @@ const ICONS: Record<string, { active: keyof typeof Ionicons.glyphMap; inactive: 
  */
 export const BlurTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, navigation }) => {
   const insets = useSafeAreaInsets();
+  const c = useColors();
   const { width } = useWindowDimensions();
   const horizontalMargin = spacing.s4;
   const tabBarWidth = width - horizontalMargin * 2;
@@ -55,12 +57,12 @@ export const BlurTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, na
         },
       ]}
     >
-      <BlurView intensity={85} tint="light" style={StyleSheet.absoluteFill} />
-      <View style={[StyleSheet.absoluteFill, styles.fallbackBg]} />
+      <BlurView intensity={85} tint={c.isDark ? 'dark' : 'light'} style={StyleSheet.absoluteFill} />
+      <View style={[StyleSheet.absoluteFill, { backgroundColor: c.isDark ? 'rgba(20,26,46,0.82)' : 'rgba(255,255,255,0.7)' }]} />
       <Animated.View
         style={[
           styles.indicator,
-          { width: tabWidth - spacing.s2 * 2, marginStart: spacing.s2 },
+          { width: tabWidth - spacing.s2 * 2, marginStart: spacing.s2, backgroundColor: c.brandFill },
           indicatorStyle,
         ]}
       />
@@ -98,7 +100,7 @@ export const BlurTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, na
               <Text
                 variant="microcopy"
                 weight="500"
-                color={focused ? palette.navy900 : palette.navy400}
+                color={focused ? c.brandText : c.textMuted}
                 style={styles.label}
               >
                 {label as string}
@@ -116,6 +118,7 @@ const TabIcon: React.FC<{
   active: keyof typeof Ionicons.glyphMap;
   inactive: keyof typeof Ionicons.glyphMap;
 }> = ({ focused, active, inactive }) => {
+  const c = useColors();
   const opacity = useSharedValue(focused ? 1 : 0);
 
   useEffect(() => {
@@ -128,10 +131,10 @@ const TabIcon: React.FC<{
   return (
     <View style={styles.iconWrap}>
       <Animated.View style={[StyleSheet.absoluteFill, activeStyle, styles.iconCenter]}>
-        <Ionicons name={active} size={22} color={palette.navy900} />
+        <Ionicons name={active} size={22} color={c.brandText} />
       </Animated.View>
       <Animated.View style={[inactiveStyle, styles.iconCenter]}>
-        <Ionicons name={inactive} size={22} color={palette.navy400} />
+        <Ionicons name={inactive} size={22} color={c.textMuted} />
       </Animated.View>
     </View>
   );
@@ -144,9 +147,6 @@ const styles = StyleSheet.create({
     borderRadius: radius.full,
     overflow: 'hidden',
     ...shadowStyle(3),
-  },
-  fallbackBg: {
-    backgroundColor: 'rgba(255,255,255,0.7)',
   },
   row: {
     flex: 1,
@@ -174,7 +174,6 @@ const styles = StyleSheet.create({
     top: spacing.s2,
     bottom: spacing.s2,
     borderRadius: radius.full,
-    backgroundColor: palette.navy100,
   },
 });
 

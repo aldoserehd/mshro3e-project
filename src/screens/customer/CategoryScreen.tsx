@@ -8,10 +8,10 @@ import i18n from '../../locales/i18n';
 import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
 import PressableScale from '../../ui/PressableScale';
-import { useServices } from '../../data/hooks';
-import { vendorById, categoryById } from '../../data/seed';
-import { palette, radius, semantic, shadowStyle, spacing, formatPrice, pickLocale } from '../../theme/ts';
-import type { Service } from '@shared/types';
+import { useCategories, useServices, useVendors } from '../../data/hooks';
+import { useColors } from '../../theme/colors';
+import { radius, shadowStyle, spacing, formatPrice, pickLocale, getCurrentLocale } from '../../theme/ts';
+import type { Service, Vendor } from '@shared/types';
 import type { RootStackScreenProps } from '../../navigation/types';
 
 type Sort = 'newest' | 'price_asc' | 'price_desc';
@@ -19,27 +19,34 @@ type Sort = 'newest' | 'price_asc' | 'price_desc';
 export default function CategoryScreen({ route, navigation }: RootStackScreenProps<'Category'>) {
   const { categoryId } = route.params;
   const { data: all } = useServices();
+  const { data: categories } = useCategories();
+  const { data: vendors } = useVendors();
   const { width } = useWindowDimensions();
+  const c = useColors();
   const tileWidth = (width - spacing.s5 * 2 - spacing.s3) / 2;
   const [sort, setSort] = useState<Sort>('newest');
 
-  const category = categoryById(categoryId);
+  const category = useMemo(() => categories.find((x) => x.id === categoryId), [categories, categoryId]);
+  const vendorMap = useMemo(() => Object.fromEntries(vendors.map((v) => [v.id, v])), [vendors]);
+
   const products = useMemo(() => {
-    let list = all.filter((p) => p.categoryIds.includes(categoryId));
+    let list = all.filter((p) => p.categoryIds?.includes(categoryId));
     if (sort === 'price_asc') list = [...list].sort((a, b) => a.price - b.price);
     else if (sort === 'price_desc') list = [...list].sort((a, b) => b.price - a.price);
     return list;
   }, [all, categoryId, sort]);
 
+  const ar = getCurrentLocale() === 'ar';
+
   return (
     <Screen>
-      {/* Hero */}
+      {/* Hero (deep navy brand block — reads well in both themes) */}
       <View style={styles.hero}>
         <Pressable onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Ionicons name="arrow-back" size={20} color="#fff" style={{ transform: [{ scaleX: -1 }] }} />
+          <Ionicons name="chevron-back" size={20} color="#fff" style={{ transform: [{ scaleX: -1 }] }} />
         </Pressable>
         <View style={styles.heroContent}>
-          <Text variant="caption" color={palette.navy200}>
+          <Text variant="caption" color="#c2cfe3">
             {i18n.t('cats.productCount', { n: products.length })}
           </Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.s2 }}>
@@ -52,29 +59,31 @@ export default function CategoryScreen({ route, navigation }: RootStackScreenPro
       </View>
 
       {/* Sort row */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.sortRow}
-      >
-        {(['newest', 'price_asc', 'price_desc'] as Sort[]).map((s) => (
-          <Pressable
-            key={s}
-            onPress={() => setSort(s)}
-            style={[styles.sortChip, sort === s && styles.sortChipActive]}
-          >
-            <Text variant="label" color={sort === s ? '#fff' : palette.navy900}>
-              {s === 'newest' ? 'الأحدث' : s === 'price_asc' ? 'السعر ↑' : 'السعر ↓'}
-            </Text>
-          </Pressable>
-        ))}
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.sortRow}>
+        {(['newest', 'price_asc', 'price_desc'] as Sort[]).map((s) => {
+          const active = sort === s;
+          return (
+            <Pressable
+              key={s}
+              onPress={() => setSort(s)}
+              style={[
+                styles.sortChip,
+                { backgroundColor: active ? c.brand : c.surface, borderColor: active ? c.brand : c.border },
+              ]}
+            >
+              <Text variant="label" weight="600" color={active ? '#fff' : c.text}>
+                {s === 'newest' ? (ar ? 'الأحدث' : 'Newest') : s === 'price_asc' ? (ar ? 'السعر ↑' : 'Price ↑') : (ar ? 'السعر ↓' : 'Price ↓')}
+              </Text>
+            </Pressable>
+          );
+        })}
       </ScrollView>
 
       {products.length === 0 ? (
         <View style={styles.empty}>
-          <Ionicons name="bag-outline" size={48} color={palette.navy300} />
-          <Text variant="body" color={palette.neutral500} style={{ marginTop: spacing.s3 }}>
-            لا توجد منتجات في هذا التصنيف بعد.
+          <Ionicons name="bag-outline" size={48} color={c.textMuted} />
+          <Text variant="body" color={c.textMuted} style={{ marginTop: spacing.s3 }}>
+            {ar ? 'لا توجد منتجات في هذا التصنيف بعد.' : 'No products in this category yet.'}
           </Text>
         </View>
       ) : (
@@ -88,6 +97,7 @@ export default function CategoryScreen({ route, navigation }: RootStackScreenPro
             <Animated.View entering={FadeInDown.delay(index * 40).duration(360)}>
               <ProductTile
                 product={item}
+                vendor={vendorMap[item.vendorId]}
                 width={tileWidth}
                 onPress={() => navigation.navigate('ServiceDetail', { serviceId: item.id })}
               />
@@ -99,32 +109,30 @@ export default function CategoryScreen({ route, navigation }: RootStackScreenPro
   );
 }
 
-const ProductTile: React.FC<{ product: Service; width: number; onPress: () => void }> = ({ product, width, onPress }) => {
-  const vendor = vendorById(product.vendorId);
+const ProductTile: React.FC<{ product: Service; vendor?: Vendor; width: number; onPress: () => void }> = ({ product, vendor, width, onPress }) => {
+  const c = useColors();
   return (
     <PressableScale onPress={onPress}>
       <View style={{ width, marginBottom: spacing.s4 }}>
         <View style={styles.tileImgWrap}>
-          <Image source={{ uri: product.images[0] }} style={styles.tileImg} contentFit="cover" />
-          <View style={styles.heart}>
-            <Ionicons name="heart-outline" size={14} color={palette.navy900} />
+          <Image source={{ uri: product.images?.[0] }} style={[styles.tileImg, { backgroundColor: c.surfaceSunken }]} contentFit="cover" />
+          <View style={[styles.heart, { backgroundColor: c.glass }]}>
+            <Ionicons name="heart-outline" size={14} color={c.text} />
           </View>
         </View>
-        <Text variant="label" numberOfLines={1} style={{ marginTop: 10 }}>
+        <Text variant="label" weight="600" numberOfLines={1} style={{ marginTop: 10 }}>
           {pickLocale(product.title)}
         </Text>
-        <Text variant="cardTitle" color={palette.navy900} weight="700">
+        <Text variant="cardTitle" color={c.brandText} weight="700" forceLtr>
           {formatPrice(product.price, product.currency)}
         </Text>
         {vendor && (
           <View style={styles.vendorStrip}>
-            <Logo name={vendor.name.en} size={20} />
-            <Text variant="caption" color={palette.neutral500} numberOfLines={1} style={{ flex: 1, marginStart: 4 }}>
+            <Logo name={vendor.name.en} size={20} uri={vendor.logoImage} />
+            <Text variant="caption" color={c.textMuted} numberOfLines={1} style={{ flex: 1, marginStart: 4 }}>
               {pickLocale(vendor.name)}
             </Text>
-            {vendor.verifiedAt && (
-              <Ionicons name="checkmark-circle" size={12} color={palette.navy600} />
-            )}
+            {vendor.verifiedAt && <Ionicons name="checkmark-circle" size={12} color={c.brandText} />}
           </View>
         )}
       </View>
@@ -134,7 +142,7 @@ const ProductTile: React.FC<{ product: Service; width: number; onPress: () => vo
 
 const styles = StyleSheet.create({
   hero: {
-    backgroundColor: palette.navy900,
+    backgroundColor: '#001a41',
     paddingHorizontal: spacing.s5,
     paddingTop: spacing.s5,
     paddingBottom: spacing.s6,
@@ -151,21 +159,16 @@ const styles = StyleSheet.create({
   sortRow: { paddingHorizontal: spacing.s5, paddingTop: spacing.s4, gap: spacing.s2 },
   sortChip: {
     paddingHorizontal: spacing.s3, height: 36, borderRadius: 999,
-    backgroundColor: semantic.surface,
-    borderWidth: 1, borderColor: palette.neutral200,
-    alignItems: 'center', justifyContent: 'center',
+    borderWidth: 1, alignItems: 'center', justifyContent: 'center',
   },
-  sortChipActive: { backgroundColor: palette.navy900, borderColor: palette.navy900 },
   empty: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.s7 },
   tileImgWrap: { position: 'relative' },
-  tileImg: { width: '100%', aspectRatio: 1, borderRadius: radius.lg, backgroundColor: palette.navy100 },
+  tileImg: { width: '100%', aspectRatio: 1, borderRadius: radius.lg },
   heart: {
     position: 'absolute', top: spacing.s2, end: spacing.s2,
     width: 28, height: 28, borderRadius: 999,
-    backgroundColor: 'rgba(255,255,255,0.95)',
     alignItems: 'center', justifyContent: 'center',
     ...shadowStyle(1),
   },
   vendorStrip: { flexDirection: 'row', alignItems: 'center', marginTop: 6 },
-  vendorAvatar: { width: 20, height: 20, borderRadius: 999, backgroundColor: palette.navy100 },
 });
