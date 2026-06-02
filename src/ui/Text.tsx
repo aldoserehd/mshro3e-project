@@ -5,7 +5,8 @@ import {
   TextStyle,
   StyleSheet,
 } from 'react-native';
-import { font, type FontRole, rtl, semantic, palette } from '../theme/ts';
+import { font, type FontRole, rtl } from '../theme/ts';
+import { useColors } from '../theme/colors';
 
 export interface TextProps extends RNTextProps {
   variant?: FontRole;
@@ -35,9 +36,10 @@ export const Text: React.FC<TextProps> = ({
   const isRtl = rtl();
   const ar = isArabic ?? isRtl;
   const base = font(variant, ar);
+  const c = useColors();
   const composed: TextStyle = {
     ...base,
-    color: color ?? semantic.text,
+    color: color ?? c.text,
   };
   if (weight) composed.fontWeight = weight;
   if (align) composed.textAlign = align;
@@ -50,9 +52,10 @@ export const Text: React.FC<TextProps> = ({
 };
 
 /** Helper sub-component for the muted variant. */
-export const MutedText: React.FC<TextProps> = (props) => (
-  <Text color={palette.neutral500} {...props} />
-);
+export const MutedText: React.FC<TextProps> = (props) => {
+  const c = useColors();
+  return <Text color={c.textMuted} {...props} />;
+};
 
 const _styles = StyleSheet.create({});
 

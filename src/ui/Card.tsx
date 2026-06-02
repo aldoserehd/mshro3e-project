@@ -1,7 +1,8 @@
 import React from 'react';
 import { StyleProp, View, ViewProps, ViewStyle } from 'react-native';
 import PressableScale from './PressableScale';
-import { palette, radius, semantic, shadowStyle, spacing } from '../theme/ts';
+import { radius, shadowStyle, spacing } from '../theme/ts';
+import { useColors } from '../theme/colors';
 
 export interface CardProps extends Omit<ViewProps, 'style'> {
   style?: StyleProp<ViewStyle>;
@@ -26,16 +27,19 @@ export const Card: React.FC<CardProps> = ({
   onPress,
   elevation = 1,
   padding = 'md',
-  background = semantic.surface,
+  background,
   rounded = radius.lg,
   children,
   ...rest
 }) => {
+  const c = useColors();
   const baseStyle: ViewStyle = {
-    backgroundColor: background,
+    backgroundColor: background ?? c.surface,
     borderRadius: rounded,
     padding: paddings[padding],
     ...shadowStyle(elevation),
+    // On dark, a hairline lifts cards off the canvas where shadows vanish.
+    ...(c.isDark ? { borderWidth: 1, borderColor: c.border } : null),
   };
 
   if (onPress) {
@@ -54,14 +58,17 @@ export const Card: React.FC<CardProps> = ({
 
 export default Card;
 
-export const HairlineCardBorder: React.FC<{ style?: StyleProp<ViewStyle> }> = ({ style }) => (
-  <View
-    style={[
-      {
-        borderTopWidth: 1,
-        borderTopColor: palette.neutral200,
-      },
-      style,
-    ]}
-  />
-);
+export const HairlineCardBorder: React.FC<{ style?: StyleProp<ViewStyle> }> = ({ style }) => {
+  const c = useColors();
+  return (
+    <View
+      style={[
+        {
+          borderTopWidth: 1,
+          borderTopColor: c.border,
+        },
+        style,
+      ]}
+    />
+  );
+};
