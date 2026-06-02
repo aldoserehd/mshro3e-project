@@ -1,8 +1,15 @@
 import 'server-only';
 import type { Vendor, VendorStatus } from '@shared/types';
 import { seedVendors, vendorById, seedOrders, seedReviews, seedServices } from '@/data/seed';
+import { adminDb } from '@/lib/firebase-admin';
+import { COL } from '@shared/firestore-paths';
 
 const useFirebase = !!process.env.FIREBASE_ADMIN_SERVICE_ACCOUNT;
+
+async function fetchVendorsFromFirestore(): Promise<Vendor[]> {
+  const snap = await adminDb().collection(COL.vendors).get();
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Vendor);
+}
 
 export interface VendorFilters {
   search?: string;
@@ -12,12 +19,17 @@ export interface VendorFilters {
 }
 
 export async function listVendors(filters: VendorFilters = {}): Promise<Vendor[]> {
-  if (useFirebase) {
-    // TODO: real Firestore query — kept stubbed until env wired.
-    return [];
-  }
   const q = (filters.search ?? '').trim().toLowerCase();
-  let out = seedVendors.slice();
+  let out: Vendor[];
+  if (useFirebase) {
+    try {
+      out = await fetchVendorsFromFirestore();
+    } catch {
+      out = [];
+    }
+  } else {
+    out = seedVendors.slice();
+  }
   if (filters.status && filters.status !== 'all') {
     out = out.filter((v) => v.status === filters.status);
   }
@@ -44,7 +56,12 @@ export async function listVendors(filters: VendorFilters = {}): Promise<Vendor[]
 
 export async function getVendor(id: string): Promise<Vendor | null> {
   if (useFirebase) {
-    return null; // TODO
+    try {
+      const doc = await adminDb().collection(COL.vendors).doc(id).get();
+      return doc.exists ? ({ id: doc.id, ...doc.data() } as Vendor) : null;
+    } catch {
+      return null;
+    }
   }
   return vendorById(id) ?? null;
 }

@@ -63,9 +63,11 @@ export default async function VendorsPage({ searchParams }: PageProps) {
         title={t.vendors.title}
         subtitle={t.vendors.subtitle}
         actions={
-          <Button>
-            <Plus className="size-4" />
-            {t.vendors.addNew}
+          <Button asChild>
+            <Link href={'/vendors/new' as never}>
+              <Plus className="size-4" />
+              {t.vendors.addNew}
+            </Link>
           </Button>
         }
       />

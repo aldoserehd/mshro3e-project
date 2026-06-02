@@ -5,6 +5,7 @@ const SESSION_COOKIE = '__mshro3e_session';
 const PROTECTED_PREFIXES = [
   '/overview',
   '/vendors',
+  '/products',
   '/bookings',
   '/orders',
   '/users',
@@ -44,6 +45,7 @@ export const config = {
     '/login',
     '/overview/:path*',
     '/vendors/:path*',
+    '/products/:path*',
     '/bookings/:path*',
     '/orders/:path*',
     '/users/:path*',

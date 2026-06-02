@@ -32,6 +32,7 @@ const items: NavItem[] = [
   { href: '/overview', labelKey: 'overview', icon: LayoutDashboard },
   { href: '/vendors', labelKey: 'vendorsAll', icon: Store, matches: ['/vendors'] },
   { href: '/vendors/pending', labelKey: 'vendorsPending', icon: UserCheck },
+  { href: '/products', labelKey: 'products', icon: Package },
   { href: '/subscriptions', labelKey: 'subscriptions', icon: CreditCard },
   { href: '/orders', labelKey: 'orders', icon: Package },
   { href: '/users', labelKey: 'users', icon: Users },
