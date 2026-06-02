@@ -24,31 +24,20 @@ import ChatScreen from '../screens/customer/ChatScreen';
 import InfoScreen from '../screens/customer/InfoScreen';
 
 import BlurTabBar from '../ui/BlurTabBar';
-import { palette, semantic } from '../theme/ts';
 import i18n from '../locales/i18n';
+import { useColors } from '../theme/colors';
 import type { RootStackParamList, MainTabsParamList } from './types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 const Tabs = createBottomTabNavigator<MainTabsParamList>();
 
-const navTheme = {
-  ...DefaultTheme,
-  colors: {
-    ...DefaultTheme.colors,
-    primary: palette.navy900,
-    background: semantic.bg,
-    card: semantic.surface,
-    text: palette.neutral900,
-    border: palette.neutral200,
-    notification: palette.navy600,
-  },
-};
-
-const MainTabs = () => (
+const MainTabs = () => {
+  const c = useColors();
+  return (
   <Tabs.Navigator
     initialRouteName="Home"
     tabBar={(props) => <BlurTabBar {...props} />}
-    screenOptions={{ headerShown: false, sceneStyle: { backgroundColor: semantic.bg } }}
+    screenOptions={{ headerShown: false, sceneStyle: { backgroundColor: c.bg } }}
   >
     {/* Order is reversed under RTL so Home appears on the LEFT and Account on the RIGHT visually. */}
     <Tabs.Screen name="Account" component={ProfileScreen} options={{ tabBarLabel: i18n.t('tabs.account') }} />
@@ -56,16 +45,30 @@ const MainTabs = () => (
     <Tabs.Screen name="Search" component={CategoriesScreen} options={{ tabBarLabel: i18n.t('tabs.search') }} />
     <Tabs.Screen name="Home" component={HomeScreen} options={{ tabBarLabel: i18n.t('tabs.home') }} />
   </Tabs.Navigator>
-);
+  );
+};
 
 export default function AppNavigator() {
+  const c = useColors();
+  const navTheme = {
+    ...DefaultTheme,
+    colors: {
+      ...DefaultTheme.colors,
+      primary: c.brand,
+      background: c.bg,
+      card: c.surface,
+      text: c.text,
+      border: c.border,
+      notification: c.brand,
+    },
+  };
   return (
     <NavigationContainer theme={navTheme}>
       <Stack.Navigator
         initialRouteName="Splash"
         screenOptions={{
           headerShown: false,
-          contentStyle: { backgroundColor: semantic.bg },
+          contentStyle: { backgroundColor: c.bg },
           animation: 'slide_from_right',
           animationDuration: 280,
         }}
