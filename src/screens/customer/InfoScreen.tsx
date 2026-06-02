@@ -5,7 +5,8 @@ import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
 import Card from '../../ui/Card';
 import { Chevron } from '../../ui/Chevron';
-import { palette, radius, semantic, spacing } from '../../theme/ts';
+import { spacing } from '../../theme/ts';
+import { useColors } from '../../theme/colors';
 import { useLocaleStore } from '../../stores/locale';
 import type { RootStackScreenProps } from '../../navigation/types';
 
@@ -102,26 +103,27 @@ const COPY: Record<string, { ar: { title: string; intro: string; body: string[] 
 
 export default function InfoScreen({ route, navigation }: RootStackScreenProps<'Info'>) {
   const { locale } = useLocaleStore();
+  const c = useColors();
   const { topic } = route.params;
   const copy = COPY[topic]?.[locale] ?? COPY.about[locale];
 
   return (
     <Screen>
-      <View style={styles.topBar}>
-        <Pressable onPress={() => navigation.goBack()} hitSlop={12} style={styles.backBtn}>
-          <Chevron direction="back" size={20} color={palette.navy900} />
+      <View style={[styles.topBar, { backgroundColor: c.surface, borderBottomColor: c.border }]}>
+        <Pressable onPress={() => navigation.goBack()} hitSlop={12} style={[styles.backBtn, { backgroundColor: c.surfaceAlt }]}>
+          <Chevron direction="back" size={20} color={c.text} />
         </Pressable>
         <Text variant="cardTitle" weight="700">{copy.title}</Text>
         <View style={{ width: 40 }} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll}>
-        <Text variant="body" color={palette.neutral500} style={{ marginBottom: spacing.s4 }}>
+        <Text variant="body" color={c.textMuted} style={{ marginBottom: spacing.s4 }}>
           {copy.intro}
         </Text>
         <Card style={styles.card}>
           {copy.body.map((line, i) => (
-            <Text key={i} variant="body" color={palette.neutral900} style={{ marginBottom: spacing.s2 }}>
+            <Text key={i} variant="body" style={{ marginBottom: spacing.s2 }}>
               {line}
             </Text>
           ))}
@@ -135,12 +137,10 @@ const styles = StyleSheet.create({
   topBar: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     paddingHorizontal: spacing.s4, paddingVertical: spacing.s3,
-    backgroundColor: semantic.surface,
-    borderBottomWidth: 1, borderBottomColor: palette.navy100,
+    borderBottomWidth: 1,
   },
   backBtn: {
     width: 40, height: 40, borderRadius: 999,
-    backgroundColor: palette.navy50,
     alignItems: 'center', justifyContent: 'center',
   },
   scroll: { padding: spacing.s5, paddingBottom: spacing.s8 },

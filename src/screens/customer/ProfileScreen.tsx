@@ -1,18 +1,17 @@
 import React from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import i18n from '../../locales/i18n';
 import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
-import Card from '../../ui/Card';
 import Avatar from '../../ui/Avatar';
 import PressableScale from '../../ui/PressableScale';
-import { palette, radius, semantic, spacing, shadowStyle } from '../../theme/ts';
+import { useColors } from '../../theme/colors';
+import { radius, spacing, shadowStyle, getCurrentLocale } from '../../theme/ts';
 import { useLocaleStore } from '../../stores/locale';
 import { useUserStore } from '../../stores/user';
 import { firebaseAuth } from '@shared/firebase';
 import { signOut } from 'firebase/auth';
-import { Alert } from 'react-native';
 import type { MainTabsScreenProps } from '../../navigation/types';
 
 interface RowProps {
@@ -23,37 +22,37 @@ interface RowProps {
   destructive?: boolean;
 }
 
-const Row: React.FC<RowProps> = ({ icon, label, trailing, onPress, destructive }) => (
-  <PressableScale onPress={onPress}>
-    <Card style={styles.row}>
-      <Ionicons
-        name={icon}
-        size={18}
-        color={destructive ? '#B91C1C' : palette.navy700}
-      />
-      <Text variant="body" color={destructive ? '#B91C1C' : palette.neutral900} style={{ flex: 1, marginStart: spacing.s3 }}>
-        {label}
-      </Text>
-      {trailing ?? (
-        <Ionicons name="chevron-back" size={18} color={palette.neutral500} style={{ transform: [{ scaleX: -1 }] }} />
-      )}
-    </Card>
-  </PressableScale>
-);
+const Row: React.FC<RowProps> = ({ icon, label, trailing, onPress, destructive }) => {
+  const c = useColors();
+  return (
+    <PressableScale onPress={onPress}>
+      <View style={[styles.row, { backgroundColor: c.surface, borderColor: c.border }]}>
+        <View style={[styles.rowIcon, { backgroundColor: destructive ? '#fdecec' : c.brandFill }]}>
+          <Ionicons name={icon} size={18} color={destructive ? c.danger : c.brandText} />
+        </View>
+        <Text variant="body" color={destructive ? c.danger : c.text} style={{ flex: 1, marginStart: spacing.s3 }}>
+          {label}
+        </Text>
+        {trailing ?? (
+          <Ionicons name="chevron-back" size={18} color={c.textMuted} style={{ transform: [{ scaleX: -1 }] }} />
+        )}
+      </View>
+    </PressableScale>
+  );
+};
 
 const LangToggle: React.FC = () => {
   const { locale, setLocale } = useLocaleStore();
+  const c = useColors();
   return (
-    <View style={styles.langWrap}>
+    <View style={[styles.langWrap, { backgroundColor: c.surfaceAlt }]}>
       {(['en', 'ar'] as const).map((k) => (
         <Pressable
           key={k}
           onPress={() => setLocale(k)}
-          style={[styles.langChip, locale === k && styles.langChipActive]}
+          style={[styles.langChip, locale === k && { backgroundColor: c.brand }]}
         >
-          <Text variant="microcopy" color={locale === k ? '#fff' : palette.navy700}>
-            {k.toUpperCase()}
-          </Text>
+          <Text variant="microcopy" color={locale === k ? '#fff' : c.textMuted}>{k.toUpperCase()}</Text>
         </Pressable>
       ))}
     </View>
@@ -62,6 +61,12 @@ const LangToggle: React.FC = () => {
 
 export default function AccountScreen({ navigation }: MainTabsScreenProps<'Account'>) {
   const { locale } = useLocaleStore();
+  const c = useColors();
+  const user = useUserStore((s) => s.user);
+
+  const displayName = user?.name?.trim() || (getCurrentLocale() === 'ar' ? 'ضيف' : 'Guest');
+  const subtitle = user?.phone?.trim() || user?.email?.trim() || (getCurrentLocale() === 'ar' ? 'سجّل دخولك' : 'Sign in');
+
   const onLogout = () => {
     Alert.alert(
       locale === 'ar' ? 'تسجيل الخروج' : 'Log out',
@@ -80,62 +85,50 @@ export default function AccountScreen({ navigation }: MainTabsScreenProps<'Accou
       ],
     );
   };
+
   return (
     <Screen>
-      <ScrollView contentContainerStyle={styles.scroll}>
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.headerBar}>
-          <Pressable onPress={() => navigation.navigate('Settings')} hitSlop={12}>
-            <Ionicons name="menu" size={26} color={palette.neutral900} />
+          <Text variant="pageTitle" weight="700">{i18n.t('account.title')}</Text>
+          <Pressable onPress={() => navigation.navigate('Settings')} hitSlop={12} style={[styles.gear, { backgroundColor: c.surfaceAlt }]}>
+            <Ionicons name="settings-outline" size={20} color={c.text} />
           </Pressable>
-          <Text variant="cardTitle" weight="700">Mshro3e</Text>
         </View>
 
         <View style={styles.profile}>
           <View>
-            <Avatar name="Fahad" size={96} />
-            <View style={styles.editBadge}>
-              <Ionicons name="pencil" size={14} color="#fff" />
+            <Avatar name={displayName} size={92} />
+            <View style={[styles.editBadge, { backgroundColor: c.brand, borderColor: c.bg }]}>
+              <Ionicons name="pencil" size={13} color="#fff" />
             </View>
           </View>
-          <Text variant="pageTitle" style={{ marginTop: spacing.s3 }}>
-            فهد المهاجري
-          </Text>
-          <Text variant="body" color={palette.neutral500}>
-            +965 •••• 1234
-          </Text>
+          <Text variant="sectionTitle" weight="700" style={{ marginTop: spacing.s3 }}>{displayName}</Text>
+          <Text variant="body" color={c.textMuted}>{subtitle}</Text>
         </View>
 
         <View style={styles.list}>
-          <Row icon="person-outline"        label={i18n.t('account.rows.profile')}
-               onPress={() => navigation.navigate('Settings')} />
-          <Row icon="notifications-outline" label={i18n.t('account.rows.notifications')}
-               onPress={() => navigation.navigate('Info', { topic: 'notifications' })} />
-          <Row
-            icon="language-outline"
-            label={i18n.t('account.rows.language')}
-            trailing={<LangToggle />}
-          />
-          <Row icon="help-circle-outline"   label={i18n.t('account.rows.support')}
-               onPress={() => navigation.navigate('Info', { topic: 'help' })} />
-          <Row icon="log-out-outline"       label={i18n.t('account.rows.logout')} destructive
-               onPress={onLogout} />
+          <Row icon="person-outline" label={i18n.t('account.rows.profile')} onPress={() => navigation.navigate('Settings')} />
+          <Row icon="notifications-outline" label={i18n.t('account.rows.notifications')} onPress={() => navigation.navigate('Notifications')} />
+          <Row icon="language-outline" label={i18n.t('account.rows.language')} trailing={<LangToggle />} />
+          <Row icon="help-circle-outline" label={i18n.t('account.rows.support')} onPress={() => navigation.navigate('Info', { topic: 'help' })} />
+          <Row icon="information-circle-outline" label={getCurrentLocale() === 'ar' ? 'عن مشروعي' : 'About Mshro3e'} onPress={() => navigation.navigate('Info', { topic: 'about' })} />
+          <Row icon="log-out-outline" label={i18n.t('account.rows.logout')} destructive onPress={onLogout} />
         </View>
 
-        <PressableScale>
-          <View style={styles.upgrade}>
-            <View style={styles.upgradeIcon}>
-              <Ionicons name="rocket-outline" size={20} color={palette.navy900} />
+        <PressableScale onPress={() => navigation.navigate('Info', { topic: 'about' })}>
+          <View style={[styles.upgrade, { backgroundColor: c.brand }]}>
+            <View style={[styles.upgradeIcon, { backgroundColor: 'rgba(255,255,255,0.18)' }]}>
+              <Ionicons name="rocket-outline" size={20} color="#fff" />
             </View>
             <View style={{ flex: 1, marginStart: spacing.s3 }}>
-              <Text variant="cardTitle" color="#fff">{i18n.t('account.upgrade.title')}</Text>
-              <Text variant="caption" color={palette.navy300} style={{ marginTop: 4 }}>
+              <Text variant="cardTitle" weight="700" color="#fff">{i18n.t('account.upgrade.title')}</Text>
+              <Text variant="caption" color="rgba(255,255,255,0.82)" style={{ marginTop: 4 }}>
                 {i18n.t('account.upgrade.body')}
               </Text>
             </View>
             <View style={styles.upgradeCta}>
-              <Text variant="button" color={palette.navy900}>
-                {i18n.t('account.upgrade.cta')}
-              </Text>
+              <Text variant="button" weight="700" color={c.brand}>{i18n.t('account.upgrade.cta')}</Text>
             </View>
           </View>
         </PressableScale>
@@ -150,45 +143,28 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     marginBottom: spacing.s5,
   },
-  profile: { alignItems: 'center', marginBottom: spacing.s5, gap: 4 },
+  gear: { width: 40, height: 40, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  profile: { alignItems: 'center', marginBottom: spacing.s6, gap: 2 },
   editBadge: {
     position: 'absolute', end: 0, bottom: 0,
     width: 28, height: 28, borderRadius: 999,
-    backgroundColor: palette.navy900,
-    alignItems: 'center', justifyContent: 'center',
-    borderWidth: 2, borderColor: '#fff',
+    alignItems: 'center', justifyContent: 'center', borderWidth: 2,
   },
   list: { gap: spacing.s2, marginBottom: spacing.s5 },
   row: {
     flexDirection: 'row', alignItems: 'center',
-    padding: spacing.s4,
+    padding: spacing.s3, borderRadius: radius.lg, borderWidth: 1,
   },
-  langWrap: {
-    flexDirection: 'row',
-    backgroundColor: palette.navy100,
-    borderRadius: 999,
-    padding: 2,
-  },
-  langChip: {
-    paddingHorizontal: 12, paddingVertical: 4,
-    borderRadius: 999,
-  },
-  langChipActive: { backgroundColor: palette.navy900 },
+  rowIcon: { width: 36, height: 36, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  langWrap: { flexDirection: 'row', borderRadius: 999, padding: 2 },
+  langChip: { paddingHorizontal: 12, paddingVertical: 4, borderRadius: 999 },
   upgrade: {
     flexDirection: 'row', alignItems: 'center',
-    backgroundColor: palette.navy900,
-    borderRadius: radius.xl,
-    padding: spacing.s4,
-    ...shadowStyle(2),
+    borderRadius: radius.xl, padding: spacing.s4, ...shadowStyle(2),
   },
-  upgradeIcon: {
-    width: 44, height: 44, borderRadius: 999,
-    backgroundColor: palette.white,
-    alignItems: 'center', justifyContent: 'center',
-  },
+  upgradeIcon: { width: 44, height: 44, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   upgradeCta: {
-    backgroundColor: palette.white,
-    paddingHorizontal: spacing.s3, paddingVertical: spacing.s2,
-    borderRadius: 999,
+    backgroundColor: '#fff',
+    paddingHorizontal: spacing.s3, paddingVertical: spacing.s2, borderRadius: 999,
   },
 });

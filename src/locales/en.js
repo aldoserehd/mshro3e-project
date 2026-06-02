@@ -139,6 +139,18 @@ export default {
     empty: { title: 'Nothing saved yet', subtitle: 'Save the products and shops you love here.' },
   },
 
+  notif: {
+    title: 'Notifications',
+    feedEmptyTitle: 'No notifications yet',
+    feedEmptyBody: "We'll ping you when a vendor replies or drops something new.",
+    prefsTitle: 'Notify me about',
+    newProducts: 'New products from vendors I follow',
+    replies: 'Vendor replies to my messages',
+    deals: 'Deals & seasonal offers',
+    backInStock: 'Back-in-stock for my saved items',
+    push: 'Push notifications',
+  },
+
   account: {
     title: 'Account',
     guestName: 'Welcome',

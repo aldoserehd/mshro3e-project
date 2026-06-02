@@ -15,6 +15,7 @@ export type RootStackParamList = {
   ServiceDetail: { serviceId: string };
   Category: { categoryId: string };
   Settings: undefined;
+  Notifications: undefined;
   Chat: { vendorId: string; productId?: string };
   Info: { topic: 'notifications' | 'about' | 'help' | 'privacy' };
 };
