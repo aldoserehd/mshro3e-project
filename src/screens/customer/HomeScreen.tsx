@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   FlatList,
+  Modal,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -14,10 +15,11 @@ import i18n from '../../locales/i18n';
 import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
 import PressableScale from '../../ui/PressableScale';
-import Logo from '../../ui/Logo';
 import { useCategories, useServices, useVendors } from '../../data/hooks';
-import { palette, radius, semantic, shadowStyle, spacing, formatPrice, pickLocale } from '../../theme/ts';
-import type { Service, Vendor, Category } from '@shared/types';
+import { KUWAIT_AREAS, type Area } from '../../data/areas';
+import { useColors } from '../../theme/colors';
+import { radius, shadowStyle, spacing, formatPrice, pickLocale, getCurrentLocale } from '../../theme/ts';
+import type { Service, Vendor } from '@shared/types';
 import { useLocaleStore } from '../../stores/locale';
 import { MainTabsScreenProps } from '../../navigation/types';
 
@@ -27,209 +29,298 @@ export default function HomeScreen({ navigation }: MainTabsScreenProps<'Home'>) 
   const { data: products } = useServices();
   const { width } = useWindowDimensions();
   const { locale } = useLocaleStore();
+  const c = useColors();
   const gridTile = (width - spacing.s5 * 2 - spacing.s3) / 2;
 
-  // Live vendor lookup (Firestore) — replaces the stale seed helper.
-  const vendorMap = React.useMemo(() => {
+  const [query, setQuery] = useState('');
+  const [area, setArea] = useState<Area>(KUWAIT_AREAS[0]);
+  const [areaOpen, setAreaOpen] = useState(false);
+
+  // Live vendor lookup (Firestore).
+  const vendorMap = useMemo(() => {
     const m: Record<string, Vendor> = {};
     for (const v of vendors) m[v.id] = v;
     return m;
   }, [vendors]);
 
-  const today = products.slice(0, 8);
-  const collection = products.slice(8, 12).length >= 2 ? products.slice(8, 12) : products.slice(0, 4);
+  // Area filter: keep a product if its vendor's address matches the chosen area.
+  const areaFiltered = useMemo(() => {
+    if (area.id === 'all') return products;
+    const needle = [area.ar, area.en].map((s) => s.toLowerCase());
+    const matched = products.filter((p) => {
+      const v = vendorMap[p.vendorId];
+      const addr = v?.address ? `${v.address.ar} ${v.address.en}`.toLowerCase() : '';
+      return needle.some((n) => addr.includes(n));
+    });
+    // Graceful fallback: if no vendor data carries this area yet, don't blank the home.
+    return matched.length ? matched : products;
+  }, [products, area, vendorMap]);
+
+  // In-page search results.
+  const results = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return null;
+    return areaFiltered.filter((p) => {
+      const v = vendorMap[p.vendorId];
+      const hay = [
+        p.title?.ar, p.title?.en,
+        v?.name?.ar, v?.name?.en,
+      ].filter(Boolean).join(' ').toLowerCase();
+      return hay.includes(q);
+    });
+  }, [query, areaFiltered, vendorMap]);
+
+  const today = areaFiltered.slice(0, 8);
+  const collection = areaFiltered.slice(8, 12).length >= 2 ? areaFiltered.slice(8, 12) : areaFiltered.slice(0, 4);
 
   return (
     <Screen>
-      {/* ── Top bar: location · brand · search ── */}
-      <View style={styles.topBar}>
-        <Pressable style={styles.locationPill} hitSlop={8}>
-          <Ionicons name="location" size={16} color={palette.brand} />
-          <Text variant="label" weight="600" color={palette.neutral900} style={{ marginStart: 4 }}>
-            {locale === 'ar' ? 'السالمية' : 'Salmiya'}
-          </Text>
-          <Ionicons name="chevron-down" size={14} color={palette.neutral500} style={{ marginStart: 2 }} />
+      {/* ── Top bar: location · brand · favorites ── */}
+      <View style={[styles.topBar, { backgroundColor: c.surface, borderBottomColor: c.border }]}>
+        <Pressable style={[styles.locationPill, { backgroundColor: c.surfaceAlt }]} hitSlop={8} onPress={() => setAreaOpen(true)}>
+          <Ionicons name="location" size={16} color={c.brandText} />
+          <Text variant="label" weight="600" style={{ marginStart: 4 }}>{pickLocale(area)}</Text>
+          <Ionicons name="chevron-down" size={14} color={c.textMuted} style={{ marginStart: 2 }} />
         </Pressable>
-        <Text variant="cardTitle" weight="700" color={palette.brand}>Mshro3e</Text>
-        <Pressable onPress={() => navigation.navigate('Search')} hitSlop={8} style={styles.iconBtn}>
-          <Ionicons name="search" size={20} color={palette.neutral900} />
+        <Text variant="cardTitle" weight="700" color={c.brandText}>Mshro3e</Text>
+        <Pressable onPress={() => navigation.navigate('Favorites')} hitSlop={8} style={[styles.iconBtn, { backgroundColor: c.surfaceAlt }]}>
+          <Ionicons name="heart-outline" size={20} color={c.text} />
         </Pressable>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        {/* ── Search field ── */}
-        <Pressable onPress={() => navigation.navigate('Search')} style={styles.searchBar}>
-          <Ionicons name="search" size={20} color={palette.neutral500} />
+      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+        {/* ── Inline search field ── */}
+        <View style={[styles.searchBar, { backgroundColor: c.surface, borderColor: c.border }]}>
+          <Ionicons name="search" size={20} color={c.textMuted} />
           <TextInput
-            editable={false}
+            value={query}
+            onChangeText={setQuery}
             placeholder={i18n.t('home.searchHint')}
-            placeholderTextColor={palette.neutral500}
-            style={styles.searchInput}
-            pointerEvents="none"
+            placeholderTextColor={c.textMuted}
+            style={[styles.searchInput, { color: c.text, textAlign: locale === 'ar' ? 'right' : 'left' }]}
+            returnKeyType="search"
           />
-        </Pressable>
+          {query.length > 0 && (
+            <Pressable onPress={() => setQuery('')} hitSlop={8}>
+              <Ionicons name="close-circle" size={18} color={c.textMuted} />
+            </Pressable>
+          )}
+        </View>
 
-        {/* ── Category chips ── */}
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.chipRow}
-        >
-          <View style={[styles.chip, styles.chipActive]}>
-            <Text variant="label" weight="600" color="#fff">{locale === 'ar' ? 'الكل' : 'All'}</Text>
-          </View>
-          {categories.map((c) => (
-            <PressableScale key={c.id} onPress={() => navigation.navigate('Category', { categoryId: c.id })}>
-              <View style={styles.chip}>
-                <Text style={styles.chipEmoji}>{c.emoji ?? '🏷️'}</Text>
-                <Text variant="label" weight="600" color={palette.neutral900}>{pickLocale(c.name)}</Text>
+        {results ? (
+          /* ── Search results (in-page) ── */
+          <>
+            <View style={styles.sectionHead}>
+              <Text variant="sectionTitle" weight="700">{i18n.t('home.resultsFor')} · {results.length}</Text>
+            </View>
+            {results.length === 0 ? (
+              <View style={styles.empty}>
+                <Ionicons name="search-outline" size={40} color={c.textMuted} />
+                <Text variant="body" color={c.textMuted} align="center" style={{ marginTop: spacing.s2 }}>
+                  {i18n.t('home.noResults')}
+                </Text>
               </View>
-            </PressableScale>
-          ))}
-        </ScrollView>
-
-        {/* ── Available Today ── */}
-        <SectionHeader
-          title={i18n.t('home.availableToday')}
-          onSeeAll={() => navigation.navigate('Search')}
-        />
-        {today.length === 0 ? (
-          <EmptyHint locale={locale} />
+            ) : (
+              <View style={styles.grid}>
+                {results.map((p) => (
+                  <SquareProductCard
+                    key={p.id}
+                    product={p}
+                    width={gridTile}
+                    onPress={() => navigation.navigate('ServiceDetail', { serviceId: p.id })}
+                  />
+                ))}
+              </View>
+            )}
+          </>
         ) : (
-          <FlatList
-            data={today}
-            horizontal
-            keyExtractor={(p) => p.id}
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.todayRow}
-            renderItem={({ item }) => (
-              <TallProductCard
-                product={item}
-                vendor={vendorMap[item.vendorId]}
-                onPress={() => navigation.navigate('ServiceDetail', { serviceId: item.id })}
+          <>
+            {/* ── Category chips ── */}
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
+              {categories.map((cat) => (
+                <PressableScale key={cat.id} onPress={() => navigation.navigate('Category', { categoryId: cat.id })}>
+                  <View style={[styles.chip, { backgroundColor: c.surface, borderColor: c.border }]}>
+                    <Text style={styles.chipEmoji}>{cat.emoji ?? '🏷️'}</Text>
+                    <Text variant="label" weight="600">{pickLocale(cat.name)}</Text>
+                  </View>
+                </PressableScale>
+              ))}
+            </ScrollView>
+
+            {/* ── Available Today ── */}
+            <View style={styles.sectionHead}>
+              <Text variant="sectionTitle" weight="700">{i18n.t('home.availableToday')}</Text>
+            </View>
+            {today.length === 0 ? (
+              <EmptyHint />
+            ) : (
+              <FlatList
+                data={today}
+                horizontal
+                keyExtractor={(p) => p.id}
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.todayRow}
+                renderItem={({ item }) => (
+                  <TallProductCard
+                    product={item}
+                    vendor={vendorMap[item.vendorId]}
+                    onPress={() => navigation.navigate('ServiceDetail', { serviceId: item.id })}
+                  />
+                )}
               />
             )}
-          />
-        )}
 
-        {/* ── Occasion collection ── */}
-        <View style={styles.collectionHead}>
-          <Text variant="sectionTitle" weight="700">{i18n.t('home.gatheringTonight')}</Text>
-          <Text variant="body" color={palette.neutral500}>{i18n.t('home.gatheringSub')}</Text>
-        </View>
-        <View style={styles.grid}>
-          {collection.map((p) => (
-            <SquareProductCard
-              key={p.id}
-              product={p}
-              width={gridTile}
-              onPress={() => navigation.navigate('ServiceDetail', { serviceId: p.id })}
-            />
-          ))}
-        </View>
+            {/* ── Occasion collection ── */}
+            {collection.length > 0 && (
+              <>
+                <View style={styles.collectionHead}>
+                  <Text variant="sectionTitle" weight="700">{i18n.t('home.gatheringTonight')}</Text>
+                  <Text variant="body" color={c.textMuted}>{i18n.t('home.gatheringSub')}</Text>
+                </View>
+                <View style={styles.grid}>
+                  {collection.map((p) => (
+                    <SquareProductCard
+                      key={p.id}
+                      product={p}
+                      width={gridTile}
+                      onPress={() => navigation.navigate('ServiceDetail', { serviceId: p.id })}
+                    />
+                  ))}
+                </View>
+              </>
+            )}
+          </>
+        )}
       </ScrollView>
+
+      {/* ── Area picker ── */}
+      <Modal visible={areaOpen} transparent animationType="slide" onRequestClose={() => setAreaOpen(false)}>
+        <Pressable style={[styles.backdrop, { backgroundColor: c.overlay }]} onPress={() => setAreaOpen(false)}>
+          <Pressable style={[styles.sheet, { backgroundColor: c.surface }]} onPress={(e) => e.stopPropagation()}>
+            <View style={[styles.handle, { backgroundColor: c.borderStrong }]} />
+            <Text variant="cardTitle" weight="700" style={{ marginBottom: spacing.s3 }}>{i18n.t('home.chooseArea')}</Text>
+            <ScrollView style={{ maxHeight: 380 }} showsVerticalScrollIndicator={false}>
+              {KUWAIT_AREAS.map((a) => {
+                const selected = a.id === area.id;
+                return (
+                  <Pressable
+                    key={a.id}
+                    onPress={() => { setArea(a); setAreaOpen(false); }}
+                    style={[styles.areaRow, { borderBottomColor: c.border }]}
+                  >
+                    <Ionicons
+                      name={a.id === 'all' ? 'earth-outline' : 'location-outline'}
+                      size={18}
+                      color={selected ? c.brandText : c.textMuted}
+                    />
+                    <Text
+                      variant="body"
+                      weight={selected ? '700' : '400'}
+                      color={selected ? c.brandText : c.text}
+                      style={{ flex: 1, marginStart: spacing.s3 }}
+                    >
+                      {pickLocale(a)}
+                    </Text>
+                    {selected && <Ionicons name="checkmark" size={20} color={c.brand} />}
+                  </Pressable>
+                );
+              })}
+            </ScrollView>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </Screen>
   );
 }
 
 // ── components ──
 
-const SectionHeader: React.FC<{ title: string; onSeeAll?: () => void }> = ({ title, onSeeAll }) => (
-  <View style={styles.sectionHead}>
-    <Text variant="sectionTitle" weight="700">{title}</Text>
-    {onSeeAll && (
-      <Pressable onPress={onSeeAll} hitSlop={8}>
-        <Text variant="label" weight="600" color={palette.brand}>{i18n.t('home.viewAll')}</Text>
-      </Pressable>
-    )}
-  </View>
-);
+const TallProductCard: React.FC<{ product: Service; vendor?: Vendor; onPress: () => void }> = ({ product, vendor, onPress }) => {
+  const c = useColors();
+  return (
+    <PressableScale onPress={onPress}>
+      <View style={[styles.tallCard, { backgroundColor: c.surface, borderColor: c.border }]}>
+        <View style={styles.tallImgWrap}>
+          <Image source={{ uri: product.images?.[0] }} style={[styles.tallImg, { backgroundColor: c.surfaceSunken }]} contentFit="cover" transition={150} />
+          <View style={[styles.priceBadge, { backgroundColor: c.glass }]}>
+            <Text variant="label" weight="700" forceLtr>{formatPrice(product.price, product.currency)}</Text>
+          </View>
+        </View>
+        <View style={styles.tallBody}>
+          {vendor && (
+            <View style={styles.vendorRow}>
+              <Text variant="caption" color={c.textMuted} numberOfLines={1} style={{ flexShrink: 1 }}>
+                {pickLocale(vendor.name)}
+              </Text>
+              {vendor.verifiedAt && <Ionicons name="checkmark-circle" size={12} color={c.brandText} style={{ marginStart: 3 }} />}
+            </View>
+          )}
+          <Text variant="cardTitle" weight="600" numberOfLines={1}>{pickLocale(product.title)}</Text>
+        </View>
+      </View>
+    </PressableScale>
+  );
+};
 
-const TallProductCard: React.FC<{ product: Service; vendor?: Vendor; onPress: () => void }> = ({ product, vendor, onPress }) => (
-  <PressableScale onPress={onPress}>
-    <View style={styles.tallCard}>
-      <View style={styles.tallImgWrap}>
-        <Image source={{ uri: product.images[0] }} style={styles.tallImg} contentFit="cover" transition={150} />
-        <View style={styles.priceBadge}>
-          <Text variant="label" weight="700" color={palette.neutral900}>
+const SquareProductCard: React.FC<{ product: Service; width: number; onPress: () => void }> = ({ product, width, onPress }) => {
+  const c = useColors();
+  return (
+    <PressableScale onPress={onPress}>
+      <View style={[styles.sqCard, { width, backgroundColor: c.surface, borderColor: c.border }]}>
+        <Image source={{ uri: product.images?.[0] }} style={[styles.sqImg, { backgroundColor: c.surfaceSunken }]} contentFit="cover" transition={150} />
+        <View style={{ padding: spacing.s3 }}>
+          <Text variant="label" weight="600" numberOfLines={1}>{pickLocale(product.title)}</Text>
+          <Text variant="cardTitle" weight="700" color={c.brandText} style={{ marginTop: 2 }} forceLtr>
             {formatPrice(product.price, product.currency)}
           </Text>
         </View>
       </View>
-      <View style={styles.tallBody}>
-        {vendor && (
-          <View style={styles.vendorRow}>
-            <Text variant="caption" color={palette.neutral500} numberOfLines={1} style={{ flexShrink: 1 }}>
-              {pickLocale(vendor.name)}
-            </Text>
-            {vendor.verifiedAt && <Ionicons name="checkmark-circle" size={12} color={palette.brand} style={{ marginStart: 3 }} />}
-          </View>
-        )}
-        <Text variant="cardTitle" weight="600" numberOfLines={1}>{pickLocale(product.title)}</Text>
-      </View>
-    </View>
-  </PressableScale>
-);
+    </PressableScale>
+  );
+};
 
-const SquareProductCard: React.FC<{ product: Service; width: number; onPress: () => void }> = ({ product, width, onPress }) => (
-  <PressableScale onPress={onPress}>
-    <View style={[styles.sqCard, { width }]}>
-      <Image source={{ uri: product.images[0] }} style={styles.sqImg} contentFit="cover" transition={150} />
-      <View style={{ padding: spacing.s3 }}>
-        <Text variant="label" weight="600" numberOfLines={1}>{pickLocale(product.title)}</Text>
-        <Text variant="cardTitle" weight="700" color={palette.brand} style={{ marginTop: 2 }}>
-          {formatPrice(product.price, product.currency)}
-        </Text>
-      </View>
+const EmptyHint: React.FC = () => {
+  const c = useColors();
+  return (
+    <View style={styles.empty}>
+      <Ionicons name="storefront-outline" size={40} color={c.textMuted} />
+      <Text variant="body" color={c.textMuted} align="center" style={{ marginTop: spacing.s2 }}>
+        {getCurrentLocale() === 'ar' ? 'لا توجد منتجات بعد — أضف من لوحة الإدارة.' : 'No products yet — add some from the admin.'}
+      </Text>
     </View>
-  </PressableScale>
-);
-
-const EmptyHint: React.FC<{ locale: 'ar' | 'en' }> = ({ locale }) => (
-  <View style={styles.empty}>
-    <Ionicons name="storefront-outline" size={40} color={palette.navy300} />
-    <Text variant="body" color={palette.neutral500} align="center" style={{ marginTop: spacing.s2 }}>
-      {locale === 'ar' ? 'لا توجد منتجات بعد — حمّل البيانات من الإعدادات.' : 'No products yet — seed data from Settings.'}
-    </Text>
-  </View>
-);
+  );
+};
 
 const styles = StyleSheet.create({
   topBar: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     paddingHorizontal: spacing.s5, paddingVertical: spacing.s3,
-    backgroundColor: semantic.surface,
-    borderBottomWidth: 1, borderBottomColor: palette.neutral200,
+    borderBottomWidth: 1,
   },
   locationPill: {
     flexDirection: 'row', alignItems: 'center',
-    backgroundColor: palette.navy50,
     paddingHorizontal: spacing.s3, height: 34, borderRadius: 999,
   },
   iconBtn: {
     width: 38, height: 38, borderRadius: 999,
-    backgroundColor: palette.navy50,
     alignItems: 'center', justifyContent: 'center',
   },
   scroll: { paddingBottom: 130 },
   searchBar: {
     flexDirection: 'row', alignItems: 'center',
-    backgroundColor: semantic.surface,
-    borderWidth: 1, borderColor: palette.neutral200,
+    borderWidth: 1,
     borderRadius: radius.lg,
     marginHorizontal: spacing.s5, marginTop: spacing.s4,
     paddingHorizontal: spacing.s4, height: 52, gap: spacing.s2,
     ...shadowStyle(1),
   },
-  searchInput: { flex: 1, fontSize: 15, color: palette.neutral900, textAlign: 'right' },
+  searchInput: { flex: 1, fontSize: 15 },
   chipRow: { paddingHorizontal: spacing.s5, paddingTop: spacing.s4, gap: spacing.s2 },
   chip: {
     flexDirection: 'row', alignItems: 'center',
-    backgroundColor: semantic.surface,
-    borderWidth: 1, borderColor: palette.neutral200,
+    borderWidth: 1,
     paddingHorizontal: spacing.s4, height: 38, borderRadius: 999,
   },
-  chipActive: { backgroundColor: palette.brand, borderColor: palette.brand },
   chipEmoji: { fontSize: 15, marginEnd: 5, lineHeight: 20 },
   sectionHead: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
@@ -237,18 +328,13 @@ const styles = StyleSheet.create({
   },
   todayRow: { paddingHorizontal: spacing.s5, gap: spacing.s4, paddingBottom: spacing.s2 },
   tallCard: {
-    width: 230,
-    backgroundColor: semantic.surface,
-    borderRadius: radius.xl,
-    overflow: 'hidden',
-    borderWidth: 1, borderColor: palette.neutral200,
-    ...shadowStyle(2),
+    width: 230, borderRadius: radius.xl, overflow: 'hidden',
+    borderWidth: 1, ...shadowStyle(2),
   },
   tallImgWrap: { position: 'relative' },
-  tallImg: { width: '100%', height: 270, backgroundColor: palette.navy100 },
+  tallImg: { width: '100%', height: 270 },
   priceBadge: {
     position: 'absolute', top: spacing.s3, end: spacing.s3,
-    backgroundColor: 'rgba(255,255,255,0.92)',
     paddingHorizontal: spacing.s3, paddingVertical: 5, borderRadius: radius.lg,
     ...shadowStyle(1),
   },
@@ -260,12 +346,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.s5, justifyContent: 'space-between', gap: spacing.s3,
   },
   sqCard: {
-    backgroundColor: semantic.surface,
     borderRadius: radius.xl, overflow: 'hidden',
-    borderWidth: 1, borderColor: palette.neutral200,
-    marginBottom: spacing.s3,
-    ...shadowStyle(1),
+    borderWidth: 1, marginBottom: spacing.s3, ...shadowStyle(1),
   },
-  sqImg: { width: '100%', aspectRatio: 1, backgroundColor: palette.navy100 },
+  sqImg: { width: '100%', aspectRatio: 1 },
   empty: { padding: spacing.s7, alignItems: 'center', justifyContent: 'center' },
+  // area sheet
+  backdrop: { flex: 1, justifyContent: 'flex-end' },
+  sheet: {
+    borderTopStartRadius: radius.xl, borderTopEndRadius: radius.xl,
+    paddingHorizontal: spacing.s5, paddingTop: spacing.s3, paddingBottom: spacing.s7,
+  },
+  handle: { alignSelf: 'center', width: 44, height: 4, borderRadius: 999, marginBottom: spacing.s4 },
+  areaRow: {
+    flexDirection: 'row', alignItems: 'center',
+    paddingVertical: spacing.s4, borderBottomWidth: 1,
+  },
 });
