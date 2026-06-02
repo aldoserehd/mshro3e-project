@@ -100,16 +100,28 @@ export default {
 
   product: {
     contactWhatsapp: 'Contact via WhatsApp',
+    orderWhatsapp: 'Order via WhatsApp',
     messageInApp: 'In-app message',
     size: 'Size',
     prepTime: 'Prep time',
     sizeFor: 'Serves {n}',
     hours: '{n} hours',
+    detailsTitle: 'Details',
+    deliveryTitle: 'Delivery & pickup',
+    delivery: {
+      vendorDelivery: 'Vendor delivers',
+      pickup: 'Pickup from vendor',
+      customerArranges: "I'll arrange delivery",
+    },
+    refLabel: 'Order ref',
+    leadLogged: 'Vendor will see this came from Mshro3e',
   },
 
   contact: {
     title: 'Contact the vendor',
     prefilledMessage: 'Hi, asking about {product} priced at {price}',
+    // Tagged message so the vendor knows the lead came from us (attribution).
+    taggedMessage: 'Hi 👋 I found you on Mshro3e.\nI\'d like to ask about: {product}\nPrice: {price}\nDelivery: {delivery}\nRef: {ref}',
     sendWhatsapp: 'Send on WhatsApp',
     sendInApp: 'Message in app',
   },

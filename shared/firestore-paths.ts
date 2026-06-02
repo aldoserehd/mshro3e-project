@@ -9,6 +9,8 @@ export const COL = {
   reviews: 'reviews',
   users: 'users',
   subscriptions: 'subscriptions',
+  /** WhatsApp contact events — the vendor-attribution / proof-of-value record. */
+  leads: 'leads',
 } as const;
 
 export type CollectionName = (typeof COL)[keyof typeof COL];

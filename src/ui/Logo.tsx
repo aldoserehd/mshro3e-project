@@ -1,5 +1,6 @@
 import React from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
+import { Image } from 'expo-image';
 import Text from './Text';
 import { palette } from '../theme/ts';
 
@@ -8,6 +9,8 @@ interface Props {
   size?: number;
   bg?: string;
   fg?: string;
+  /** Real uploaded logo. Falls back to initials when empty/missing. */
+  uri?: string;
   style?: ViewStyle;
 }
 
@@ -16,7 +19,18 @@ interface Props {
  * Replaces external avatar-service URLs which cropped weirdly on iOS.
  * When real uploaded logos arrive, swap to <ExpoImage source={...} contentFit="contain" />.
  */
-export const Logo: React.FC<Props> = ({ name, size = 48, bg, fg = palette.white, style }) => {
+export const Logo: React.FC<Props> = ({ name, size = 48, bg, fg = palette.white, uri, style }) => {
+  if (uri) {
+    return (
+      <Image
+        source={{ uri }}
+        style={[{ width: size, height: size, borderRadius: size / 2, backgroundColor: palette.navy100 }, style as object]}
+        contentFit="cover"
+        transition={120}
+      />
+    );
+  }
+
   const initials = (() => {
     // Prefer English-ish letters, fall back to first 2 chars
     const cleaned = (name ?? '').trim();

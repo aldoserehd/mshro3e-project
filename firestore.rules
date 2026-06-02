@@ -34,6 +34,14 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // Leads — WhatsApp contact events (vendor attribution).
+    // A customer (signed-in or anonymous) may CREATE a lead; nobody on the
+    // client may read/list them (vendor dashboard reads via Admin SDK).
+    match /leads/{id} {
+      allow create: if true;
+      allow read, update, delete: if false;
+    }
+
     // Seed marker — only signed-in users can read/write
     match /_meta/{id} {
       allow read, write: if request.auth != null;

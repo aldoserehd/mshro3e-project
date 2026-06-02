@@ -105,17 +105,29 @@ export default {
 
   product: {
     contactWhatsapp: 'تواصل عبر واتساب',
+    orderWhatsapp: 'اطلب عبر واتساب',
     messageInApp: 'رسالة في التطبيق',
     size: 'الحجم',
     prepTime: 'وقت التحضير',
     sizeFor: 'يكفي لـ {n} أشخاص',
     hours: '{n} ساعة',
+    detailsTitle: 'التفاصيل',
+    deliveryTitle: 'التوصيل والاستلام',
+    delivery: {
+      vendorDelivery: 'توصيل من البائع',
+      pickup: 'استلام من الموقع',
+      customerArranges: 'التوصيل على حسابي',
+    },
+    refLabel: 'رقم الطلب',
+    leadLogged: 'بيشوف البائع إنك وصلته من مشروعي',
   },
 
   contact: {
     title: 'تواصل مع البائع',
     prefilledMessage: 'مرحبا، استفسر عن {product} بسعر {price}',
-    sendWhatsapp: 'ارسال على واتساب',
+    // رسالة موسومة عشان البائع يعرف إن الطلب وصله من تطبيقنا
+    taggedMessage: 'حياك 👋 وصلتك من تطبيق مشروعي.\nأبي أستفسر عن: {product}\nالسعر: {price}\nالتوصيل: {delivery}\nرقم الطلب: {ref}',
+    sendWhatsapp: 'إرسال على واتساب',
     sendInApp: 'رسالة في التطبيق',
   },
 
