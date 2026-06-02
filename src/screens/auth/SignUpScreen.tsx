@@ -8,7 +8,8 @@ import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
 import Button from '../../ui/Button';
 import { Chevron } from '../../ui/Chevron';
-import { palette, radius, semantic, spacing, shadowStyle } from '../../theme/ts';
+import { palette, radius, spacing } from '../../theme/ts';
+import { useColors } from '../../theme/colors';
 import { useLocaleStore } from '../../stores/locale';
 import { useUserStore } from '../../stores/user';
 import { firebaseAuth, firebaseDb } from '@shared/firebase';
@@ -26,32 +27,36 @@ interface FieldProps {
   error?: string;
 }
 
-const Field: React.FC<FieldProps> = ({ icon, placeholder, value, onChangeText, secureTextEntry, keyboardType, autoCapitalize, error }) => (
-  <View>
-    <View style={[styles.fieldWrap, error && { borderColor: '#B91C1C' }]}>
-      <Ionicons name={icon} size={18} color={palette.neutral500} />
-      <TextInput
-        value={value}
-        onChangeText={onChangeText}
-        placeholder={placeholder}
-        placeholderTextColor={palette.neutral500}
-        secureTextEntry={secureTextEntry}
-        keyboardType={keyboardType ?? 'default'}
-        autoCapitalize={autoCapitalize ?? 'none'}
-        autoCorrect={false}
-        style={styles.input}
-      />
+const Field: React.FC<FieldProps> = ({ icon, placeholder, value, onChangeText, secureTextEntry, keyboardType, autoCapitalize, error }) => {
+  const c = useColors();
+  return (
+    <View>
+      <View style={[styles.fieldWrap, { backgroundColor: c.surface, borderColor: error ? c.danger : c.border }]}>
+        <Ionicons name={icon} size={18} color={c.textMuted} />
+        <TextInput
+          value={value}
+          onChangeText={onChangeText}
+          placeholder={placeholder}
+          placeholderTextColor={c.textMuted}
+          secureTextEntry={secureTextEntry}
+          keyboardType={keyboardType ?? 'default'}
+          autoCapitalize={autoCapitalize ?? 'none'}
+          autoCorrect={false}
+          style={[styles.input, { color: c.text }]}
+        />
+      </View>
+      {error && (
+        <Text variant="caption" color={c.danger} style={{ marginTop: 4, marginStart: spacing.s2 }}>
+          {error}
+        </Text>
+      )}
     </View>
-    {error && (
-      <Text variant="caption" color="#B91C1C" style={{ marginTop: 4, marginStart: spacing.s2 }}>
-        {error}
-      </Text>
-    )}
-  </View>
-);
+  );
+};
 
 export default function SignUpScreen({ navigation }: RootStackScreenProps<'SignUp'>) {
   const { locale } = useLocaleStore();
+  const c = useColors();
   const signUp = useUserStore((s) => s.signUp);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -204,7 +209,7 @@ export default function SignUpScreen({ navigation }: RootStackScreenProps<'SignU
           </View>
 
           {errors.form && (
-            <Text variant="caption" color="#B91C1C" style={{ marginTop: spacing.s3 }}>
+            <Text variant="caption" color={c.danger} style={{ marginTop: spacing.s3 }}>
               {errors.form}
             </Text>
           )}
@@ -217,9 +222,9 @@ export default function SignUpScreen({ navigation }: RootStackScreenProps<'SignU
           />
 
           <View style={styles.bottomRow}>
-            <Text variant="body" color={palette.neutral500}>{t.haveAccount}</Text>
+            <Text variant="body" color={c.textMuted}>{t.haveAccount}</Text>
             <Pressable onPress={() => navigation.replace('SignIn')} hitSlop={8}>
-              <Text variant="body" weight="600" color={palette.navy900} style={{ marginStart: 4 }}>{t.signIn}</Text>
+              <Text variant="body" weight="600" color={c.brandText} style={{ marginStart: 4 }}>{t.signIn}</Text>
             </Pressable>
           </View>
         </ScrollView>
@@ -252,8 +257,7 @@ const styles = StyleSheet.create({
   form: { padding: spacing.s5, paddingBottom: spacing.s7 },
   fieldWrap: {
     flexDirection: 'row', alignItems: 'center',
-    backgroundColor: semantic.surface,
-    borderWidth: 1, borderColor: palette.navy100,
+    borderWidth: 1,
     borderRadius: radius.md,
     paddingHorizontal: spacing.s4,
     height: 52,
@@ -262,7 +266,6 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 15,
-    color: palette.neutral900,
     textAlign: 'right',
   },
   bottomRow: {

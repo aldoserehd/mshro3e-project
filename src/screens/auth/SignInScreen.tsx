@@ -8,7 +8,8 @@ import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
 import Button from '../../ui/Button';
 import { Chevron } from '../../ui/Chevron';
-import { palette, radius, semantic, spacing } from '../../theme/ts';
+import { palette, radius, spacing } from '../../theme/ts';
+import { useColors } from '../../theme/colors';
 import { useLocaleStore } from '../../stores/locale';
 import { useUserStore } from '../../stores/user';
 import { firebaseAuth, firebaseDb } from '@shared/firebase';
@@ -17,6 +18,7 @@ import type { RootStackScreenProps } from '../../navigation/types';
 
 export default function SignInScreen({ navigation }: RootStackScreenProps<'SignIn'>) {
   const { locale } = useLocaleStore();
+  const c = useColors();
   const hydrate = useUserStore((s) => s.hydrate);
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
@@ -126,37 +128,37 @@ export default function SignInScreen({ navigation }: RootStackScreenProps<'SignI
 
         <ScrollView contentContainerStyle={styles.form} keyboardShouldPersistTaps="handled">
           <View style={{ gap: spacing.s3 }}>
-            <View style={styles.fieldWrap}>
-              <Ionicons name="at-outline" size={18} color={palette.neutral500} />
+            <View style={[styles.fieldWrap, { backgroundColor: c.surface, borderColor: c.border }]}>
+              <Ionicons name="at-outline" size={18} color={c.textMuted} />
               <TextInput
                 value={identifier}
                 onChangeText={(v) => { setIdentifier(v); setErr(''); }}
                 placeholder={t.identifier}
-                placeholderTextColor={palette.neutral500}
+                placeholderTextColor={c.textMuted}
                 autoCapitalize="none"
                 autoCorrect={false}
-                style={styles.input}
+                style={[styles.input, { color: c.text }]}
               />
             </View>
-            <View style={styles.fieldWrap}>
-              <Ionicons name="lock-closed-outline" size={18} color={palette.neutral500} />
+            <View style={[styles.fieldWrap, { backgroundColor: c.surface, borderColor: c.border }]}>
+              <Ionicons name="lock-closed-outline" size={18} color={c.textMuted} />
               <TextInput
                 value={password}
                 onChangeText={(v) => { setPassword(v); setErr(''); }}
                 placeholder={t.password}
-                placeholderTextColor={palette.neutral500}
+                placeholderTextColor={c.textMuted}
                 secureTextEntry
-                style={styles.input}
+                style={[styles.input, { color: c.text }]}
               />
             </View>
           </View>
 
           {err.length > 0 && (
-            <Text variant="caption" color="#B91C1C" style={{ marginTop: spacing.s2 }}>{err}</Text>
+            <Text variant="caption" color={c.danger} style={{ marginTop: spacing.s2 }}>{err}</Text>
           )}
 
           <Pressable hitSlop={8} style={{ alignSelf: 'flex-end', marginTop: spacing.s2 }}>
-            <Text variant="label" color={palette.navy600}>{t.forgot}</Text>
+            <Text variant="label" color={c.brandText}>{t.forgot}</Text>
           </Pressable>
 
           <Button
@@ -167,9 +169,9 @@ export default function SignInScreen({ navigation }: RootStackScreenProps<'SignI
           />
 
           <View style={styles.bottomRow}>
-            <Text variant="body" color={palette.neutral500}>{t.noAccount}</Text>
+            <Text variant="body" color={c.textMuted}>{t.noAccount}</Text>
             <Pressable onPress={() => navigation.replace('SignUp')} hitSlop={8}>
-              <Text variant="body" weight="600" color={palette.navy900} style={{ marginStart: 4 }}>{t.signUp}</Text>
+              <Text variant="body" weight="600" color={c.brandText} style={{ marginStart: 4 }}>{t.signUp}</Text>
             </Pressable>
           </View>
         </ScrollView>
@@ -199,12 +201,11 @@ const styles = StyleSheet.create({
   form: { padding: spacing.s5, paddingBottom: spacing.s7 },
   fieldWrap: {
     flexDirection: 'row', alignItems: 'center',
-    backgroundColor: semantic.surface,
-    borderWidth: 1, borderColor: palette.navy100,
+    borderWidth: 1,
     borderRadius: radius.md,
     paddingHorizontal: spacing.s4, height: 52, gap: spacing.s2,
   },
-  input: { flex: 1, fontSize: 15, color: palette.neutral900, textAlign: 'right' },
+  input: { flex: 1, fontSize: 15, textAlign: 'right' },
   bottomRow: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
     marginTop: spacing.s5,

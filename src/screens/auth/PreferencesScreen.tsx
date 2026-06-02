@@ -6,7 +6,8 @@ import { doc, updateDoc } from 'firebase/firestore';
 import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
 import Button from '../../ui/Button';
-import { palette, radius, semantic, spacing, pickLocale } from '../../theme/ts';
+import { palette, radius, spacing, pickLocale } from '../../theme/ts';
+import { useColors } from '../../theme/colors';
 import { useLocaleStore } from '../../stores/locale';
 import { useUserStore } from '../../stores/user';
 import { useCategories } from '../../data/hooks';
@@ -16,6 +17,7 @@ import type { RootStackScreenProps } from '../../navigation/types';
 
 export default function PreferencesScreen({ navigation }: RootStackScreenProps<'Preferences'>) {
   const { locale } = useLocaleStore();
+  const c = useColors();
   const setPrefs = useUserStore((s) => s.setPreferredCategories);
   const uid = useUserStore((s) => s.user?.uid);
   const { data: categories } = useCategories();
@@ -92,17 +94,21 @@ export default function PreferencesScreen({ navigation }: RootStackScreenProps<'
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         <View style={styles.grid}>
-          {categories.map((c) => {
-            const on = selected.has(c.id);
+          {categories.map((cat) => {
+            const on = selected.has(cat.id);
             return (
               <Pressable
-                key={c.id}
-                onPress={() => toggle(c.id)}
-                style={[styles.chip, on && styles.chipOn]}
+                key={cat.id}
+                onPress={() => toggle(cat.id)}
+                style={[
+                  styles.chip,
+                  { backgroundColor: c.surface, borderColor: c.border },
+                  on && { backgroundColor: c.brand, borderColor: c.brand },
+                ]}
               >
-                <Text style={{ fontSize: 22, marginEnd: spacing.s2 }}>{c.emoji ?? '🏷️'}</Text>
-                <Text variant="label" weight={on ? '700' : '500'} color={on ? '#fff' : palette.navy900}>
-                  {pickLocale(c.name)}
+                <Text style={{ fontSize: 22, marginEnd: spacing.s2 }}>{cat.emoji ?? '🏷️'}</Text>
+                <Text variant="label" weight={on ? '700' : '500'} color={on ? '#fff' : c.text}>
+                  {pickLocale(cat.name)}
                 </Text>
                 {on && (
                   <Ionicons name="checkmark" size={14} color="#fff" style={{ marginStart: spacing.s2 }} />
@@ -113,9 +119,9 @@ export default function PreferencesScreen({ navigation }: RootStackScreenProps<'
         </View>
       </ScrollView>
 
-      <View style={styles.footer}>
+      <View style={[styles.footer, { backgroundColor: c.surface, borderTopColor: c.border }]}>
         {!enough && (
-          <Text variant="caption" color={palette.neutral500} align="center" style={{ marginBottom: spacing.s2 }}>
+          <Text variant="caption" color={c.textMuted} align="center" style={{ marginBottom: spacing.s2 }}>
             {t.minHint.replace('{n}', String(3 - selected.size))}
           </Text>
         )}
@@ -136,15 +142,12 @@ const styles = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.s2 },
   chip: {
     flexDirection: 'row', alignItems: 'center',
-    backgroundColor: semantic.surface,
-    borderWidth: 1, borderColor: palette.navy200,
+    borderWidth: 1,
     paddingHorizontal: spacing.s4, paddingVertical: spacing.s3,
     borderRadius: 999,
   },
-  chipOn: { backgroundColor: palette.navy900, borderColor: palette.navy900 },
   footer: {
     padding: spacing.s5,
-    backgroundColor: semantic.surface,
-    borderTopWidth: 1, borderTopColor: palette.neutral200,
+    borderTopWidth: 1,
   },
 });
