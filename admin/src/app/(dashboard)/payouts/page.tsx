@@ -4,8 +4,8 @@ import { getLocale } from '@/lib/locale';
 import { getDict } from '@/i18n/dict';
 import { listPayouts } from '@/lib/data/payouts';
 import { PageHeader } from '@/components/domain/page-header';
+import { ActionButton } from '@/components/domain/action-button';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, THead, TBody, TRow, TH, TCell } from '@/components/ui/table';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -65,14 +65,26 @@ export default async function PayoutsPage() {
                     <TCell className="text-end">
                       {p.status === 'pending' ? (
                         <div className="flex gap-2 justify-end">
-                          <Button size="sm" variant="secondary">
+                          <ActionButton
+                            size="sm"
+                            variant="secondary"
+                            confirm={t.payouts.approveConfirm}
+                            toastMessage={t.payouts.statusApproved}
+                            toastDescription={t.common.demoAction}
+                          >
                             <Check className="size-3.5" />
                             {t.common.approve}
-                          </Button>
-                          <Button size="sm" variant="ghost">
+                          </ActionButton>
+                          <ActionButton
+                            size="sm"
+                            variant="ghost"
+                            confirm={t.payouts.rejectConfirm}
+                            toastMessage={t.payouts.statusRejected}
+                            toastDescription={t.common.demoAction}
+                          >
                             <X className="size-3.5" />
                             {t.common.reject}
-                          </Button>
+                          </ActionButton>
                         </div>
                       ) : (
                         <span className="text-[12px] text-ink-500">—</span>

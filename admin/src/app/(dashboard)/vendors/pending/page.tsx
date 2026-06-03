@@ -3,9 +3,11 @@ import { CheckCircle2, ClipboardCheck, FileText, ImageIcon, IdCard } from 'lucid
 import { getLocale } from '@/lib/locale';
 import { getDict } from '@/i18n/dict';
 import { listVendors } from '@/lib/data/vendors';
+import { tFmt } from '@/i18n/dict';
 import { PageHeader } from '@/components/domain/page-header';
+import { ActionButton } from '@/components/domain/action-button';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { EmptyState } from '@/components/ui/empty-state';
 import { formatDate } from '@/lib/utils';
@@ -20,10 +22,24 @@ export default async function VendorsPendingPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <PageHeader title={t.vendors.pendingTitle} subtitle={t.vendors.pendingSubtitle} />
+      <PageHeader
+        title={t.vendors.pendingTitle}
+        subtitle={t.vendors.pendingSubtitle}
+        actions={
+          vendors.length > 0 ? (
+            <Badge tone="warning">{tFmt(t.vendors.pendingCount, { n: vendors.length })}</Badge>
+          ) : undefined
+        }
+      />
 
       {vendors.length === 0 ? (
-        <Card><EmptyState icon={<ClipboardCheck className="size-7" />} title={t.vendors.noVendors} /></Card>
+        <Card>
+          <EmptyState
+            icon={<ClipboardCheck className="size-7" />}
+            title={t.vendors.noPending}
+            body={t.vendors.noPendingBody}
+          />
+        </Card>
       ) : (
         <div className="grid gap-4 lg:grid-cols-2">
           {vendors.map((v) => (
@@ -62,13 +78,24 @@ export default async function VendorsPendingPage() {
               </div>
 
               <div className="mt-4 flex gap-2">
-                <Button className="flex-1">
+                <ActionButton
+                  className="flex-1"
+                  confirm={t.vendors.approveConfirm}
+                  toastMessage={t.vendors.approved}
+                  toastDescription={t.common.demoAction}
+                >
                   <CheckCircle2 className="size-4" />
                   {t.common.approve}
-                </Button>
-                <Button variant="ghost" className="text-red-600 hover:text-red-700">
+                </ActionButton>
+                <ActionButton
+                  variant="ghost"
+                  className="text-red-600 hover:text-red-700"
+                  confirm={t.vendors.rejectConfirm}
+                  toastMessage={t.vendors.rejected}
+                  toastDescription={t.common.demoAction}
+                >
                   {t.common.reject}
-                </Button>
+                </ActionButton>
               </div>
             </Card>
           ))}

@@ -2,7 +2,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { Users } from 'lucide-react';
 import { getLocale } from '@/lib/locale';
-import { getDict } from '@/i18n/dict';
+import { getDict, tFmt } from '@/i18n/dict';
 import { listUsers } from '@/lib/data/users';
 import { PageHeader } from '@/components/domain/page-header';
 import { Card } from '@/components/ui/card';
@@ -104,6 +104,11 @@ export default async function UsersPage({ searchParams }: PageProps) {
             </TBody>
           </Table>
         )}
+        {users.length > 0 ? (
+          <div className="border-t border-ink-200/70 px-4 py-3 text-[12px] text-ink-500">
+            {tFmt(t.common.showingN, { n: users.length })}
+          </div>
+        ) : null}
       </Card>
     </div>
   );

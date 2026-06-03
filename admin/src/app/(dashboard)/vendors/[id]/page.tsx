@@ -1,14 +1,18 @@
 import * as React from 'react';
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Tag, MapPin, Phone, MessageCircle, CheckCircle2, Ban } from 'lucide-react';
+import { MapPin, Phone, MessageCircle, CheckCircle2, Ban, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getLocale } from '@/lib/locale';
 import { getDict } from '@/i18n/dict';
+import { tFmt } from '@/i18n/dict';
 import { getVendor, getVendorMetrics } from '@/lib/data/vendors';
 import { PageHeader } from '@/components/domain/page-header';
+import { ActionButton } from '@/components/domain/action-button';
+import { EmptyState } from '@/components/ui/empty-state';
+import { Package as PackageIcon, ShoppingBag, MessageSquare } from 'lucide-react';
 import { VendorStatusPill, OrderStatusPill } from '@/components/domain/status-pill';
 import { RatingStars } from '@/components/domain/rating-stars';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -35,22 +39,46 @@ export default async function VendorDetailPage({ params }: PageProps) {
     .map((cid) => seedCategories.find((c) => c.id === cid))
     .filter(Boolean);
   const cust = (uid: string) => seedCustomers.find((c) => c.uid === uid);
+  const BackIcon = locale === 'ar' ? ChevronRight : ChevronLeft;
 
   return (
     <div className="flex flex-col gap-6">
+      <nav aria-label="breadcrumb" className="flex items-center gap-1.5 text-[13px] text-ink-500">
+        <Link
+          href="/vendors"
+          className="inline-flex items-center gap-1 font-medium text-navy-500 hover:text-navy-700"
+        >
+          <BackIcon className="size-4" />
+          {t.vendors.title}
+        </Link>
+        <span aria-hidden className="text-ink-200">/</span>
+        <span className="text-ink-900 font-medium truncate max-w-[40ch]">{vendor!.name[locale]}</span>
+      </nav>
+
       <PageHeader
         title={vendor!.name[locale]}
         subtitle={vendor!.address?.[locale] ?? ''}
         actions={
           <div className="flex gap-2">
-            <Button variant="secondary">
+            <ActionButton
+              variant="secondary"
+              confirm={t.vendors.approveConfirm}
+              toastMessage={t.common.verify}
+              toastDescription={t.common.demoAction}
+            >
               <CheckCircle2 className="size-4" />
               {t.common.verify}
-            </Button>
-            <Button variant="ghost" className="text-red-600 hover:text-red-700">
+            </ActionButton>
+            <ActionButton
+              variant="ghost"
+              className="text-red-600 hover:text-red-700"
+              confirm={t.vendors.suspendConfirm}
+              toastMessage={t.common.suspend}
+              toastDescription={t.common.demoAction}
+            >
               <Ban className="size-4" />
               {t.common.suspend}
-            </Button>
+            </ActionButton>
           </div>
         }
       />
@@ -76,7 +104,7 @@ export default async function VendorDetailPage({ params }: PageProps) {
             </div>
             <div className="mt-1 flex items-center gap-3 text-[13px] text-ink-500">
               <RatingStars value={vendor!.rating} />
-              <span>· {vendor!.reviewCount} {t.vendors.reviewsCount.replace('{n}', '')}</span>
+              <span>· {tFmt(t.vendors.reviewsCount, { n: vendor!.reviewCount })}</span>
               {categories[0] ? <span>· {categories[0]!.name[locale]}</span> : null}
             </div>
           </div>
@@ -130,6 +158,9 @@ export default async function VendorDetailPage({ params }: PageProps) {
 
         <TabsContent value="products">
           <Card className="p-0 overflow-hidden">
+            {products.length === 0 ? (
+              <EmptyState icon={<PackageIcon className="size-7" />} title={t.products.empty} />
+            ) : (
             <Table>
               <THead>
                 <TRow>
@@ -156,11 +187,15 @@ export default async function VendorDetailPage({ params }: PageProps) {
                 ))}
               </TBody>
             </Table>
+            )}
           </Card>
         </TabsContent>
 
         <TabsContent value="orders">
           <Card className="p-0 overflow-hidden">
+            {orders.length === 0 ? (
+              <EmptyState icon={<ShoppingBag className="size-7" />} title={t.orders.noOrders} />
+            ) : (
             <Table>
               <THead>
                 <TRow>
@@ -183,6 +218,7 @@ export default async function VendorDetailPage({ params }: PageProps) {
                 ))}
               </TBody>
             </Table>
+            )}
           </Card>
         </TabsContent>
 
@@ -199,17 +235,21 @@ export default async function VendorDetailPage({ params }: PageProps) {
         </TabsContent>
 
         <TabsContent value="reviews">
-          <div className="grid gap-3">
-            {reviews.slice(0, 8).map((r) => (
-              <Card key={r.id} className="p-4">
-                <div className="flex items-center gap-3">
-                  <RatingStars value={r.rating} />
-                  <span className="text-[12px] text-ink-500">· {formatDate(r.createdAt, tag)}</span>
-                </div>
-                {r.comment ? <p className="mt-2 text-[14px]">{r.comment}</p> : null}
-              </Card>
-            ))}
-          </div>
+          {reviews.length === 0 ? (
+            <Card><EmptyState icon={<MessageSquare className="size-7" />} title={t.reviews.noReviews} /></Card>
+          ) : (
+            <div className="grid gap-3">
+              {reviews.slice(0, 8).map((r) => (
+                <Card key={r.id} className="p-4">
+                  <div className="flex items-center gap-3">
+                    <RatingStars value={r.rating} />
+                    <span className="text-[12px] text-ink-500">· {formatDate(r.createdAt, tag)}</span>
+                  </div>
+                  {r.comment ? <p className="mt-2 text-[14px]">{r.comment}</p> : null}
+                </Card>
+              ))}
+            </div>
+          )}
         </TabsContent>
       </Tabs>
     </div>

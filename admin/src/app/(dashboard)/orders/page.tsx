@@ -2,7 +2,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { Package } from 'lucide-react';
 import { getLocale } from '@/lib/locale';
-import { getDict } from '@/i18n/dict';
+import { getDict, tFmt } from '@/i18n/dict';
 import { listOrders } from '@/lib/data/orders';
 import { PageHeader } from '@/components/domain/page-header';
 import { OrderStatusPill } from '@/components/domain/status-pill';
@@ -107,6 +107,11 @@ export default async function OrdersPage({ searchParams }: PageProps) {
             </TBody>
           </Table>
         )}
+        {orders.length > 0 ? (
+          <div className="border-t border-ink-200/70 px-4 py-3 text-[12px] text-ink-500">
+            {tFmt(t.common.showing, { n: Math.min(orders.length, 30), total: orders.length })}
+          </div>
+        ) : null}
       </Card>
     </div>
   );

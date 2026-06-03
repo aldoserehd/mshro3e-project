@@ -5,8 +5,8 @@ import { getLocale } from '@/lib/locale';
 import { getDict } from '@/i18n/dict';
 import { listReviews } from '@/lib/data/reviews';
 import { PageHeader } from '@/components/domain/page-header';
+import { ActionButton } from '@/components/domain/action-button';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { RatingStars } from '@/components/domain/rating-stars';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -75,9 +75,25 @@ export default async function ReviewsPage({ searchParams }: PageProps) {
                   </div>
                   <div className="flex gap-2">
                     {r.flagged ? (
-                      <Button size="sm" variant="secondary">{t.reviews.unflag}</Button>
+                      <ActionButton
+                        size="sm"
+                        variant="secondary"
+                        toastMessage={t.reviews.unflag}
+                        toastDescription={t.common.demoAction}
+                      >
+                        {t.reviews.unflag}
+                      </ActionButton>
                     ) : null}
-                    <Button size="sm" variant="ghost" className="text-red-600 hover:text-red-700">{t.reviews.hide}</Button>
+                    <ActionButton
+                      size="sm"
+                      variant="ghost"
+                      className="text-red-600 hover:text-red-700"
+                      confirm={t.reviews.hideConfirm}
+                      toastMessage={t.reviews.hide}
+                      toastDescription={t.common.demoAction}
+                    >
+                      {t.reviews.hide}
+                    </ActionButton>
                   </div>
                 </div>
                 {r.comment ? (

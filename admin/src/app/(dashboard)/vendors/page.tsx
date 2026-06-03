@@ -2,7 +2,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { Plus, Store } from 'lucide-react';
 import { getLocale } from '@/lib/locale';
-import { getDict } from '@/i18n/dict';
+import { getDict, tFmt } from '@/i18n/dict';
 import { listVendors, type VendorFilters } from '@/lib/data/vendors';
 import { PageHeader } from '@/components/domain/page-header';
 import { VendorStatusPill } from '@/components/domain/status-pill';
@@ -113,7 +113,16 @@ export default async function VendorsPage({ searchParams }: PageProps) {
 
       <Card className="p-0 overflow-hidden">
         {vendors.length === 0 ? (
-          <EmptyState icon={<Store className="size-7" />} title={t.vendors.noVendors} />
+          <EmptyState
+            icon={<Store className="size-7" />}
+            title={t.vendors.noVendors}
+            body={t.common.tryAdjusting}
+            action={
+              <Button asChild variant="secondary" size="sm">
+                <Link href="/vendors">{t.common.clearFilters}</Link>
+              </Button>
+            }
+          />
         ) : (
           <Table>
             <THead>
@@ -157,6 +166,11 @@ export default async function VendorsPage({ searchParams }: PageProps) {
             </TBody>
           </Table>
         )}
+        {vendors.length > 0 ? (
+          <div className="border-t border-ink-200/70 px-4 py-3 text-[12px] text-ink-500">
+            {tFmt(t.common.showingN, { n: vendors.length })}
+          </div>
+        ) : null}
       </Card>
     </div>
   );
