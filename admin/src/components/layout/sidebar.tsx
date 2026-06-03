@@ -14,6 +14,7 @@ import {
   Settings,
   UserCheck,
   CreditCard,
+  ShoppingBag,
   PanelLeftClose,
   PanelLeftOpen,
 } from 'lucide-react';
@@ -34,7 +35,7 @@ const items: NavItem[] = [
   { href: '/vendors/pending', labelKey: 'vendorsPending', icon: UserCheck },
   { href: '/products', labelKey: 'products', icon: Package },
   { href: '/subscriptions', labelKey: 'subscriptions', icon: CreditCard },
-  { href: '/orders', labelKey: 'orders', icon: Package },
+  { href: '/orders', labelKey: 'orders', icon: ShoppingBag },
   { href: '/users', labelKey: 'users', icon: Users },
   { href: '/categories', labelKey: 'categories', icon: Tags },
   { href: '/reviews', labelKey: 'reviews', icon: MessageSquare },
@@ -48,13 +49,17 @@ export function Sidebar({ locale }: { locale: Locale }) {
   const [collapsed, setCollapsed] = React.useState<boolean>(false);
 
   const isActive = (item: NavItem) => {
+    // Exact-match items (the pending queue lives under /vendors but is its own nav row).
     if (item.href === '/vendors/pending') return pathname === '/vendors/pending';
-    if (item.href === '/vendors') return pathname === '/vendors' || pathname.startsWith('/vendors/');
+    // "All vendors" owns /vendors and every sub-route EXCEPT the pending queue.
+    if (item.href === '/vendors') {
+      return (
+        (pathname === '/vendors' || pathname.startsWith('/vendors/')) &&
+        pathname !== '/vendors/pending'
+      );
+    }
     return pathname === item.href || pathname.startsWith(`${item.href}/`);
   };
-
-  // /vendors/pending wins over /vendors -> swap active flag
-  const activeIndex = items.findIndex((i) => i.href === '/vendors/pending' && pathname === '/vendors/pending');
 
   return (
     <aside
@@ -89,9 +94,9 @@ export function Sidebar({ locale }: { locale: Locale }) {
 
       <nav className="flex-1 overflow-y-auto px-3 py-4 scrollbar-hidden">
         <ul className="flex flex-col gap-0.5">
-          {items.map((item, i) => {
+          {items.map((item) => {
             const Icon = item.icon;
-            const active = activeIndex === i ? true : (item.href === '/vendors' && pathname === '/vendors/pending' ? false : isActive(item));
+            const active = isActive(item);
             return (
               <li key={item.href}>
                 <Link

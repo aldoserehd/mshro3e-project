@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useRouter } from 'next/navigation';
 import { Search, Bell, Globe, LogOut, ChevronDown } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -23,6 +24,13 @@ export interface TopbarProps {
 
 export function Topbar({ locale, user }: TopbarProps) {
   const t = getDict(locale);
+  const router = useRouter();
+
+  const onSearch = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const q = new FormData(e.currentTarget).get('q')?.toString().trim();
+    router.push((q ? `/vendors?q=${encodeURIComponent(q)}` : '/vendors') as never);
+  };
 
   const toggleLocale = async () => {
     const next: Locale = locale === 'ar' ? 'en' : 'ar';
@@ -41,17 +49,18 @@ export function Topbar({ locale, user }: TopbarProps) {
 
   return (
     <header className="sticky top-0 z-40 flex items-center gap-4 h-16 px-5 border-b border-ink-200 bg-white/80 backdrop-blur-md">
-      <div className="relative flex-1 max-w-xl">
+      <form onSubmit={onSearch} className="relative flex-1 max-w-xl">
         <Search className="absolute start-3 top-1/2 -translate-y-1/2 size-4 text-ink-500 pointer-events-none" />
         <Input
           type="search"
+          name="q"
           placeholder={t.common.searchPlaceholder}
           className="ps-10 h-10 bg-navy-50/60 border-navy-100 focus:bg-white"
         />
         <span className="hidden md:inline-flex absolute end-3 top-1/2 -translate-y-1/2 items-center gap-1 text-[10px] font-semibold text-ink-500 bg-white border border-navy-200 rounded px-1.5 py-0.5 pointer-events-none">
-          ⌘ K
+          ↵
         </span>
-      </div>
+      </form>
 
       <Badge tone="brand" className="hidden md:inline-flex">{roleLabel}</Badge>
 
@@ -97,8 +106,12 @@ export function Topbar({ locale, user }: TopbarProps) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="min-w-[220px]">
           <DropdownMenuLabel>{t.common.account}</DropdownMenuLabel>
-          <DropdownMenuItem>{t.common.profile}</DropdownMenuItem>
-          <DropdownMenuItem>{t.nav.settings}</DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => router.push('/settings' as never)}>
+            {t.common.profile}
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => router.push('/settings' as never)}>
+            {t.nav.settings}
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem destructive onSelect={logout}>
             <LogOut className="size-4" />
