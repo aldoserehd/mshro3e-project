@@ -39,9 +39,9 @@ export default async function LoginPage() {
 
           <ul className="mt-8 flex flex-col gap-3">
             {[
-              { icon: BarChart3, label: t.overview.title },
-              { icon: ShieldCheck, label: t.vendors.pendingTitle },
-              { icon: Sparkles, label: t.payouts.title },
+              { icon: ShieldCheck, label: t.login.heroFeatureVendors },
+              { icon: BarChart3, label: t.login.heroFeatureCatalog },
+              { icon: Sparkles, label: t.login.heroFeatureSubs },
             ].map((it) => {
               const Icon = it.icon;
               return (
