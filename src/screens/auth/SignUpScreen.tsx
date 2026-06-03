@@ -7,8 +7,9 @@ import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
 import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
 import Button from '../../ui/Button';
+import PasswordInput from '../../ui/PasswordInput';
 import { Chevron } from '../../ui/Chevron';
-import { palette, radius, spacing } from '../../theme/ts';
+import { palette, radius, spacing, getCurrentLocale } from '../../theme/ts';
 import { useColors } from '../../theme/colors';
 import { useLocaleStore } from '../../stores/locale';
 import { useUserStore } from '../../stores/user';
@@ -29,6 +30,7 @@ interface FieldProps {
 
 const Field: React.FC<FieldProps> = ({ icon, placeholder, value, onChangeText, secureTextEntry, keyboardType, autoCapitalize, error }) => {
   const c = useColors();
+  const isRtl = getCurrentLocale() === 'ar';
   return (
     <View>
       <View style={[styles.fieldWrap, { backgroundColor: c.surface, borderColor: error ? c.danger : c.border }]}>
@@ -42,7 +44,7 @@ const Field: React.FC<FieldProps> = ({ icon, placeholder, value, onChangeText, s
           keyboardType={keyboardType ?? 'default'}
           autoCapitalize={autoCapitalize ?? 'none'}
           autoCorrect={false}
-          style={[styles.input, { color: c.text }]}
+          style={[styles.input, { color: c.text, textAlign: isRtl ? 'right' : 'left' }]}
         />
       </View>
       {error && (
@@ -205,7 +207,14 @@ export default function SignUpScreen({ navigation }: RootStackScreenProps<'SignU
             <Field icon="person-outline" placeholder={t.name} value={name} onChangeText={setName} autoCapitalize="sentences" error={errors.name} />
             <Field icon="mail-outline" placeholder={t.email} value={email} onChangeText={setEmail} keyboardType="email-address" error={errors.email} />
             <Field icon="call-outline" placeholder={t.phone} value={phone} onChangeText={setPhone} keyboardType="phone-pad" error={errors.phone} />
-            <Field icon="lock-closed-outline" placeholder={t.password} value={password} onChangeText={setPassword} secureTextEntry error={errors.password} />
+            <PasswordInput
+              placeholder={t.password}
+              value={password}
+              onChangeText={setPassword}
+              error={errors.password}
+              returnKeyType="go"
+              onSubmitEditing={onSubmit}
+            />
           </View>
 
           {errors.form && (
@@ -266,7 +275,6 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
     fontSize: 15,
-    textAlign: 'right',
   },
   bottomRow: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',

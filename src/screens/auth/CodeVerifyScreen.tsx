@@ -5,12 +5,14 @@ import Screen from '../../ui/Screen';
 import Header from '../../ui/Header';
 import Text from '../../ui/Text';
 import Button from '../../ui/Button';
-import { font, palette, radius, semantic, spacing } from '../../theme/ts';
+import { font, radius, spacing } from '../../theme/ts';
+import { useColors } from '../../theme/colors';
 import { RootStackScreenProps } from '../../navigation/types';
 
 const CODE_LEN = 6;
 
 export default function CodeVerifyScreen({ navigation, route }: RootStackScreenProps<'CodeVerify'>) {
+  const c = useColors();
   const { phone } = route.params;
   const [code, setCode] = useState('');
   const [secondsLeft, setSecondsLeft] = useState(45);
@@ -46,9 +48,9 @@ export default function CodeVerifyScreen({ navigation, route }: RootStackScreenP
         <Text variant="pageTitle" weight="700">
           {i18n.t('auth.codeTitle')}
         </Text>
-        <Text variant="body" color={palette.neutral500} style={styles.subtitle}>
+        <Text variant="body" color={c.textMuted} style={styles.subtitle}>
           {i18n.t('auth.codeSubtitle')}{' '}
-          <Text variant="body" weight="600" color={palette.navy900} forceLtr>
+          <Text variant="body" weight="600" color={c.text} forceLtr>
             {phone}
           </Text>
         </Text>
@@ -65,8 +67,9 @@ export default function CodeVerifyScreen({ navigation, route }: RootStackScreenP
                 key={i}
                 style={[
                   styles.codeCell,
-                  filled && styles.codeCellFilled,
-                  active && styles.codeCellActive,
+                  { backgroundColor: c.surface, borderColor: c.border },
+                  filled && { borderColor: c.text },
+                  active && { borderColor: c.brand },
                 ]}
               >
                 <Text variant="cardTitle" weight="700" forceLtr>
@@ -96,7 +99,7 @@ export default function CodeVerifyScreen({ navigation, route }: RootStackScreenP
           <Text
             variant="label"
             weight="500"
-            color={secondsLeft > 0 ? palette.neutral500 : palette.navy500}
+            color={secondsLeft > 0 ? c.textMuted : c.brandText}
           >
             {secondsLeft > 0
               ? `${i18n.t('auth.resendIn')} ${secondsLeft}s`
@@ -135,14 +138,10 @@ const styles = StyleSheet.create({
     width: 48,
     height: 56,
     borderRadius: radius.md,
-    backgroundColor: palette.white,
     borderWidth: 1,
-    borderColor: semantic.border,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  codeCellFilled: { borderColor: palette.navy900 },
-  codeCellActive: { borderColor: palette.navy600 },
   hiddenInput: {
     position: 'absolute',
     opacity: 0,

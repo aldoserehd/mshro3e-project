@@ -7,6 +7,8 @@ import { doc, getDoc } from 'firebase/firestore';
 import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
 import Button from '../../ui/Button';
+import PasswordInput from '../../ui/PasswordInput';
+import ForgotPasswordSheet from '../../ui/ForgotPasswordSheet';
 import { Chevron } from '../../ui/Chevron';
 import { palette, radius, spacing } from '../../theme/ts';
 import { useColors } from '../../theme/colors';
@@ -19,11 +21,13 @@ import type { RootStackScreenProps } from '../../navigation/types';
 export default function SignInScreen({ navigation }: RootStackScreenProps<'SignIn'>) {
   const { locale } = useLocaleStore();
   const c = useColors();
+  const isRtl = locale === 'ar';
   const hydrate = useUserStore((s) => s.hydrate);
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [err, setErr] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [forgotOpen, setForgotOpen] = useState(false);
 
   const t = locale === 'ar'
     ? { title: 'مرحباً بعودتك', subtitle: 'سجّل دخولك للمتابعة',
@@ -137,27 +141,24 @@ export default function SignInScreen({ navigation }: RootStackScreenProps<'SignI
                 placeholderTextColor={c.textMuted}
                 autoCapitalize="none"
                 autoCorrect={false}
-                style={[styles.input, { color: c.text }]}
+                keyboardType="email-address"
+                style={[styles.input, { color: c.text, textAlign: isRtl ? 'right' : 'left' }]}
               />
             </View>
-            <View style={[styles.fieldWrap, { backgroundColor: c.surface, borderColor: c.border }]}>
-              <Ionicons name="lock-closed-outline" size={18} color={c.textMuted} />
-              <TextInput
-                value={password}
-                onChangeText={(v) => { setPassword(v); setErr(''); }}
-                placeholder={t.password}
-                placeholderTextColor={c.textMuted}
-                secureTextEntry
-                style={[styles.input, { color: c.text }]}
-              />
-            </View>
+            <PasswordInput
+              value={password}
+              onChangeText={(v) => { setPassword(v); setErr(''); }}
+              placeholder={t.password}
+              returnKeyType="go"
+              onSubmitEditing={onSubmit}
+            />
           </View>
 
           {err.length > 0 && (
             <Text variant="caption" color={c.danger} style={{ marginTop: spacing.s2 }}>{err}</Text>
           )}
 
-          <Pressable hitSlop={8} style={{ alignSelf: 'flex-end', marginTop: spacing.s2 }}>
+          <Pressable onPress={() => setForgotOpen(true)} hitSlop={8} style={{ alignSelf: 'flex-end', marginTop: spacing.s2 }}>
             <Text variant="label" color={c.brandText}>{t.forgot}</Text>
           </Pressable>
 
@@ -176,6 +177,12 @@ export default function SignInScreen({ navigation }: RootStackScreenProps<'SignI
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      <ForgotPasswordSheet
+        visible={forgotOpen}
+        initialEmail={identifier}
+        onClose={() => setForgotOpen(false)}
+      />
     </Screen>
   );
 }
@@ -205,7 +212,7 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     paddingHorizontal: spacing.s4, height: 52, gap: spacing.s2,
   },
-  input: { flex: 1, fontSize: 15, textAlign: 'right' },
+  input: { flex: 1, fontSize: 15 },
   bottomRow: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
     marginTop: spacing.s5,
