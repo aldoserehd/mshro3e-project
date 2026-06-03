@@ -7,9 +7,10 @@ import { useVendorAuth } from '@/lib/vendor/auth';
 import { useVendorLocale } from '@/components/vendor/shell';
 import { listMyProducts, listMyLeads } from '@/lib/vendor/data';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 
 export default function VendorDashboardPage() {
-  const { vendor } = useVendorAuth();
+  const { loading, vendor } = useVendorAuth();
   const locale = useVendorLocale();
   const [counts, setCounts] = React.useState<{ products: number; leads: number } | null>(null);
 
@@ -28,6 +29,15 @@ export default function VendorDashboardPage() {
   }, [vendor]);
 
   const ar = locale === 'ar';
+
+  // Still resolving auth/vendor doc → spinner (avoids a flash of the onboarding CTA).
+  if (loading) {
+    return (
+      <div className="flex min-h-[40vh] items-center justify-center">
+        <Loader2 className="size-6 animate-spin text-navy-600" aria-label="loading" />
+      </div>
+    );
+  }
 
   // No storefront yet → onboarding CTA.
   if (!vendor) {
@@ -62,6 +72,19 @@ export default function VendorDashboardPage() {
         </div>
         <Button asChild><Link href={'/vendor/products/new' as never}><Plus className="size-4" />{ar ? 'منتج جديد' : 'New product'}</Link></Button>
       </div>
+
+      {counts && counts.products === 0 && (
+        <Card className="flex flex-wrap items-center justify-between gap-4 border-navy-200 bg-navy-50 p-5">
+          <div className="flex items-center gap-3">
+            <span className="inline-flex size-11 items-center justify-center rounded-full bg-navy-900 text-white"><Package className="size-6" /></span>
+            <div>
+              <p className="text-[15px] font-semibold text-ink-900">{ar ? 'الخطوة الجاية: أضف منتجاتك' : 'Next step: add your products'}</p>
+              <p className="text-[13px] text-ink-500">{ar ? 'متجرك جاهز — ضيف منتجاتك عشان يلقاك العملاء.' : 'Your store is ready — add products so customers can find you.'}</p>
+            </div>
+          </div>
+          <Button asChild><Link href={'/vendor/products/new' as never}><Plus className="size-4" />{ar ? 'أضف منتج' : 'Add a product'}</Link></Button>
+        </Card>
+      )}
 
       <div className="grid gap-4 sm:grid-cols-3">
         <Stat icon={<Package className="size-5" />} label={ar ? 'المنتجات' : 'Products'} value={counts?.products} href="/vendor/products" />

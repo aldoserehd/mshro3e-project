@@ -2,7 +2,8 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2, AlertTriangle } from 'lucide-react';
+import { toast } from 'sonner';
+import { AlertTriangle } from 'lucide-react';
 import { useVendorAuth } from '@/lib/vendor/auth';
 import { useVendorLocale } from '@/components/vendor/shell';
 import { listCategories, saveStorefront, type StorefrontInput } from '@/lib/vendor/data';
@@ -50,11 +51,21 @@ export default function StorefrontPage() {
     e.preventDefault();
     if (!user || busy) return;
     if (!form.nameAr.trim() && !form.nameEn.trim()) { setErr(ar ? 'الاسم مطلوب' : 'Name is required'); return; }
+    if (!form.whatsapp.trim() && !form.phone.trim()) {
+      setErr(ar ? 'رقم واتساب مطلوب — هو طريقة تواصل العملاء معك.' : 'A WhatsApp number is required — it is how customers reach you.');
+      return;
+    }
+    const isNew = !vendor;
     setBusy(true); setErr('');
     try {
       await saveStorefront(user.uid, vendor?.id ?? null, form);
       await refresh();
-      router.replace('/vendor');
+      toast.success(
+        isNew
+          ? (ar ? 'تم إنشاء متجرك! 🎉 الخطوة الجاية: أضف منتجاتك.' : 'Store created! 🎉 Next: add your products.')
+          : (ar ? 'تم حفظ التغييرات.' : 'Changes saved.'),
+      );
+      router.replace(isNew ? '/vendor/products/new' : '/vendor');
     } catch (e2) {
       setErr(e2 instanceof Error ? e2.message : (ar ? 'تعذّر الحفظ' : 'Could not save'));
     } finally {
@@ -67,11 +78,13 @@ export default function StorefrontPage() {
         bioAr: 'نبذة (عربي)', bioEn: 'نبذة (إنجليزي)', addrAr: 'المنطقة (عربي)', addrEn: 'المنطقة (إنجليزي)',
         phone: 'الهاتف', wa: 'واتساب', logo: 'رابط الشعار', cover: 'رابط صورة الغلاف', cats: 'الفئات',
         save: 'حفظ المتجر', basics: 'الأساسيات', contact: 'التواصل', media: 'الصور',
+        waHint: 'رقم واتساب هو طريقة العملاء للتواصل معك من التطبيق.',
         imgHint: 'الصق روابط صور (الخطة المجانية لا تدعم رفع الملفات).' }
     : { title: vendor ? 'My storefront' : 'Create storefront', nameAr: 'Store name (Arabic)', nameEn: 'Store name (English)',
         bioAr: 'Bio (Arabic)', bioEn: 'Bio (English)', addrAr: 'Area (Arabic)', addrEn: 'Area (English)',
         phone: 'Phone', wa: 'WhatsApp', logo: 'Logo URL', cover: 'Cover image URL', cats: 'Categories',
         save: 'Save storefront', basics: 'Basics', contact: 'Contact', media: 'Images',
+        waHint: 'Your WhatsApp number is how customers contact you from the app.',
         imgHint: 'Paste image URLs (no file upload on the free plan).' };
 
   return (
@@ -99,9 +112,10 @@ export default function StorefrontPage() {
 
         <Card className="p-5 flex flex-col gap-4">
           <h3 className="text-[15px] font-bold text-ink-900">{t.contact}</h3>
+          <p className="-mt-2 text-[12px] text-ink-500">{t.waHint}</p>
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label={t.phone}><Input dir="ltr" inputMode="tel" placeholder="+965 5000 0000" value={form.phone} onChange={(e) => set('phone', e.target.value)} /></Field>
-            <Field label={t.wa}><Input dir="ltr" inputMode="tel" placeholder="+965 5000 0000" value={form.whatsapp} onChange={(e) => set('whatsapp', e.target.value)} /></Field>
+            <Field label={`${t.wa} *`}><Input dir="ltr" inputMode="tel" placeholder="+965 5000 0000" value={form.whatsapp} onChange={(e) => set('whatsapp', e.target.value)} /></Field>
           </div>
         </Card>
 
@@ -130,7 +144,7 @@ export default function StorefrontPage() {
         </Card>
 
         <div className="flex justify-end">
-          <Button type="submit" disabled={busy} size="lg">{busy ? <Loader2 className="size-4 animate-spin" /> : null}{t.save}</Button>
+          <Button type="submit" disabled={busy} loading={busy} size="lg">{t.save}</Button>
         </div>
       </form>
     </div>

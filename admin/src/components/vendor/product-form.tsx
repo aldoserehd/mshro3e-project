@@ -2,7 +2,8 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
-import { Loader2, AlertTriangle } from 'lucide-react';
+import { toast } from 'sonner';
+import { AlertTriangle } from 'lucide-react';
 import { useVendorLocale } from '@/components/vendor/shell';
 import { createProduct, updateProduct, type ProductInput } from '@/lib/vendor/data';
 import { Card } from '@/components/ui/card';
@@ -58,6 +59,11 @@ export function ProductForm({
     try {
       if (initial) await updateProduct(initial.id, input);
       else await createProduct(vendorId, input);
+      toast.success(
+        initial
+          ? (ar ? 'تم حفظ التعديلات.' : 'Changes saved.')
+          : (ar ? 'تم نشر المنتج! يظهر الآن في التطبيق.' : 'Product published! It now appears in the app.'),
+      );
       router.replace('/vendor/products');
       router.refresh();
     } catch (e2) {
@@ -128,7 +134,7 @@ export function ProductForm({
       </Card>
 
       <div className="flex justify-end">
-        <Button type="submit" disabled={busy} size="lg">{busy ? <Loader2 className="size-4 animate-spin" /> : null}{t.save}</Button>
+        <Button type="submit" disabled={busy} loading={busy} size="lg">{t.save}</Button>
       </div>
     </form>
   );

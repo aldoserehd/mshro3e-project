@@ -3,11 +3,13 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { Plus, Package, Pencil, Trash2, Loader2, Store, EyeOff } from 'lucide-react';
+import { toast } from 'sonner';
 import { useVendorAuth } from '@/lib/vendor/auth';
 import { useVendorLocale } from '@/components/vendor/shell';
 import { listMyProducts, deleteProduct } from '@/lib/vendor/data';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { LoadingState, EmptyState, ErrorState } from '@/components/vendor/states';
 import type { Service } from '@shared/types';
 
 export default function VendorProductsPage() {
@@ -15,11 +17,13 @@ export default function VendorProductsPage() {
   const locale = useVendorLocale();
   const ar = locale === 'ar';
   const [products, setProducts] = React.useState<Service[] | null>(null);
+  const [error, setError] = React.useState(false);
   const [deleting, setDeleting] = React.useState<string | null>(null);
 
   const load = React.useCallback(async () => {
     if (!vendor) { setProducts([]); return; }
-    try { setProducts(await listMyProducts(vendor.id)); } catch { setProducts([]); }
+    setProducts(null); setError(false);
+    try { setProducts(await listMyProducts(vendor.id)); } catch { setError(true); setProducts([]); }
   }, [vendor]);
 
   React.useEffect(() => { load(); }, [load]);
@@ -27,20 +31,26 @@ export default function VendorProductsPage() {
   const onDelete = async (id: string) => {
     if (!confirm(ar ? 'حذف هذا المنتج؟' : 'Delete this product?')) return;
     setDeleting(id);
-    try { await deleteProduct(id); setProducts((p) => (p ?? []).filter((x) => x.id !== id)); }
-    catch { /* ignore */ }
-    finally { setDeleting(null); }
+    try {
+      await deleteProduct(id);
+      setProducts((p) => (p ?? []).filter((x) => x.id !== id));
+      toast.success(ar ? 'تم حذف المنتج.' : 'Product deleted.');
+    } catch {
+      toast.error(ar ? 'تعذّر حذف المنتج.' : 'Could not delete product.');
+    } finally { setDeleting(null); }
   };
 
   const fmt = (n: number) => (ar ? `${n} د.ك` : `KWD ${n}`);
 
   if (!vendor) {
     return (
-      <Card className="p-8 flex flex-col items-center text-center gap-3 max-w-lg">
-        <span className="inline-flex size-12 items-center justify-center rounded-full bg-navy-50 text-navy-700"><Store className="size-6" /></span>
-        <p className="text-[15px] text-ink-900">{ar ? 'أنشئ متجرك أول شي.' : 'Create your storefront first.'}</p>
-        <Button asChild><Link href={'/vendor/storefront' as never}>{ar ? 'إنشاء المتجر' : 'Create storefront'}</Link></Button>
-      </Card>
+      <EmptyState
+        icon={<Store className="size-6" />}
+        title={ar ? 'أنشئ متجرك أول شي' : 'Create your storefront first'}
+        hint={ar ? 'تحتاج متجراً قبل إضافة المنتجات.' : 'You need a storefront before adding products.'}
+        ctaLabel={ar ? 'إنشاء المتجر' : 'Create storefront'}
+        ctaHref="/vendor/storefront"
+      />
     );
   }
 
@@ -55,13 +65,17 @@ export default function VendorProductsPage() {
       </div>
 
       {products === null ? (
-        <Card className="p-10 flex justify-center"><Loader2 className="size-6 animate-spin text-navy-600" /></Card>
+        <LoadingState />
+      ) : error ? (
+        <ErrorState title={ar ? 'تعذّر تحميل المنتجات.' : 'Could not load products.'} retryLabel={ar ? 'إعادة المحاولة' : 'Retry'} onRetry={load} />
       ) : products.length === 0 ? (
-        <Card className="p-10 flex flex-col items-center text-center gap-3">
-          <span className="inline-flex size-12 items-center justify-center rounded-full bg-navy-50 text-navy-700"><Package className="size-6" /></span>
-          <p className="text-[15px] text-ink-900">{ar ? 'لا توجد منتجات بعد' : 'No products yet'}</p>
-          <Button asChild><Link href={'/vendor/products/new' as never}>{ar ? 'أضف أول منتج' : 'Add your first product'}</Link></Button>
-        </Card>
+        <EmptyState
+          icon={<Package className="size-6" />}
+          title={ar ? 'لا توجد منتجات بعد' : 'No products yet'}
+          hint={ar ? 'أضف أول منتج وبيظهر مباشرة للعملاء في التطبيق.' : 'Add your first product and it appears to customers right away.'}
+          ctaLabel={ar ? 'أضف أول منتج' : 'Add your first product'}
+          ctaHref="/vendor/products/new"
+        />
       ) : (
         <div className="grid gap-3">
           {products.map((p) => (

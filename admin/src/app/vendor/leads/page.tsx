@@ -2,25 +2,27 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Inbox, Loader2, Store, MessageCircle } from 'lucide-react';
+import { Inbox, Store, MessageCircle } from 'lucide-react';
 import { useVendorAuth } from '@/lib/vendor/auth';
 import { useVendorLocale } from '@/components/vendor/shell';
 import { listMyLeads, type Lead } from '@/lib/vendor/data';
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { LoadingState, EmptyState, ErrorState } from '@/components/vendor/states';
 
 export default function VendorLeadsPage() {
   const { vendor } = useVendorAuth();
   const locale = useVendorLocale();
   const ar = locale === 'ar';
   const [leads, setLeads] = React.useState<Lead[] | null>(null);
+  const [error, setError] = React.useState(false);
 
-  React.useEffect(() => {
-    let alive = true;
+  const load = React.useCallback(() => {
     if (!vendor) { setLeads([]); return; }
-    listMyLeads(vendor.id).then((l) => { if (alive) setLeads(l); }).catch(() => { if (alive) setLeads([]); });
-    return () => { alive = false; };
+    setLeads(null); setError(false);
+    listMyLeads(vendor.id).then(setLeads).catch(() => { setError(true); setLeads([]); });
   }, [vendor]);
+
+  React.useEffect(() => { load(); }, [load]);
 
   const when = (ts?: number) => {
     if (!ts) return '';
@@ -30,11 +32,13 @@ export default function VendorLeadsPage() {
 
   if (!vendor) {
     return (
-      <Card className="p-8 flex flex-col items-center text-center gap-3 max-w-lg">
-        <span className="inline-flex size-12 items-center justify-center rounded-full bg-navy-50 text-navy-700"><Store className="size-6" /></span>
-        <p className="text-[15px] text-ink-900">{ar ? 'أنشئ متجرك أول شي.' : 'Create your storefront first.'}</p>
-        <Button asChild><Link href={'/vendor/storefront' as never}>{ar ? 'إنشاء المتجر' : 'Create storefront'}</Link></Button>
-      </Card>
+      <EmptyState
+        icon={<Store className="size-6" />}
+        title={ar ? 'أنشئ متجرك أول شي' : 'Create your storefront first'}
+        hint={ar ? 'بعد إنشاء متجرك وإضافة منتجاتك، بتبدأ تستقبل طلبات واتساب.' : 'Once your store and products are live, WhatsApp leads start coming in.'}
+        ctaLabel={ar ? 'إنشاء المتجر' : 'Create storefront'}
+        ctaHref="/vendor/storefront"
+      />
     );
   }
 
@@ -48,13 +52,15 @@ export default function VendorLeadsPage() {
       </div>
 
       {leads === null ? (
-        <Card className="p-10 flex justify-center"><Loader2 className="size-6 animate-spin text-navy-600" /></Card>
+        <LoadingState />
+      ) : error ? (
+        <ErrorState title={ar ? 'تعذّر تحميل الطلبات.' : 'Could not load leads.'} retryLabel={ar ? 'إعادة المحاولة' : 'Retry'} onRetry={load} />
       ) : leads.length === 0 ? (
-        <Card className="p-10 flex flex-col items-center text-center gap-3">
-          <span className="inline-flex size-12 items-center justify-center rounded-full bg-navy-50 text-navy-700"><Inbox className="size-6" /></span>
-          <p className="text-[15px] text-ink-900">{ar ? 'ما وصلتك طلبات بعد' : 'No leads yet'}</p>
-          <p className="text-[13px] text-ink-500 max-w-sm">{ar ? 'بمجرد ما يضغط عميل «اطلب عبر واتساب» على منتجك، بيظهر هنا.' : 'As soon as a customer taps “Order via WhatsApp” on your product, it shows here.'}</p>
-        </Card>
+        <EmptyState
+          icon={<Inbox className="size-6" />}
+          title={ar ? 'ما وصلتك طلبات بعد' : 'No leads yet'}
+          hint={ar ? 'بمجرد ما يضغط عميل «اطلب عبر واتساب» على منتجك، بيظهر هنا.' : 'As soon as a customer taps “Order via WhatsApp” on your product, it shows here.'}
+        />
       ) : (
         <>
           <Card className="flex items-center gap-3 p-4">
