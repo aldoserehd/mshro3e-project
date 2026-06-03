@@ -136,7 +136,7 @@ export default {
     tabProducts: 'Products',
     tabVendors: 'Vendors',
     occasions: { all: 'All', eid: 'Eid', baby: 'Baby', graduation: 'Graduation', wedding: 'Wedding', other: 'Other' },
-    empty: { title: 'Nothing saved yet', subtitle: 'Save the products and shops you love here.' },
+    empty: { title: 'Nothing saved yet', subtitle: 'Save the products and shops you love here.', cta: 'Browse products' },
   },
 
   notif: {
@@ -163,9 +163,9 @@ export default {
       logout: 'Log out',
     },
     upgrade: {
-      title: 'Upgrade to vendor',
-      body: 'List your shop on Mshro3e and reach more customers.',
-      cta: 'Upgrade to Pro',
+      title: 'List your business on Mshro3e',
+      body: 'Reach customers searching across Kuwait — leads come straight to your WhatsApp.',
+      cta: 'List',
     },
   },
 

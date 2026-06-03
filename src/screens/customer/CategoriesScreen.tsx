@@ -7,7 +7,7 @@ import i18n from '../../locales/i18n';
 import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
 import PressableScale from '../../ui/PressableScale';
-import PulseDot from '../../ui/PulseDot';
+import { LoadingState } from '../../ui/EmptyState';
 import { useCategories, useServices } from '../../data/hooks';
 import { palette, radius, shadowStyle, spacing, pickLocale } from '../../theme/ts';
 import { useColors } from '../../theme/colors';
@@ -18,10 +18,11 @@ import type { MainTabsScreenProps } from '../../navigation/types';
 type Sort = 'all' | 'popular' | 'new';
 
 export default function CategoriesScreen({ navigation }: MainTabsScreenProps<'Search'>) {
-  const { data: categories } = useCategories();
+  const { data: categories, loading: catsLoading } = useCategories();
   const { data: products } = useServices();
   const { locale } = useLocaleStore();
   const c = useColors();
+  const isRtl = locale === 'ar';
   const { width } = useWindowDimensions();
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<Sort>('all');
@@ -96,7 +97,7 @@ export default function CategoriesScreen({ navigation }: MainTabsScreenProps<'Se
                 onChangeText={setQuery}
                 placeholder={i18n.t('cats.searchPlaceholder')}
                 placeholderTextColor={palette.neutral500}
-                style={styles.searchInput}
+                style={[styles.searchInput, { textAlign: isRtl ? 'right' : 'left' }]}
               />
               {query.length > 0 && (
                 <Pressable onPress={() => setQuery('')} hitSlop={8}>
@@ -127,25 +128,36 @@ export default function CategoriesScreen({ navigation }: MainTabsScreenProps<'Se
         </Animated.View>
 
         {/* ── Category blocks grid ── */}
-        <View style={styles.grid}>
-          {filtered.map((c) => (
-            <CategoryBlock
-              key={c.id}
-              category={c}
-              count={counts[c.id] ?? 0}
-              width={tileWidth}
-              onPress={() => navigation.navigate('Category', { categoryId: c.id })}
-            />
-          ))}
-        </View>
+        {catsLoading && categories.length === 0 ? (
+          <LoadingState
+            label={locale === 'ar' ? 'جاري التحميل…' : 'Loading…'}
+            style={{ paddingTop: spacing.s8 }}
+          />
+        ) : (
+          <>
+            <View style={styles.grid}>
+              {filtered.map((cat) => (
+                <CategoryBlock
+                  key={cat.id}
+                  category={cat}
+                  count={counts[cat.id] ?? 0}
+                  width={tileWidth}
+                  onPress={() => navigation.navigate('Category', { categoryId: cat.id })}
+                />
+              ))}
+            </View>
 
-        {filtered.length === 0 && (
-          <View style={styles.empty}>
-            <Ionicons name="search-outline" size={48} color={c.textMuted} />
-            <Text variant="body" color={c.textMuted} style={{ marginTop: spacing.s3 }}>
-              {locale === 'ar' ? 'لا توجد تصنيفات مطابقة' : 'No matching categories'}
-            </Text>
-          </View>
+            {filtered.length === 0 && (
+              <View style={styles.empty}>
+                <Ionicons name="search-outline" size={48} color={c.textMuted} />
+                <Text variant="body" color={c.textMuted} style={{ marginTop: spacing.s3 }}>
+                  {query.trim()
+                    ? (locale === 'ar' ? 'لا توجد تصنيفات مطابقة' : 'No matching categories')
+                    : (locale === 'ar' ? 'لا توجد تصنيفات بعد' : 'No categories yet')}
+                </Text>
+              </View>
+            )}
+          </>
         )}
       </ScrollView>
     </Screen>
@@ -255,7 +267,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.s4,
     ...shadowStyle(2),
   },
-  searchInput: { flex: 1, fontSize: 14, color: palette.neutral900, textAlign: 'right' },
+  searchInput: { flex: 1, fontSize: 14, color: palette.neutral900 },
 
   sortRow: {
     flexDirection: 'row',

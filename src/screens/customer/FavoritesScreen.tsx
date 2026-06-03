@@ -8,6 +8,7 @@ import i18n from '../../locales/i18n';
 import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
 import PressableScale from '../../ui/PressableScale';
+import EmptyState from '../../ui/EmptyState';
 import { useServices, useVendors } from '../../data/hooks';
 import { useFavoritesStore } from '../../stores/favorites';
 import { useColors } from '../../theme/colors';
@@ -53,7 +54,7 @@ export default function FavoritesScreen({ navigation }: MainTabsScreenProps<'Fav
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         {tab === 'products' ? (
           products.length === 0 ? (
-            <Empty />
+            <Empty onBrowse={() => navigation.navigate('Home')} />
           ) : (
             <View style={styles.grid}>
               {products.map((p) => {
@@ -81,7 +82,7 @@ export default function FavoritesScreen({ navigation }: MainTabsScreenProps<'Fav
             </View>
           )
         ) : vendors.length === 0 ? (
-          <Empty />
+          <Empty onBrowse={() => navigation.navigate('Home')} />
         ) : (
           <View style={{ paddingHorizontal: spacing.s5, gap: spacing.s3 }}>
             {vendors.map((v) => (
@@ -105,18 +106,15 @@ export default function FavoritesScreen({ navigation }: MainTabsScreenProps<'Fav
   );
 }
 
-const Empty: React.FC = () => {
-  const c = useColors();
-  return (
-    <View style={styles.empty}>
-      <View style={[styles.emptyIcon, { backgroundColor: c.brandFill }]}>
-        <Ionicons name="heart-outline" size={36} color={c.brandText} />
-      </View>
-      <Text variant="cardTitle" weight="700" style={{ marginTop: spacing.s4 }}>{i18n.t('favorites.empty.title')}</Text>
-      <Text variant="body" color={c.textMuted} align="center" style={{ marginTop: 4 }}>{i18n.t('favorites.empty.subtitle')}</Text>
-    </View>
-  );
-};
+const Empty: React.FC<{ onBrowse: () => void }> = ({ onBrowse }) => (
+  <EmptyState
+    icon="heart-outline"
+    title={i18n.t('favorites.empty.title')}
+    subtitle={i18n.t('favorites.empty.subtitle')}
+    actionLabel={i18n.t('favorites.empty.cta')}
+    onAction={onBrowse}
+  />
+);
 
 const styles = StyleSheet.create({
   header: { paddingHorizontal: spacing.s5, paddingTop: spacing.s2, paddingBottom: spacing.s3 },
@@ -133,6 +131,4 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center',
     padding: spacing.s3, borderRadius: radius.lg, borderWidth: 1,
   },
-  empty: { padding: spacing.s7, alignItems: 'center', justifyContent: 'center' },
-  emptyIcon: { width: 72, height: 72, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
 });

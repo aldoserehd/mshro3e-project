@@ -1,5 +1,5 @@
 import React from 'react';
-import { Linking, Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { Linking, Pressable, ScrollView, Share, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
@@ -9,6 +9,7 @@ import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
 import Card from '../../ui/Card';
 import PressableScale from '../../ui/PressableScale';
+import { LoadingState } from '../../ui/EmptyState';
 import { useVendor, useServices } from '../../data/hooks';
 import { useColors } from '../../theme/colors';
 import { radius, shadowStyle, spacing, formatPrice, pickLocale, getCurrentLocale } from '../../theme/ts';
@@ -19,14 +20,35 @@ const cleanPhone = (raw: string) => raw.replace(/[^\d]/g, '');
 
 export default function VendorProfileScreen({ route, navigation }: RootStackScreenProps<'VendorProfile'>) {
   const { vendorId } = route.params;
-  const { data: vendor } = useVendor(vendorId);
+  const { data: vendor, loading } = useVendor(vendorId);
   const { data: allProducts } = useServices();
   const { locale } = useLocaleStore();
   const c = useColors();
   const { width } = useWindowDimensions();
   const tileWidth = (width - spacing.s5 * 2 - spacing.s3) / 2;
 
-  if (!vendor) return null;
+  if (!vendor) {
+    const arx = getCurrentLocale() === 'ar';
+    return (
+      <Screen>
+        <View style={[styles.fallbackHeader, { borderBottomColor: c.border }]}>
+          <Pressable onPress={() => navigation.goBack()} hitSlop={10} style={[styles.coverBtn, { position: 'relative', top: 0, backgroundColor: c.surfaceAlt }]}>
+            <Ionicons name="chevron-back" size={20} color={c.text} style={{ transform: [{ scaleX: -1 }] }} />
+          </Pressable>
+        </View>
+        {loading ? (
+          <LoadingState label={arx ? 'جاري التحميل…' : 'Loading…'} />
+        ) : (
+          <View style={styles.fallbackBody}>
+            <Ionicons name="storefront-outline" size={44} color={c.textMuted} />
+            <Text variant="body" color={c.textMuted} style={{ marginTop: spacing.s3 }}>
+              {arx ? 'لم نعثر على هذا المحل.' : 'This shop could not be found.'}
+            </Text>
+          </View>
+        )}
+      </Screen>
+    );
+  }
 
   const products = allProducts.filter((p) => p.vendorId === vendor.id);
   const isPro = vendor.tier === 'pro' || vendor.tier === 'managed';
@@ -39,6 +61,14 @@ export default function VendorProfileScreen({ route, navigation }: RootStackScre
     Linking.openURL(url).catch(() => {});
   };
   const callPhone = () => { if (vendor.phone) Linking.openURL(`tel:${vendor.phone}`).catch(() => {}); };
+  const onShare = () => {
+    Haptics.selectionAsync().catch(() => {});
+    const name = pickLocale(vendor.name);
+    const message = ar
+      ? `شوف ${name} على مشروعي 👀`
+      : `Check out ${name} on Mshro3e 👀`;
+    Share.share({ message }).catch(() => {});
+  };
 
   return (
     <Screen edges={['top', 'left', 'right']}>
@@ -56,7 +86,7 @@ export default function VendorProfileScreen({ route, navigation }: RootStackScre
           <Pressable onPress={() => navigation.goBack()} style={[styles.coverBtn, { start: spacing.s4, backgroundColor: c.glass }]}>
             <Ionicons name="chevron-back" size={20} color={c.text} style={{ transform: [{ scaleX: -1 }] }} />
           </Pressable>
-          <Pressable style={[styles.coverBtn, { end: spacing.s4, backgroundColor: c.glass }]}>
+          <Pressable onPress={onShare} hitSlop={8} style={[styles.coverBtn, { end: spacing.s4, backgroundColor: c.glass }]}>
             <Ionicons name="share-outline" size={20} color={c.text} />
           </Pressable>
         </View>
@@ -199,6 +229,8 @@ const Divider = () => {
 };
 
 const styles = StyleSheet.create({
+  fallbackHeader: { height: 52, flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.s4, borderBottomWidth: 1 },
+  fallbackBody: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   cover: { height: 200, position: 'relative' },
   coverBtn: {
     position: 'absolute', top: spacing.s5,

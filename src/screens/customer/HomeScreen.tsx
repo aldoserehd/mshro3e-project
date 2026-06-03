@@ -15,6 +15,7 @@ import i18n from '../../locales/i18n';
 import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
 import PressableScale from '../../ui/PressableScale';
+import { LoadingState } from '../../ui/EmptyState';
 import { useCategories, useServices, useVendors } from '../../data/hooks';
 import { KUWAIT_AREAS, type Area } from '../../data/areas';
 import { useColors } from '../../theme/colors';
@@ -26,7 +27,7 @@ import { MainTabsScreenProps } from '../../navigation/types';
 export default function HomeScreen({ navigation }: MainTabsScreenProps<'Home'>) {
   const { data: categories } = useCategories();
   const { data: vendors } = useVendors();
-  const { data: products } = useServices();
+  const { data: products, loading: productsLoading } = useServices();
   const { width } = useWindowDimensions();
   const { locale } = useLocaleStore();
   const c = useColors();
@@ -107,7 +108,12 @@ export default function HomeScreen({ navigation }: MainTabsScreenProps<'Home'>) 
           )}
         </View>
 
-        {results ? (
+        {productsLoading && products.length === 0 ? (
+          <LoadingState
+            label={getCurrentLocale() === 'ar' ? 'جاري التحميل…' : 'Loading…'}
+            style={{ paddingTop: spacing.s8 }}
+          />
+        ) : results ? (
           /* ── Search results (in-page) ── */
           <>
             <View style={styles.sectionHead}>

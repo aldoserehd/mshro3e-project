@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import i18n from '../../locales/i18n';
@@ -6,6 +6,7 @@ import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
 import Avatar from '../../ui/Avatar';
 import PressableScale from '../../ui/PressableScale';
+import VendorCtaSheet from '../../ui/VendorCtaSheet';
 import { useColors } from '../../theme/colors';
 import { radius, spacing, shadowStyle, getCurrentLocale } from '../../theme/ts';
 import { useLocaleStore } from '../../stores/locale';
@@ -63,6 +64,7 @@ export default function AccountScreen({ navigation }: MainTabsScreenProps<'Accou
   const { locale } = useLocaleStore();
   const c = useColors();
   const user = useUserStore((s) => s.user);
+  const [vendorCtaOpen, setVendorCtaOpen] = useState(false);
 
   const displayName = user?.name?.trim() || (getCurrentLocale() === 'ar' ? 'ضيف' : 'Guest');
   const subtitle = user?.phone?.trim() || user?.email?.trim() || (getCurrentLocale() === 'ar' ? 'سجّل دخولك' : 'Sign in');
@@ -97,12 +99,14 @@ export default function AccountScreen({ navigation }: MainTabsScreenProps<'Accou
         </View>
 
         <View style={styles.profile}>
-          <View>
-            <Avatar name={displayName} size={92} />
-            <View style={[styles.editBadge, { backgroundColor: c.brand, borderColor: c.bg }]}>
-              <Ionicons name="pencil" size={13} color="#fff" />
+          <PressableScale onPress={() => navigation.navigate('Settings')}>
+            <View>
+              <Avatar name={displayName} size={92} />
+              <View style={[styles.editBadge, { backgroundColor: c.brand, borderColor: c.bg }]}>
+                <Ionicons name="pencil" size={13} color="#fff" />
+              </View>
             </View>
-          </View>
+          </PressableScale>
           <Text variant="sectionTitle" weight="700" style={{ marginTop: spacing.s3 }}>{displayName}</Text>
           <Text variant="body" color={c.textMuted}>{subtitle}</Text>
         </View>
@@ -116,10 +120,10 @@ export default function AccountScreen({ navigation }: MainTabsScreenProps<'Accou
           <Row icon="log-out-outline" label={i18n.t('account.rows.logout')} destructive onPress={onLogout} />
         </View>
 
-        <PressableScale onPress={() => navigation.navigate('Info', { topic: 'about' })}>
+        <PressableScale onPress={() => setVendorCtaOpen(true)}>
           <View style={[styles.upgrade, { backgroundColor: c.brand }]}>
             <View style={[styles.upgradeIcon, { backgroundColor: 'rgba(255,255,255,0.18)' }]}>
-              <Ionicons name="rocket-outline" size={20} color="#fff" />
+              <Ionicons name="storefront-outline" size={20} color="#fff" />
             </View>
             <View style={{ flex: 1, marginStart: spacing.s3 }}>
               <Text variant="cardTitle" weight="700" color="#fff">{i18n.t('account.upgrade.title')}</Text>
@@ -133,6 +137,8 @@ export default function AccountScreen({ navigation }: MainTabsScreenProps<'Accou
           </View>
         </PressableScale>
       </ScrollView>
+
+      <VendorCtaSheet visible={vendorCtaOpen} onClose={() => setVendorCtaOpen(false)} />
     </Screen>
   );
 }

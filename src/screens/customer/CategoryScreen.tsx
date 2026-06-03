@@ -2,13 +2,16 @@ import React, { useMemo, useState } from 'react';
 import { FlatList, Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
+import * as Haptics from 'expo-haptics';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import Logo from '../../ui/Logo';
 import i18n from '../../locales/i18n';
 import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
 import PressableScale from '../../ui/PressableScale';
+import { LoadingState } from '../../ui/EmptyState';
 import { useCategories, useServices, useVendors } from '../../data/hooks';
+import { useFavoritesStore } from '../../stores/favorites';
 import { useColors } from '../../theme/colors';
 import { radius, shadowStyle, spacing, formatPrice, pickLocale, getCurrentLocale } from '../../theme/ts';
 import type { Service, Vendor } from '@shared/types';
@@ -18,7 +21,7 @@ type Sort = 'newest' | 'price_asc' | 'price_desc';
 
 export default function CategoryScreen({ route, navigation }: RootStackScreenProps<'Category'>) {
   const { categoryId } = route.params;
-  const { data: all } = useServices();
+  const { data: all, loading: productsLoading } = useServices();
   const { data: categories } = useCategories();
   const { data: vendors } = useVendors();
   const { width } = useWindowDimensions();
@@ -79,7 +82,9 @@ export default function CategoryScreen({ route, navigation }: RootStackScreenPro
         })}
       </ScrollView>
 
-      {products.length === 0 ? (
+      {productsLoading && all.length === 0 ? (
+        <LoadingState label={ar ? 'جاري التحميل…' : 'Loading…'} />
+      ) : products.length === 0 ? (
         <View style={styles.empty}>
           <Ionicons name="bag-outline" size={48} color={c.textMuted} />
           <Text variant="body" color={c.textMuted} style={{ marginTop: spacing.s3 }}>
@@ -111,14 +116,20 @@ export default function CategoryScreen({ route, navigation }: RootStackScreenPro
 
 const ProductTile: React.FC<{ product: Service; vendor?: Vendor; width: number; onPress: () => void }> = ({ product, vendor, width, onPress }) => {
   const c = useColors();
+  const isFav = useFavoritesStore((s) => s.productIds.has(product.id));
+  const toggleProduct = useFavoritesStore((s) => s.toggleProduct);
   return (
     <PressableScale onPress={onPress}>
       <View style={{ width, marginBottom: spacing.s4 }}>
         <View style={styles.tileImgWrap}>
           <Image source={{ uri: product.images?.[0] }} style={[styles.tileImg, { backgroundColor: c.surfaceSunken }]} contentFit="cover" />
-          <View style={[styles.heart, { backgroundColor: c.glass }]}>
-            <Ionicons name="heart-outline" size={14} color={c.text} />
-          </View>
+          <Pressable
+            onPress={() => { Haptics.selectionAsync().catch(() => {}); toggleProduct(product.id); }}
+            hitSlop={8}
+            style={[styles.heart, { backgroundColor: c.glass }]}
+          >
+            <Ionicons name={isFav ? 'heart' : 'heart-outline'} size={14} color={isFav ? c.danger : c.text} />
+          </Pressable>
         </View>
         <Text variant="label" weight="600" numberOfLines={1} style={{ marginTop: 10 }}>
           {pickLocale(product.title)}

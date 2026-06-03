@@ -40,7 +40,7 @@ const COPY: Record<string, { ar: { title: string; intro: string; body: string[] 
       body: [
         'مشروعي يربط بين العملاء والبائعين الكويتيين بمنتجات فريدة من بيوتهم.',
         'نحن لا نتولّى الدفع ولا التوصيل — تتم الترتيبات مباشرة بين العميل والبائع عبر واتساب أو محادثة التطبيق.',
-        '٠٪ رسوم على المبيعات. اشتراك شهري بسيط للبائعين فقط (٩ / ١٥ / ٢٣ د.ك).',
+        '٠٪ رسوم على المبيعات. اشتراك بسيط للبائعين فقط (شهر أو ٣ أشهر)، والتسجيل يتم على موقع مشروعي.',
         'صنع في الكويت 🇰🇼',
       ],
     },
@@ -50,7 +50,7 @@ const COPY: Record<string, { ar: { title: string; intro: string; body: string[] 
       body: [
         'Mshro3e connects customers with Kuwaiti vendors selling unique handmade products.',
         'We do not handle payment or delivery — arrangements happen directly between customer and vendor via WhatsApp or in-app chat.',
-        '0% transaction fees. Simple monthly subscription for vendors only (9 / 15 / 23 KWD).',
+        '0% transaction fees. Simple vendor-only plans (1 or 3 months), with sign-up on the Mshro3e website.',
         'Made in Kuwait 🇰🇼',
       ],
     },

@@ -7,6 +7,7 @@ import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
 import Card from '../../ui/Card';
 import PressableScale from '../../ui/PressableScale';
+import VendorCtaSheet from '../../ui/VendorCtaSheet';
 import { radius, shadowStyle, spacing } from '../../theme/ts';
 import { useColors } from '../../theme/colors';
 import { useLocaleStore } from '../../stores/locale';
@@ -46,6 +47,7 @@ export default function SettingsScreen({ navigation }: RootStackScreenProps<'Set
   const { locale, setLocale } = useLocaleStore();
   const c = useColors();
   const [seeding, setSeeding] = useState(false);
+  const [vendorCtaOpen, setVendorCtaOpen] = useState(false);
   const ar = locale === 'ar';
 
   const onSeed = async () => {
@@ -155,16 +157,16 @@ export default function SettingsScreen({ navigation }: RootStackScreenProps<'Set
           </View>
         )}
 
-        {/* Upgrade banner */}
-        <PressableScale onPress={() => navigation.navigate('Info', { topic: 'about' })}>
+        {/* Vendor CTA banner */}
+        <PressableScale onPress={() => setVendorCtaOpen(true)}>
           <View style={styles.banner}>
             <LinearGradient colors={['#2a4686', '#001a41']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
             <View style={styles.bannerIcon}>
-              <Ionicons name="rocket-outline" size={20} color="#fff" />
+              <Ionicons name="storefront-outline" size={20} color="#fff" />
             </View>
             <View style={{ flex: 1, marginStart: spacing.s3 }}>
-              <Text variant="cardTitle" weight="700" color="#fff">{ar ? 'افتح متجرك على مشروعي' : 'Open your shop on Mshro3e'}</Text>
-              <Text variant="caption" color="#9db7ff">{ar ? 'من ٥ د.ك / شهر — تسعير الكويت' : 'From 5 KWD / month — Kuwait pricing'}</Text>
+              <Text variant="cardTitle" weight="700" color="#fff">{ar ? 'اعرض مشروعك على مشروعي' : 'List your business on Mshro3e'}</Text>
+              <Text variant="caption" color="#9db7ff">{ar ? 'اشتراك شهر أو ٣ أشهر — التسجيل على الموقع' : '1 or 3-month plans — sign up on the site'}</Text>
             </View>
             <Ionicons name="chevron-back" size={18} color="#9db7ff" style={{ transform: [{ scaleX: -1 }] }} />
           </View>
@@ -180,6 +182,8 @@ export default function SettingsScreen({ navigation }: RootStackScreenProps<'Set
 
         <Text variant="microcopy" color={c.textMuted} align="center" style={{ marginTop: spacing.s4 }}>Mshro3e v1.0.0</Text>
       </ScrollView>
+
+      <VendorCtaSheet visible={vendorCtaOpen} onClose={() => setVendorCtaOpen(false)} />
     </Screen>
   );
 }

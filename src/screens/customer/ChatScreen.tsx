@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Logo from '../../ui/Logo';
 import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
+import { LoadingState } from '../../ui/EmptyState';
 import { useVendor, useService } from '../../data/hooks';
 import { useColors } from '../../theme/colors';
 import { radius, spacing, formatPrice, pickLocale } from '../../theme/ts';
@@ -22,7 +23,7 @@ export default function ChatScreen({ route, navigation }: RootStackScreenProps<'
   const { vendorId, productId } = route.params;
   const { locale } = useLocaleStore();
   const c = useColors();
-  const { data: vendor } = useVendor(vendorId);
+  const { data: vendor, loading: vendorLoading } = useVendor(vendorId);
   const { data: product } = useService(productId);
 
   const [msgs, setMsgs] = useState<Msg[]>([
@@ -65,7 +66,27 @@ export default function ChatScreen({ route, navigation }: RootStackScreenProps<'
     }, 1200);
   };
 
-  if (!vendor) return null;
+  if (!vendor) {
+    return (
+      <Screen>
+        <View style={[styles.header, { backgroundColor: c.surface, borderBottomColor: c.border }]}>
+          <Pressable onPress={() => navigation.goBack()} hitSlop={12} style={[styles.iconBtn, { backgroundColor: c.surfaceAlt }]}>
+            <Ionicons name="chevron-back" size={20} color={c.text} style={{ transform: [{ scaleX: -1 }] }} />
+          </Pressable>
+        </View>
+        {vendorLoading ? (
+          <LoadingState label={locale === 'ar' ? 'جاري التحميل…' : 'Loading…'} />
+        ) : (
+          <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.s7 }}>
+            <Ionicons name="chatbubble-ellipses-outline" size={44} color={c.textMuted} />
+            <Text variant="body" color={c.textMuted} style={{ marginTop: spacing.s3 }}>
+              {locale === 'ar' ? 'لم نعثر على هذا المحل.' : 'This shop could not be found.'}
+            </Text>
+          </View>
+        )}
+      </Screen>
+    );
+  }
 
   return (
     <Screen>

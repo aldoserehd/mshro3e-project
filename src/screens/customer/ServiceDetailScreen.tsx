@@ -8,6 +8,7 @@ import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
 import Logo from '../../ui/Logo';
 import PressableScale from '../../ui/PressableScale';
+import { LoadingState } from '../../ui/EmptyState';
 import { useService, useServices, useVendor } from '../../data/hooks';
 import { logLead, makeRef } from '../../data/leads';
 import { useUserStore } from '../../stores/user';
@@ -25,7 +26,7 @@ const DELIVERY_OPTIONS: { key: DeliveryOption; icon: keyof typeof Ionicons.glyph
 
 export default function ProductDetailScreen({ route, navigation }: RootStackScreenProps<'ServiceDetail'>) {
   const { serviceId } = route.params;
-  const { data: product } = useService(serviceId);
+  const { data: product, loading } = useService(serviceId);
   const { data: vendor } = useVendor(product?.vendorId);
   const { data: vendorProducts } = useServices(product?.vendorId);
   const { width } = useWindowDimensions();
@@ -46,12 +47,21 @@ export default function ProductDetailScreen({ route, navigation }: RootStackScre
   if (!product) {
     return (
       <Screen>
-        <View style={styles.center}>
-          <Ionicons name="cube-outline" size={44} color={c.textMuted} />
-          <Text variant="body" color={c.textMuted} style={{ marginTop: spacing.s3 }}>
-            {i18n.t('common.notFound')}
-          </Text>
+        <View style={[styles.detailHeader, { borderBottomColor: c.border }]}>
+          <Pressable onPress={() => navigation.goBack()} hitSlop={10} style={[styles.headerBack, { backgroundColor: c.surfaceAlt }]}>
+            <Ionicons name="chevron-back" size={20} color={c.text} style={{ transform: [{ scaleX: -1 }] }} />
+          </Pressable>
         </View>
+        {loading ? (
+          <LoadingState label={i18n.t('common.loading')} />
+        ) : (
+          <View style={styles.center}>
+            <Ionicons name="cube-outline" size={44} color={c.textMuted} />
+            <Text variant="body" color={c.textMuted} style={{ marginTop: spacing.s3 }}>
+              {i18n.t('common.notFound')}
+            </Text>
+          </View>
+        )}
       </Screen>
     );
   }
@@ -290,6 +300,11 @@ export default function ProductDetailScreen({ route, navigation }: RootStackScre
 
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  detailHeader: {
+    height: 52, flexDirection: 'row', alignItems: 'center',
+    paddingHorizontal: spacing.s4, borderBottomWidth: 1,
+  },
+  headerBack: { width: 40, height: 40, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   fab: {
     position: 'absolute',
     width: 40, height: 40, borderRadius: 999,
