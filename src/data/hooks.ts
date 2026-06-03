@@ -44,7 +44,7 @@ import {
  * TO REMOVE for production: set this to `false` (or revert the commit titled
  * "demo: seed-data fallback in hooks"). No other code changes needed.
  */
-export const MOCK_FALLBACK = true;
+export const MOCK_FALLBACK = false;
 
 export interface HookResult<T> {
   data: T;
