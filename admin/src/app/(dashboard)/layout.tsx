@@ -3,6 +3,7 @@ import { getSession } from '@/lib/auth';
 import { getLocale } from '@/lib/locale';
 import { Sidebar } from '@/components/layout/sidebar';
 import { Topbar } from '@/components/layout/topbar';
+import { Toaster } from '@/components/ui/toaster';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession();
@@ -26,6 +27,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         />
         <main className="flex-1 p-6 lg:p-8">{children}</main>
       </div>
+      <Toaster locale={locale} />
     </div>
   );
 }
