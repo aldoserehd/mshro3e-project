@@ -8,7 +8,8 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
-import { palette, radius } from '../theme/ts';
+import { radius } from '../theme/ts';
+import { useColors } from '../theme/colors';
 
 export interface SkeletonProps {
   width?: DimensionValue;
@@ -27,6 +28,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
   rounded = radius.sm,
   style,
 }) => {
+  const c = useColors();
   const translateX = useSharedValue(-1);
 
   useEffect(() => {
@@ -48,7 +50,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
           width,
           height,
           borderRadius: rounded,
-          backgroundColor: palette.navy100,
+          backgroundColor: c.surfaceSunken,
           overflow: 'hidden',
         },
         style,
@@ -56,7 +58,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
     >
       <Animated.View style={[StyleSheet.absoluteFill, animStyle]}>
         <LinearGradient
-          colors={[palette.navy100, palette.navy50, palette.navy100]}
+          colors={[c.surfaceSunken, c.surfaceAlt, c.surfaceSunken]}
           start={{ x: 0, y: 0.5 }}
           end={{ x: 1, y: 0.5 }}
           style={StyleSheet.absoluteFill}

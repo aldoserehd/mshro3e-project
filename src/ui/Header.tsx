@@ -3,7 +3,8 @@ import { Pressable, StyleSheet, View, ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import Text from './Text';
-import { palette, rtl, spacing } from '../theme/ts';
+import { rtl, spacing } from '../theme/ts';
+import { useColors } from '../theme/colors';
 
 export interface HeaderProps {
   title?: string;
@@ -26,17 +27,19 @@ export const Header: React.FC<HeaderProps> = ({
   tinted,
   style,
 }) => {
+  const c = useColors();
   const isRtl = rtl();
   // RTL: brief §9 — chevron-back/forward mirror. Use 'chevron-forward' as back
   // when RTL (visually back), 'chevron-back' otherwise.
   const backIcon = isRtl ? 'chevron-forward' : 'chevron-back';
+  const fg = tinted ? '#fff' : c.text;
 
   return (
     <View
       style={[
         styles.row,
         {
-          backgroundColor: transparent ? 'transparent' : tinted ? palette.navy900 : 'transparent',
+          backgroundColor: transparent ? 'transparent' : tinted ? c.brandDark : 'transparent',
         },
         style,
       ]}
@@ -51,13 +54,13 @@ export const Header: React.FC<HeaderProps> = ({
             hitSlop={12}
             style={styles.iconButton}
           >
-            <Ionicons name={backIcon} size={22} color={tinted ? palette.white : palette.navy900} />
+            <Ionicons name={backIcon} size={22} color={fg} />
           </Pressable>
         )}
       </View>
       <View style={styles.center}>
         {title && (
-          <Text variant="cardTitle" weight="600" color={tinted ? palette.white : palette.navy900}>
+          <Text variant="cardTitle" weight="600" color={fg}>
             {title}
           </Text>
         )}

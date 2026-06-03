@@ -15,7 +15,8 @@ import Animated, {
 import * as Haptics from 'expo-haptics';
 import { Ionicons } from '@expo/vector-icons';
 import Text from './Text';
-import { palette, radius, semantic, spacing } from '../theme/ts';
+import { radius, spacing } from '../theme/ts';
+import { useColors, type Colors } from '../theme/colors';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'destructive';
 export type ButtonSize = 'sm' | 'md' | 'lg';
@@ -54,13 +55,14 @@ export const Button: React.FC<ButtonProps> = ({
   fullWidth,
   style,
 }) => {
+  const c = useColors();
   const pressed = useSharedValue(0);
 
+  const interp = getInterpColors(variant, c);
   const bgInterp = useAnimatedStyle(() => {
-    const colors = getInterpColors(variant);
-    if (!colors) return {};
+    if (!interp) return {};
     return {
-      backgroundColor: pressed.value > 0 ? colors.pressed : colors.rest,
+      backgroundColor: pressed.value > 0 ? interp.pressed : interp.rest,
     };
   });
 
@@ -68,7 +70,7 @@ export const Button: React.FC<ButtonProps> = ({
     transform: [{ scale: 1 - pressed.value * 0.02 }],
   }));
 
-  const { textColor, borderColor } = palettesFor(variant);
+  const { textColor, borderColor } = palettesFor(variant, c);
   const isDisabled = disabled || loading;
 
   return (
@@ -124,29 +126,29 @@ export const Button: React.FC<ButtonProps> = ({
   );
 };
 
-function palettesFor(v: ButtonVariant): { textColor: string; borderColor: string } {
+function palettesFor(v: ButtonVariant, c: Colors): { textColor: string; borderColor: string } {
   switch (v) {
     case 'primary':
-      return { textColor: palette.white, borderColor: 'transparent' };
+      return { textColor: c.textOnBrand, borderColor: 'transparent' };
     case 'secondary':
-      return { textColor: semantic.brand, borderColor: semantic.borderStrong };
+      return { textColor: c.brandText, borderColor: c.borderStrong };
     case 'ghost':
-      return { textColor: semantic.brand, borderColor: 'transparent' };
+      return { textColor: c.brandText, borderColor: 'transparent' };
     case 'destructive':
-      return { textColor: palette.white, borderColor: 'transparent' };
+      return { textColor: '#fff', borderColor: 'transparent' };
   }
 }
 
-function getInterpColors(v: ButtonVariant): { rest: string; pressed: string } | null {
+function getInterpColors(v: ButtonVariant, c: Colors): { rest: string; pressed: string } | null {
   switch (v) {
     case 'primary':
-      return { rest: palette.brand, pressed: palette.brandDark };
+      return { rest: c.brand, pressed: c.brandDark };
     case 'secondary':
-      return { rest: palette.white, pressed: palette.navy50 };
+      return { rest: c.surface, pressed: c.surfaceAlt };
     case 'ghost':
-      return { rest: 'transparent', pressed: palette.navy100 };
+      return { rest: 'transparent', pressed: c.brandFill };
     case 'destructive':
-      return { rest: '#B43A3A', pressed: '#8C2A2A' };
+      return { rest: c.danger, pressed: c.isDark ? '#cc4d4d' : '#8C2A2A' };
   }
 }
 
