@@ -11,6 +11,7 @@ export type RootStackParamList = {
   SignUp: undefined;
   Preferences: undefined;
   MainTabs: undefined;
+  Profile: undefined;
   VendorProfile: { vendorId: string };
   ServiceDetail: { serviceId: string };
   Category: { categoryId: string };

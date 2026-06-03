@@ -42,24 +42,6 @@ const Row: React.FC<RowProps> = ({ icon, label, trailing, onPress, destructive }
   );
 };
 
-const LangToggle: React.FC = () => {
-  const { locale, setLocale } = useLocaleStore();
-  const c = useColors();
-  return (
-    <View style={[styles.langWrap, { backgroundColor: c.surfaceAlt }]}>
-      {(['en', 'ar'] as const).map((k) => (
-        <Pressable
-          key={k}
-          onPress={() => setLocale(k)}
-          style={[styles.langChip, locale === k && { backgroundColor: c.brand }]}
-        >
-          <Text variant="microcopy" color={locale === k ? '#fff' : c.textMuted}>{k.toUpperCase()}</Text>
-        </Pressable>
-      ))}
-    </View>
-  );
-};
-
 export default function AccountScreen({ navigation }: MainTabsScreenProps<'Account'>) {
   const { locale } = useLocaleStore();
   const c = useColors();
@@ -98,25 +80,28 @@ export default function AccountScreen({ navigation }: MainTabsScreenProps<'Accou
           </Pressable>
         </View>
 
-        <View style={styles.profile}>
-          <PressableScale onPress={() => navigation.navigate('Settings')}>
+        <PressableScale onPress={() => navigation.navigate('Profile')}>
+          <View style={[styles.profileCard, { backgroundColor: c.surface, borderColor: c.border }]}>
             <View>
-              <Avatar name={displayName} size={92} />
-              <View style={[styles.editBadge, { backgroundColor: c.brand, borderColor: c.bg }]}>
-                <Ionicons name="pencil" size={13} color="#fff" />
+              <Avatar name={displayName} size={64} />
+              <View style={[styles.editBadge, { backgroundColor: c.brand, borderColor: c.surface }]}>
+                <Ionicons name="pencil" size={11} color="#fff" />
               </View>
             </View>
-          </PressableScale>
-          <Text variant="sectionTitle" weight="700" style={{ marginTop: spacing.s3 }}>{displayName}</Text>
-          <Text variant="body" color={c.textMuted}>{subtitle}</Text>
-        </View>
+            <View style={{ flex: 1, marginStart: spacing.s4 }}>
+              <Text variant="cardTitle" weight="700" numberOfLines={1}>{displayName}</Text>
+              <Text variant="caption" color={c.textMuted} numberOfLines={1}>{subtitle}</Text>
+            </View>
+            <Ionicons name="chevron-back" size={18} color={c.textMuted} style={{ transform: [{ scaleX: -1 }] }} />
+          </View>
+        </PressableScale>
 
         <View style={styles.list}>
-          <Row icon="person-outline" label={i18n.t('account.rows.profile')} onPress={() => navigation.navigate('Settings')} />
+          <Row icon="person-outline" label={i18n.t('account.rows.editProfile')} onPress={() => navigation.navigate('Profile')} />
+          <Row icon="settings-outline" label={i18n.t('account.rows.settings')} onPress={() => navigation.navigate('Settings')} />
           <Row icon="notifications-outline" label={i18n.t('account.rows.notifications')} onPress={() => navigation.navigate('Notifications')} />
-          <Row icon="language-outline" label={i18n.t('account.rows.language')} trailing={<LangToggle />} />
           <Row icon="help-circle-outline" label={i18n.t('account.rows.support')} onPress={() => navigation.navigate('Info', { topic: 'help' })} />
-          <Row icon="information-circle-outline" label={getCurrentLocale() === 'ar' ? 'عن مشروعي' : 'About Mshro3e'} onPress={() => navigation.navigate('Info', { topic: 'about' })} />
+          <Row icon="information-circle-outline" label={i18n.t('account.rows.about')} onPress={() => navigation.navigate('Info', { topic: 'about' })} />
           <Row icon="log-out-outline" label={i18n.t('account.rows.logout')} destructive onPress={onLogout} />
         </View>
 
@@ -150,10 +135,14 @@ const styles = StyleSheet.create({
     marginBottom: spacing.s5,
   },
   gear: { width: 40, height: 40, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
-  profile: { alignItems: 'center', marginBottom: spacing.s6, gap: 2 },
+  profileCard: {
+    flexDirection: 'row', alignItems: 'center',
+    padding: spacing.s4, borderRadius: radius.xl, borderWidth: 1,
+    marginBottom: spacing.s5,
+  },
   editBadge: {
-    position: 'absolute', end: 0, bottom: 0,
-    width: 28, height: 28, borderRadius: 999,
+    position: 'absolute', end: -2, bottom: -2,
+    width: 24, height: 24, borderRadius: 999,
     alignItems: 'center', justifyContent: 'center', borderWidth: 2,
   },
   list: { gap: spacing.s2, marginBottom: spacing.s5 },
@@ -162,8 +151,6 @@ const styles = StyleSheet.create({
     padding: spacing.s3, borderRadius: radius.lg, borderWidth: 1,
   },
   rowIcon: { width: 36, height: 36, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
-  langWrap: { flexDirection: 'row', borderRadius: 999, padding: 2 },
-  langChip: { paddingHorizontal: 12, paddingVertical: 4, borderRadius: 999 },
   upgrade: {
     flexDirection: 'row', alignItems: 'center',
     borderRadius: radius.xl, padding: spacing.s4, ...shadowStyle(2),

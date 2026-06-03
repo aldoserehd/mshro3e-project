@@ -160,11 +160,14 @@ export default {
     title: 'حسابي',
     guestName: 'مرحباً بك',
     rows: {
-      profile: 'حسابي',
+      profile: 'ملفي الشخصي',
+      editProfile: 'تعديل الملف',
+      settings: 'الإعدادات',
       addresses: 'العناوين',
       notifications: 'الإشعارات',
       language: 'اللغة',
-      support: 'الدعم الفني',
+      support: 'المساعدة والدعم',
+      about: 'عن مشروعي',
       logout: 'تسجيل الخروج',
     },
     upgrade: {
@@ -172,6 +175,26 @@ export default {
       body: 'وصّل منتجاتك لعملاء يدوّرون عليك بالكويت، والطلبات توصلك على واتساب.',
       cta: 'سجّل',
     },
+  },
+
+  profile: {
+    title: 'ملفي الشخصي',
+    edit: 'تعديل الملف',
+    name: 'الاسم الكامل',
+    namePh: 'اسمك',
+    email: 'البريد الإلكتروني',
+    phone: 'رقم الجوال',
+    phonePh: '5X XXX XXX',
+    interests: 'اهتماماتك',
+    interestsHint: 'اختر الفئات اللي تحبها — ونرتّب لك الصفحة على ذوقك.',
+    save: 'حفظ التعديلات',
+    saving: 'جاري الحفظ…',
+    saved: 'تم تحديث ملفك',
+    guestTitle: 'أنت تتصفّح كضيف',
+    guestBody: 'سجّل دخولك عشان تحفظ المفضلة، تحدّد اهتماماتك، وتعدّل ملفك.',
+    signIn: 'تسجيل الدخول',
+    createAccount: 'إنشاء حساب',
+    emailLocked: 'البريد مرتبط بحسابك ومايتغيّر من هنا.',
   },
 
   common: {

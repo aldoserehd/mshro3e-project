@@ -15,6 +15,7 @@ import HomeScreen from '../screens/customer/HomeScreen';
 import CategoriesScreen from '../screens/customer/CategoriesScreen';
 import FavoritesScreen from '../screens/customer/FavoritesScreen';
 import ProfileScreen from '../screens/customer/ProfileScreen';
+import EditProfileScreen from '../screens/customer/EditProfileScreen';
 import VendorProfileScreen from '../screens/customer/VendorProfileScreen';
 import ServiceDetailScreen from '../screens/customer/ServiceDetailScreen';
 import CategoryScreen from '../screens/customer/CategoryScreen';
@@ -81,6 +82,7 @@ export default function AppNavigator() {
         <Stack.Screen name="SignUp" component={SignUpScreen} />
         <Stack.Screen name="Preferences" component={PreferencesScreen} />
         <Stack.Screen name="MainTabs" component={MainTabs} />
+        <Stack.Screen name="Profile" component={EditProfileScreen} />
         <Stack.Screen name="VendorProfile" component={VendorProfileScreen} />
         <Stack.Screen name="ServiceDetail" component={ServiceDetailScreen} />
         <Stack.Screen name="Category" component={CategoryScreen} />

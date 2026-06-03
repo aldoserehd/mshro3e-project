@@ -20,6 +20,8 @@ interface UserState {
   hydrate: (profile: UserProfile) => void;
   signOut: () => void;
   setPreferredCategories: (ids: string[]) => void;
+  /** Patch editable profile fields (name/phone/preferredCategoryIds). */
+  updateProfile: (patch: Partial<Pick<UserProfile, 'name' | 'phone' | 'preferredCategoryIds'>>) => void;
 }
 
 /**
@@ -54,4 +56,6 @@ export const useUserStore = create<UserState>((set) => ({
   signOut: () => set({ user: null }),
   setPreferredCategories: (ids) =>
     set((s) => (s.user ? { user: { ...s.user, preferredCategoryIds: ids } } : s)),
+  updateProfile: (patch) =>
+    set((s) => (s.user ? { user: { ...s.user, ...patch } } : s)),
 }));

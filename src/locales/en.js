@@ -156,10 +156,13 @@ export default {
     guestName: 'Welcome',
     rows: {
       profile: 'My profile',
+      editProfile: 'Edit profile',
+      settings: 'Settings',
       addresses: 'Addresses',
       notifications: 'Notifications',
       language: 'Language',
-      support: 'Support',
+      support: 'Help & support',
+      about: 'About Mshro3e',
       logout: 'Log out',
     },
     upgrade: {
@@ -167,6 +170,26 @@ export default {
       body: 'Reach customers searching across Kuwait — leads come straight to your WhatsApp.',
       cta: 'List',
     },
+  },
+
+  profile: {
+    title: 'My profile',
+    edit: 'Edit profile',
+    name: 'Full name',
+    namePh: 'Your name',
+    email: 'Email',
+    phone: 'Phone',
+    phonePh: '5X XXX XXX',
+    interests: 'Your interests',
+    interestsHint: 'Pick the categories you love — we tailor your feed.',
+    save: 'Save changes',
+    saving: 'Saving…',
+    saved: 'Profile updated',
+    guestTitle: 'You are browsing as a guest',
+    guestBody: 'Sign in to save favorites, set your interests, and edit your profile.',
+    signIn: 'Sign in',
+    createAccount: 'Create account',
+    emailLocked: 'Email is linked to your account and can’t be changed here.',
   },
 
   common: {
