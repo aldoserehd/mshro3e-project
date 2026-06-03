@@ -121,3 +121,44 @@ export async function createProduct(_prev: ActionState, fd: FormData): Promise<A
   revalidatePath('/products');
   redirect('/products');
 }
+
+// ─── categories ─────────────────────────────────────────────────────────
+
+export async function createCategory(_prev: ActionState, fd: FormData): Promise<ActionState> {
+  const nameEn = str(fd, 'nameEn');
+  const nameAr = str(fd, 'nameAr') || nameEn;
+  if (!nameAr && !nameEn) return { ok: false, error: 'Name is required' };
+
+  const slug = slugify(nameEn || nameAr);
+  const emoji = str(fd, 'emoji') || '🏷️';
+  const icon = str(fd, 'icon') || 'pricetag-outline';
+
+  try {
+    const db = adminDb();
+    // Next display order = max(existing) + 1.
+    const snap = await db.collection(COL.categories).get();
+    const order = snap.empty
+      ? 1
+      : Math.max(...snap.docs.map((d) => Number((d.data() as { order?: number }).order) || 0)) + 1;
+    await db.collection(COL.categories).add({
+      name: { ar: nameAr, en: nameEn || nameAr },
+      emoji,
+      icon,
+      slug,
+      order,
+    });
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : 'Failed to create category' };
+  }
+  revalidatePath('/categories');
+  redirect('/categories');
+}
+
+export async function deleteCategory(id: string): Promise<void> {
+  try {
+    await adminDb().collection(COL.categories).doc(id).delete();
+  } catch {
+    // best-effort; revalidate either way
+  }
+  revalidatePath('/categories');
+}
