@@ -5,7 +5,8 @@ import { getDict } from '@/i18n/dict';
 import { listVendors } from '@/lib/data/vendors';
 import { tFmt } from '@/i18n/dict';
 import { PageHeader } from '@/components/domain/page-header';
-import { ActionButton } from '@/components/domain/action-button';
+import { VendorActionButton } from '@/components/domain/vendor-action-button';
+import { approveVendor, rejectVendor } from '@/lib/actions/vendors';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -78,24 +79,26 @@ export default async function VendorsPendingPage() {
               </div>
 
               <div className="mt-4 flex gap-2">
-                <ActionButton
+                <VendorActionButton
                   className="flex-1"
+                  action={approveVendor.bind(null, v.id)}
                   confirm={t.vendors.approveConfirm}
-                  toastMessage={t.vendors.approved}
-                  toastDescription={t.common.demoAction}
+                  success={t.vendors.approved}
+                  failure={t.vendors.actionFailed}
                 >
                   <CheckCircle2 className="size-4" />
                   {t.common.approve}
-                </ActionButton>
-                <ActionButton
+                </VendorActionButton>
+                <VendorActionButton
                   variant="ghost"
                   className="text-red-600 hover:text-red-700"
+                  action={rejectVendor.bind(null, v.id)}
                   confirm={t.vendors.rejectConfirm}
-                  toastMessage={t.vendors.rejected}
-                  toastDescription={t.common.demoAction}
+                  success={t.vendors.rejected}
+                  failure={t.vendors.actionFailed}
                 >
                   {t.common.reject}
-                </ActionButton>
+                </VendorActionButton>
               </div>
             </Card>
           ))}

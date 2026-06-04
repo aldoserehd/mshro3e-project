@@ -92,14 +92,3 @@ export async function listVendorsWithMetrics(filters: VendorFilters = {}) {
     return { ...v, ordersCount: orders.length, revenueMtd };
   });
 }
-
-// TODO: real Firestore writes when env is wired.
-export async function verifyVendor(_id: string) {
-  return { ok: true };
-}
-export async function suspendVendor(_id: string) {
-  return { ok: true };
-}
-export async function rejectVendor(_id: string) {
-  return { ok: true };
-}

@@ -155,6 +155,10 @@ export const dict = {
       pendingCount: '{n} طلب بانتظار المراجعة',
       approved: 'تم توثيق التاجر',
       rejected: 'تم رفض الطلب',
+      verifiedDone: 'تم توثيق التاجر',
+      suspended: 'تم إيقاف التاجر',
+      activated: 'تم تفعيل التاجر',
+      actionFailed: 'تعذّر تنفيذ الإجراء',
     },
     products: {
       title: 'المنتجات',
@@ -471,6 +475,10 @@ export const dict = {
       pendingCount: '{n} awaiting review',
       approved: 'Vendor verified',
       rejected: 'Application rejected',
+      verifiedDone: 'Vendor verified',
+      suspended: 'Vendor suspended',
+      activated: 'Vendor activated',
+      actionFailed: 'Action failed',
     },
     products: {
       title: 'Products',

@@ -7,7 +7,8 @@ import { getDict } from '@/i18n/dict';
 import { tFmt } from '@/i18n/dict';
 import { getVendor, getVendorMetrics } from '@/lib/data/vendors';
 import { PageHeader } from '@/components/domain/page-header';
-import { ActionButton } from '@/components/domain/action-button';
+import { VendorActionButton } from '@/components/domain/vendor-action-button';
+import { approveVendor, rejectVendor, verifyVendor, suspendVendor, activateVendor } from '@/lib/actions/vendors';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Package as PackageIcon, ShoppingBag, MessageSquare } from 'lucide-react';
 import { VendorStatusPill, OrderStatusPill } from '@/components/domain/status-pill';
@@ -60,25 +61,66 @@ export default async function VendorDetailPage({ params }: PageProps) {
         subtitle={vendor!.address?.[locale] ?? ''}
         actions={
           <div className="flex gap-2">
-            <ActionButton
-              variant="secondary"
-              confirm={t.vendors.approveConfirm}
-              toastMessage={t.common.verify}
-              toastDescription={t.common.demoAction}
-            >
-              <CheckCircle2 className="size-4" />
-              {t.common.verify}
-            </ActionButton>
-            <ActionButton
-              variant="ghost"
-              className="text-red-600 hover:text-red-700"
-              confirm={t.vendors.suspendConfirm}
-              toastMessage={t.common.suspend}
-              toastDescription={t.common.demoAction}
-            >
-              <Ban className="size-4" />
-              {t.common.suspend}
-            </ActionButton>
+            {vendor!.status === 'pending' && (
+              <>
+                <VendorActionButton
+                  variant="secondary"
+                  action={approveVendor.bind(null, id)}
+                  confirm={t.vendors.approveConfirm}
+                  success={t.vendors.approved}
+                  failure={t.vendors.actionFailed}
+                >
+                  <CheckCircle2 className="size-4" />
+                  {t.common.approve}
+                </VendorActionButton>
+                <VendorActionButton
+                  variant="ghost"
+                  className="text-red-600 hover:text-red-700"
+                  action={rejectVendor.bind(null, id)}
+                  confirm={t.vendors.rejectConfirm}
+                  success={t.vendors.rejected}
+                  failure={t.vendors.actionFailed}
+                >
+                  {t.common.reject}
+                </VendorActionButton>
+              </>
+            )}
+
+            {vendor!.status !== 'pending' && !vendor!.verifiedAt && (
+              <VendorActionButton
+                variant="secondary"
+                action={verifyVendor.bind(null, id)}
+                success={t.vendors.verifiedDone}
+                failure={t.vendors.actionFailed}
+              >
+                <CheckCircle2 className="size-4" />
+                {t.common.verify}
+              </VendorActionButton>
+            )}
+
+            {vendor!.status === 'suspended' ? (
+              <VendorActionButton
+                variant="secondary"
+                action={activateVendor.bind(null, id)}
+                success={t.vendors.activated}
+                failure={t.vendors.actionFailed}
+              >
+                <CheckCircle2 className="size-4" />
+                {t.common.activate}
+              </VendorActionButton>
+            ) : vendor!.status !== 'pending' && vendor!.status !== 'rejected' ? (
+              <VendorActionButton
+                variant="ghost"
+                className="text-red-600 hover:text-red-700"
+                action={suspendVendor.bind(null, id)}
+                confirm={t.vendors.suspendConfirm}
+                success={t.vendors.suspended}
+                failure={t.vendors.actionFailed}
+              >
+                <Ban className="size-4" />
+                {t.common.suspend}
+              </VendorActionButton>
+            ) : null}
           </div>
         }
       />
