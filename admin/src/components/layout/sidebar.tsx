@@ -21,26 +21,53 @@ import {
 import { cn } from '@/lib/utils';
 import { getDict, type Locale } from '@/i18n/dict';
 
+type NavLabelKey = keyof ReturnType<typeof getDict>['nav'];
+
 interface NavItem {
   href: string;
-  labelKey: keyof ReturnType<typeof getDict>['nav'];
+  labelKey: NavLabelKey;
   icon: React.ComponentType<{ className?: string }>;
   /** Sub-route prefixes to treat as active. */
   matches?: string[];
 }
 
-const items: NavItem[] = [
-  { href: '/overview', labelKey: 'overview', icon: LayoutDashboard },
-  { href: '/vendors', labelKey: 'vendorsAll', icon: Store, matches: ['/vendors'] },
-  { href: '/vendors/pending', labelKey: 'vendorsPending', icon: UserCheck },
-  { href: '/products', labelKey: 'products', icon: Package },
-  { href: '/subscriptions', labelKey: 'subscriptions', icon: CreditCard },
-  { href: '/orders', labelKey: 'orders', icon: ShoppingBag },
-  { href: '/users', labelKey: 'users', icon: Users },
-  { href: '/categories', labelKey: 'categories', icon: Tags },
-  { href: '/reviews', labelKey: 'reviews', icon: MessageSquare },
-  { href: '/payouts', labelKey: 'payouts', icon: Wallet },
-  { href: '/settings', labelKey: 'settings', icon: Settings },
+interface NavGroup {
+  titleKey: NavLabelKey;
+  items: NavItem[];
+}
+
+const groups: NavGroup[] = [
+  {
+    titleKey: 'groupMain',
+    items: [
+      { href: '/overview', labelKey: 'overview', icon: LayoutDashboard },
+      { href: '/vendors', labelKey: 'vendorsAll', icon: Store, matches: ['/vendors'] },
+      { href: '/vendors/pending', labelKey: 'vendorsPending', icon: UserCheck },
+    ],
+  },
+  {
+    titleKey: 'groupCatalog',
+    items: [
+      { href: '/products', labelKey: 'products', icon: Package },
+      { href: '/categories', labelKey: 'categories', icon: Tags },
+    ],
+  },
+  {
+    titleKey: 'groupOps',
+    items: [
+      { href: '/subscriptions', labelKey: 'subscriptions', icon: CreditCard },
+      { href: '/orders', labelKey: 'orders', icon: ShoppingBag },
+      { href: '/payouts', labelKey: 'payouts', icon: Wallet },
+      { href: '/reviews', labelKey: 'reviews', icon: MessageSquare },
+    ],
+  },
+  {
+    titleKey: 'groupSystem',
+    items: [
+      { href: '/users', labelKey: 'users', icon: Users },
+      { href: '/settings', labelKey: 'settings', icon: Settings },
+    ],
+  },
 ];
 
 export function Sidebar({ locale }: { locale: Locale }) {
@@ -93,33 +120,44 @@ export function Sidebar({ locale }: { locale: Locale }) {
       </div>
 
       <nav className="flex-1 overflow-y-auto px-3 py-4 scrollbar-hidden">
-        <ul className="flex flex-col gap-0.5">
-          {items.map((item) => {
-            const Icon = item.icon;
-            const active = isActive(item);
-            return (
-              <li key={item.href}>
-                <Link
-                  href={item.href as never}
-                  className={cn(
-                    'group relative flex items-center gap-3 h-10 rounded-[10px] px-3 text-[14px] font-medium transition-colors',
-                    active
-                      ? 'bg-navy-900 text-white shadow-[var(--shadow-elev1)]'
-                      : 'text-ink-900 hover:bg-navy-50',
-                    collapsed && 'justify-center px-0',
-                  )}
-                  title={collapsed ? t[item.labelKey] : undefined}
-                >
-                  <Icon className={cn('size-[18px] shrink-0', active ? 'text-white' : 'text-ink-500 group-hover:text-ink-900')} />
-                  {!collapsed ? <span className="truncate">{t[item.labelKey]}</span> : null}
-                  {active && !collapsed ? (
-                    <span className="ms-auto inline-flex h-1.5 w-1.5 rounded-full bg-white" aria-hidden />
-                  ) : null}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
+        {groups.map((group, gi) => (
+          <div key={group.titleKey} className={cn(gi > 0 && 'mt-5')}>
+            {!collapsed ? (
+              <p className="px-3 pb-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-ink-400">
+                {t[group.titleKey]}
+              </p>
+            ) : gi > 0 ? (
+              <div className="mx-3 mb-2 border-t border-ink-200/70" aria-hidden />
+            ) : null}
+            <ul className="flex flex-col gap-0.5">
+              {group.items.map((item) => {
+                const Icon = item.icon;
+                const active = isActive(item);
+                return (
+                  <li key={item.href}>
+                    <Link
+                      href={item.href as never}
+                      className={cn(
+                        'group relative flex items-center gap-3 h-10 rounded-[10px] px-3 text-[14px] font-medium transition-colors',
+                        active
+                          ? 'bg-navy-900 text-white shadow-[var(--shadow-elev1)]'
+                          : 'text-ink-900 hover:bg-navy-50',
+                        collapsed && 'justify-center px-0',
+                      )}
+                      title={collapsed ? t[item.labelKey] : undefined}
+                    >
+                      <Icon className={cn('size-[18px] shrink-0', active ? 'text-white' : 'text-ink-500 group-hover:text-ink-900')} />
+                      {!collapsed ? <span className="truncate">{t[item.labelKey]}</span> : null}
+                      {active && !collapsed ? (
+                        <span className="ms-auto inline-flex h-1.5 w-1.5 rounded-full bg-white" aria-hidden />
+                      ) : null}
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        ))}
       </nav>
 
       {!collapsed ? (

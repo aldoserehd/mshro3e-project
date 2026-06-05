@@ -1,4 +1,5 @@
 import 'server-only';
+import { cache } from 'react';
 import type { Vendor, VendorStatus } from '@shared/types';
 import { seedVendors, vendorById, seedOrders, seedReviews, seedServices } from '@/data/seed';
 import { adminDb } from '@/lib/firebase-admin';
@@ -6,10 +7,11 @@ import { COL } from '@shared/firestore-paths';
 
 const useFirebase = !!process.env.FIREBASE_ADMIN_SERVICE_ACCOUNT;
 
-async function fetchVendorsFromFirestore(): Promise<Vendor[]> {
+/** One Firestore read per request, shared across every filtered listVendors call. */
+const fetchVendorsFromFirestore = cache(async (): Promise<Vendor[]> => {
   const snap = await adminDb().collection(COL.vendors).get();
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Vendor);
-}
+});
 
 export interface VendorFilters {
   search?: string;

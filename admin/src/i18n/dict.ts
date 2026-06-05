@@ -23,6 +23,10 @@ export const dict = {
       reviews: 'التقييمات',
       payouts: 'التحويلات المالية',
       settings: 'الإعدادات',
+      groupMain: 'الرئيسية',
+      groupCatalog: 'المتجر',
+      groupOps: 'العمليات',
+      groupSystem: 'النظام',
     },
     common: {
       search: 'بحث',
@@ -343,6 +347,10 @@ export const dict = {
       reviews: 'Reviews',
       payouts: 'Payouts',
       settings: 'Settings',
+      groupMain: 'Main',
+      groupCatalog: 'Catalog',
+      groupOps: 'Operations',
+      groupSystem: 'System',
     },
     common: {
       search: 'Search',

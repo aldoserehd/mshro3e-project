@@ -1,4 +1,5 @@
 import 'server-only';
+import { cache } from 'react';
 import type { Category, Service, Vendor } from '@shared/types';
 import { COL } from '@shared/firestore-paths';
 import { adminDb } from '@/lib/firebase-admin';
@@ -10,8 +11,11 @@ function mapDocs<T>(snap: FirebaseFirestore.QuerySnapshot): T[] {
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }) as T);
 }
 
-/** Categories from Firestore (falls back to seed when no service account). */
-export async function liveCategories(): Promise<Category[]> {
+/**
+ * Categories from Firestore (falls back to seed when no service account).
+ * Wrapped in React.cache so repeated calls within one request hit Firestore once.
+ */
+export const liveCategories = cache(async (): Promise<Category[]> => {
   if (!useFirebase) return seedCategories.slice().sort((a, b) => a.order - b.order);
   try {
     const snap = await adminDb().collection(COL.categories).get();
@@ -20,10 +24,10 @@ export async function liveCategories(): Promise<Category[]> {
   } catch {
     return seedCategories.slice().sort((a, b) => a.order - b.order);
   }
-}
+});
 
-/** Vendors from Firestore. */
-export async function liveVendors(): Promise<Vendor[]> {
+/** Vendors from Firestore. Deduped per request via React.cache. */
+export const liveVendors = cache(async (): Promise<Vendor[]> => {
   if (!useFirebase) return seedVendors.slice();
   try {
     const snap = await adminDb().collection(COL.vendors).get();
@@ -31,10 +35,10 @@ export async function liveVendors(): Promise<Vendor[]> {
   } catch {
     return [];
   }
-}
+});
 
-/** Products from Firestore. */
-export async function liveProducts(): Promise<Service[]> {
+/** Products from Firestore. Deduped per request via React.cache. */
+export const liveProducts = cache(async (): Promise<Service[]> => {
   if (!useFirebase) return seedServices.slice();
   try {
     const snap = await adminDb().collection(COL.products).get();
@@ -42,6 +46,6 @@ export async function liveProducts(): Promise<Service[]> {
   } catch {
     return [];
   }
-}
+});
 
 export const firestoreConfigured = useFirebase;
