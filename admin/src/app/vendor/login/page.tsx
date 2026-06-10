@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { createUserWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 import { Loader2, Eye, EyeOff, ArrowLeft, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { authClient } from '@/lib/firebase-client';
+import { BRAND } from '@/lib/brand';
 import { useVendorAuth } from '@/lib/vendor/auth';
 import { useVendorLocale } from '@/components/vendor/shell';
 import { Input } from '@/components/ui/input';
@@ -48,7 +49,7 @@ export default function VendorLoginPage() {
         resetSend: 'إرسال رابط الاستعادة', back: 'رجوع لتسجيل الدخول',
         resetDone: 'تم الإرسال! تحقّق من بريدك (وصندوق المهملات) لإعادة تعيين كلمة المرور.',
         resetNoUser: 'ما لقينا حساب بهذا البريد.',
-        newVendorHint: 'حساب جديد بينقلك مباشرة لإنشاء متجرك.', joinLink: 'تعرّف على مشروعي للأعمال' }
+        newVendorHint: 'حساب جديد بينقلك مباشرة لإنشاء متجرك.', joinLink: `تعرّف على ${BRAND.ar} للأعمال` }
     : { title: 'Vendor portal', sub: 'Sign in to manage your store', email: 'Email', pass: 'Password',
         signIn: 'Sign in', signUp: 'Create vendor account', toUp: 'New vendor? Create an account', toIn: 'Have an account? Sign in',
         forgot: 'Forgot password?', showPw: 'Show password', hidePw: 'Hide password',
@@ -58,7 +59,7 @@ export default function VendorLoginPage() {
         resetSend: 'Send reset link', back: 'Back to sign in',
         resetDone: 'Sent! Check your inbox (and spam) to reset your password.',
         resetNoUser: 'No account found with that email.',
-        newVendorHint: 'A new account takes you straight to creating your store.', joinLink: 'Learn about Mshro3e for business' };
+        newVendorHint: 'A new account takes you straight to creating your store.', joinLink: `Learn about ${BRAND.en} for business` };
 
   const mapAuthError = (code?: string, fallback?: string) => {
     if (code === 'auth/invalid-credential' || code === 'auth/wrong-password' || code === 'auth/user-not-found') return t.bad;

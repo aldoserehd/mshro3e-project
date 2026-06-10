@@ -4,6 +4,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { Store, Package, Inbox, Plus, ArrowRight, Loader2, CheckCircle2 } from 'lucide-react';
 import { useVendorAuth } from '@/lib/vendor/auth';
+import { BRAND } from '@/lib/brand';
 import { useVendorLocale } from '@/components/vendor/shell';
 import { listMyProducts, listMyLeads } from '@/lib/vendor/data';
 import { Button } from '@/components/ui/button';
@@ -43,7 +44,7 @@ export default function VendorDashboardPage() {
   if (!vendor) {
     return (
       <div className="max-w-xl">
-        <h1 className="text-[28px] font-bold text-ink-900">{ar ? 'حيّاك في مشروعي 👋' : 'Welcome to Mshro3e 👋'}</h1>
+        <h1 className="text-[28px] font-bold text-ink-900">{ar ? `حيّاك في ${BRAND.ar} 👋` : `Welcome to ${BRAND.en} 👋`}</h1>
         <p className="mt-1 text-[15px] text-ink-500">
           {ar ? 'أنشئ متجرك أول شي، وبعدها ضيف منتجاتك.' : 'Create your storefront first, then add your products.'}
         </p>
@@ -95,8 +96,8 @@ export default function VendorDashboardPage() {
       <div className="rounded-[16px] border border-ink-200 bg-white p-5">
         <p className="text-[13px] text-ink-500">
           {ar
-            ? 'الطلبات هي عدد العملاء اللي تواصلوا معك عبر واتساب من تطبيق مشروعي — دليل قيمة المنصة لك.'
-            : 'Leads are customers who contacted you via WhatsApp from the Mshro3e app — your proof of value.'}
+            ? `الطلبات هي عدد العملاء اللي تواصلوا معك عبر واتساب من تطبيق ${BRAND.ar} — دليل قيمة المنصة لك.`
+            : `Leads are customers who contacted you via WhatsApp from the ${BRAND.en} app — your proof of value.`}
         </p>
       </div>
     </div>

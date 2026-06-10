@@ -4,6 +4,7 @@ import * as React from 'react';
 import { toast } from 'sonner';
 import { Info, Building2, MessageCircle, Languages } from 'lucide-react';
 import { getDict, type Locale } from '@/i18n/dict';
+import { BRAND } from '@/lib/brand';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -87,7 +88,7 @@ export function SettingsForm({ locale }: { locale: Locale }) {
           <Input defaultValue={getDict(locale).brand} className="max-w-sm" />
         </Row>
         <Row label={t.supportEmail}>
-          <Input type="email" defaultValue="support@mshro3e.kw" dir="ltr" className="max-w-sm" />
+          <Input type="email" defaultValue={BRAND.supportEmail} dir="ltr" className="max-w-sm" />
         </Row>
         <Row label={t.supportPhone}>
           <Input type="tel" defaultValue="+965 2200 0000" dir="ltr" className="max-w-sm" />

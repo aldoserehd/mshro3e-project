@@ -1,5 +1,7 @@
+import { BRAND } from '../brand';
+
 export default {
-  app: { name: 'Mshro3e', tagline: 'Kuwait vendor marketplace' },
+  app: { name: BRAND.en, tagline: 'Kuwait vendor marketplace' },
   splash: { loading: 'Loading…' },
 
   onboarding: {
@@ -43,7 +45,7 @@ export default {
     greeting: 'Welcome',
     searchHint: 'Search treats, abayas, gifts…',
     storiesTitle: 'Vendor stories',
-    newTitle: 'New on Mshro3e',
+    newTitle: `New on ${BRAND.en}`,
     availableToday: 'Available Today',
     gatheringTonight: 'Gathering tonight?',
     gatheringSub: 'Perfect platters for your diwaniya.',
@@ -119,14 +121,14 @@ export default {
       customerArranges: "I'll arrange delivery",
     },
     refLabel: 'Order ref',
-    leadLogged: 'Vendor will see this came from Mshro3e',
+    leadLogged: `Vendor will see this came from ${BRAND.en}`,
   },
 
   contact: {
     title: 'Contact the vendor',
     prefilledMessage: 'Hi, asking about {product} priced at {price}',
     // Tagged message so the vendor knows the lead came from us (attribution).
-    taggedMessage: 'Hi 👋 I found you on Mshro3e.\nI\'d like to ask about: {product}\nPrice: {price}\nDelivery: {delivery}\nRef: {ref}',
+    taggedMessage: `Hi 👋 I found you on ${BRAND.en}.\nI'd like to ask about: {product}\nPrice: {price}\nDelivery: {delivery}\nRef: {ref}`,
     sendWhatsapp: 'Send on WhatsApp',
     sendInApp: 'Message in app',
   },
@@ -162,11 +164,11 @@ export default {
       notifications: 'Notifications',
       language: 'Language',
       support: 'Help & support',
-      about: 'About Mshro3e',
+      about: `About ${BRAND.en}`,
       logout: 'Log out',
     },
     upgrade: {
-      title: 'List your business on Mshro3e',
+      title: `List your business on ${BRAND.en}`,
       body: 'Reach customers searching across Kuwait — leads come straight to your WhatsApp.',
       cta: 'List',
     },

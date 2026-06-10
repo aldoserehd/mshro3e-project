@@ -9,6 +9,7 @@ import { radius, spacing } from '../theme/ts';
 import { useColors } from '../theme/colors';
 import { useLocaleStore } from '../stores/locale';
 import { VENDOR_SITE_URL } from '../config';
+import { BRAND } from '../brand';
 
 export interface VendorCtaSheetProps {
   visible: boolean;
@@ -28,7 +29,7 @@ export const VendorCtaSheet: React.FC<VendorCtaSheetProps> = ({ visible, onClose
 
   const t = ar
     ? {
-        title: 'اعرض مشروعك على مشروعي',
+        title: `اعرض مشروعك على ${BRAND.ar}`,
         subtitle: 'وصّل منتجاتك لعملاء يدوّرون عليك بالكويت.',
         cta: 'سجّل مشروعك',
         later: 'مو الحين',
@@ -38,10 +39,10 @@ export const VendorCtaSheet: React.FC<VendorCtaSheetProps> = ({ visible, onClose
           { icon: 'pricetags-outline' as const, text: 'خطط بسيطة: اشتراك شهر أو ٣ أشهر. التسجيل والدفع على الموقع.' },
           { icon: 'shield-checkmark-outline' as const, text: 'ما نتدخّل بالدفع ولا التوصيل — الترتيب بينك وبين العميل.' },
         ],
-        note: 'بنفتح لك موقع مشروعي للتسجيل واختيار الخطة.',
+        note: `بنفتح لك موقع ${BRAND.ar} للتسجيل واختيار الخطة.`,
       }
     : {
-        title: 'List your business on Mshro3e',
+        title: `List your business on ${BRAND.en}`,
         subtitle: 'Get your products in front of customers searching across Kuwait.',
         cta: 'List your business',
         later: 'Not now',
@@ -51,7 +52,7 @@ export const VendorCtaSheet: React.FC<VendorCtaSheetProps> = ({ visible, onClose
           { icon: 'pricetags-outline' as const, text: 'Simple plans: 1 month or 3 months. Sign-up and payment happen on the website.' },
           { icon: 'shield-checkmark-outline' as const, text: "We don't handle payment or delivery — you arrange that with the customer." },
         ],
-        note: "We'll open the Mshro3e site so you can register and pick a plan.",
+        note: `We'll open the ${BRAND.en} site so you can register and pick a plan.`,
       };
 
   const openSite = () => {

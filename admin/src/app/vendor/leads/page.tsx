@@ -4,6 +4,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { Inbox, Store, MessageCircle } from 'lucide-react';
 import { useVendorAuth } from '@/lib/vendor/auth';
+import { BRAND } from '@/lib/brand';
 import { useVendorLocale } from '@/components/vendor/shell';
 import { listMyLeads, type Lead } from '@/lib/vendor/data';
 import { Card } from '@/components/ui/card';
@@ -47,7 +48,7 @@ export default function VendorLeadsPage() {
       <div>
         <h1 className="text-[28px] font-bold text-ink-900">{ar ? 'الطلبات' : 'Leads'}</h1>
         <p className="mt-1 text-[14px] text-ink-500">
-          {ar ? 'العملاء اللي تواصلوا معك عبر واتساب من تطبيق مشروعي.' : 'Customers who contacted you via WhatsApp from the Mshro3e app.'}
+          {ar ? `العملاء اللي تواصلوا معك عبر واتساب من تطبيق ${BRAND.ar}.` : `Customers who contacted you via WhatsApp from the ${BRAND.en} app.`}
         </p>
       </div>
 
@@ -67,7 +68,7 @@ export default function VendorLeadsPage() {
             <span className="inline-flex size-10 items-center justify-center rounded-full bg-emerald-50 text-emerald-600"><MessageCircle className="size-5" /></span>
             <p className="text-[15px] text-ink-900">
               <span className="font-bold tabular-nums">{leads.length}</span>{' '}
-              {ar ? 'عميل تواصل معك عبر مشروعي' : 'customers reached you via Mshro3e'}
+              {ar ? `عميل تواصل معك عبر ${BRAND.ar}` : `customers reached you via ${BRAND.en}`}
             </p>
           </Card>
           <div className="grid gap-3">

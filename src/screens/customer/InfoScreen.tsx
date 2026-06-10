@@ -9,12 +9,13 @@ import { spacing } from '../../theme/ts';
 import { useColors } from '../../theme/colors';
 import { useLocaleStore } from '../../stores/locale';
 import type { RootStackScreenProps } from '../../navigation/types';
+import { BRAND } from '../../brand';
 
 const COPY: Record<string, { ar: { title: string; intro: string; body: string[] }; en: { title: string; intro: string; body: string[] } }> = {
   notifications: {
     ar: {
       title: 'الإشعارات',
-      intro: 'تحكّم في الإشعارات التي تصلك من مشروعي.',
+      intro: `تحكّم في الإشعارات التي تصلك من ${BRAND.ar}.`,
       body: [
         '• إشعارات عند صدور منتجات جديدة من البائعين اللي تتابعهم.',
         '• إشعارات عند الردّ على رسائلك داخل التطبيق.',
@@ -24,7 +25,7 @@ const COPY: Record<string, { ar: { title: string; intro: string; body: string[] 
     },
     en: {
       title: 'Notifications',
-      intro: 'Control which notifications you receive from Mshro3e.',
+      intro: `Control which notifications you receive from ${BRAND.en}.`,
       body: [
         '• Alerts when followed vendors post new products.',
         '• Alerts when vendors reply to your in-app messages.',
@@ -35,22 +36,22 @@ const COPY: Record<string, { ar: { title: string; intro: string; body: string[] 
   },
   about: {
     ar: {
-      title: 'عن مشروعي',
+      title: `عن ${BRAND.ar}`,
       intro: 'منصة كويتية لدعم المشاريع المنزلية والصغيرة.',
       body: [
-        'مشروعي يربط بين العملاء والبائعين الكويتيين بمنتجات فريدة من بيوتهم.',
+        `${BRAND.ar} يربط بين العملاء والبائعين الكويتيين بمنتجات فريدة من بيوتهم.`,
         'نحن لا نتولّى الدفع ولا التوصيل — تتم الترتيبات مباشرة بين العميل والبائع عبر واتساب أو محادثة التطبيق.',
-        '٠٪ رسوم على المبيعات. اشتراك بسيط للبائعين فقط (شهر أو ٣ أشهر)، والتسجيل يتم على موقع مشروعي.',
+        `٠٪ رسوم على المبيعات. اشتراك بسيط للبائعين فقط (شهر أو ٣ أشهر)، والتسجيل يتم على موقع ${BRAND.ar}.`,
         'صنع في الكويت 🇰🇼',
       ],
     },
     en: {
-      title: 'About Mshro3e',
+      title: `About ${BRAND.en}`,
       intro: 'A Kuwaiti platform supporting home and small businesses.',
       body: [
-        'Mshro3e connects customers with Kuwaiti vendors selling unique handmade products.',
+        `${BRAND.en} connects customers with Kuwaiti vendors selling unique handmade products.`,
         'We do not handle payment or delivery — arrangements happen directly between customer and vendor via WhatsApp or in-app chat.',
-        '0% transaction fees. Simple vendor-only plans (1 or 3 months), with sign-up on the Mshro3e website.',
+        `0% transaction fees. Simple vendor-only plans (1 or 3 months), with sign-up on the ${BRAND.en} website.`,
         'Made in Kuwait 🇰🇼',
       ],
     },
@@ -60,7 +61,7 @@ const COPY: Record<string, { ar: { title: string; intro: string; body: string[] 
       title: 'المساعدة والدعم',
       intro: 'فريقنا متاح للرد على استفساراتك.',
       body: [
-        '📧 البريد: support@mshro3e.kw',
+        `📧 البريد: ${BRAND.supportEmail}`,
         '💬 واتساب: +965 5000 0000',
         '⏰ ساعات الدعم: الأحد إلى الخميس، ٩ ص — ٦ م بتوقيت الكويت.',
         'الأسئلة الشائعة والمقالات قريباً.',
@@ -70,7 +71,7 @@ const COPY: Record<string, { ar: { title: string; intro: string; body: string[] 
       title: 'Help & support',
       intro: 'Our team is here to answer your questions.',
       body: [
-        '📧 Email: support@mshro3e.kw',
+        `📧 Email: ${BRAND.supportEmail}`,
         '💬 WhatsApp: +965 5000 0000',
         '⏰ Support hours: Sunday – Thursday, 9 AM – 6 PM Kuwait time.',
         'FAQ and articles coming soon.',

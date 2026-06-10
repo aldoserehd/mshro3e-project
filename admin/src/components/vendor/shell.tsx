@@ -12,6 +12,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { BRAND } from '@/lib/brand';
 import { useVendorAuth } from '@/lib/vendor/auth';
 
 export type VLocale = 'ar' | 'en';
@@ -70,7 +71,7 @@ export function VendorShell({ children }: { children: React.ReactNode }) {
         <div className="flex items-center gap-2.5 px-4 h-16 border-b border-ink-200">
           <span className="inline-flex h-9 w-9 items-center justify-center rounded-[10px] bg-navy-900 text-white font-bold text-[15px]">م</span>
           <span className="flex flex-col min-w-0">
-            <span className="text-[14px] font-bold text-ink-900 truncate">{locale === 'ar' ? 'مشروعي' : 'Mshro3e'}</span>
+            <span className="text-[14px] font-bold text-ink-900 truncate">{BRAND.name(locale)}</span>
             <span className="text-[11px] text-ink-500 truncate">{locale === 'ar' ? 'لوحة البائع' : 'Vendor'}</span>
           </span>
         </div>

@@ -128,6 +128,54 @@
     background-image: radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px);
     background-size: 18px 18px;
   }
+
+  /* ── /join landing page ─────────────────────────────────── */
+  .font-display {
+    font-family: 'Alexandria', 'IBM Plex Sans Arabic', 'Manrope', sans-serif;
+  }
+  /* Deep-navy hero: layered radial mesh + the grid, atmosphere not flatness. */
+  .join-hero {
+    background-color: #001a41;
+    background-image:
+      radial-gradient(ellipse 60% 50% at 15% -10%, rgba(65, 92, 157, 0.55), transparent 60%),
+      radial-gradient(ellipse 50% 45% at 90% 10%, rgba(37, 211, 102, 0.13), transparent 55%),
+      radial-gradient(ellipse 70% 60% at 70% 110%, rgba(157, 183, 255, 0.18), transparent 60%);
+  }
+  /* Film-grain overlay (SVG turbulence) so the dark hero doesn't band. */
+  .join-noise::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.5;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='0.05'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .rise {
+    opacity: 0;
+    animation: join-rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  .rise-1 { animation-delay: 0.05s; }
+  .rise-2 { animation-delay: 0.15s; }
+  .rise-3 { animation-delay: 0.25s; }
+  .rise-4 { animation-delay: 0.38s; }
+  .rise-5 { animation-delay: 0.52s; }
+  .float-soft { animation: join-float 7s ease-in-out infinite; }
+  /* Chat bubbles pop in sequence inside the hero mockup. */
+  .chat-pop {
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
+    animation: join-chat-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+  .chat-pop-1 { animation-delay: 0.7s; }
+  .chat-pop-2 { animation-delay: 1.1s; }
+  .chat-pop-3 { animation-delay: 1.5s; }
+  .chat-pop-4 { animation-delay: 2.0s; }
+  .chat-pop-5 { animation-delay: 2.6s; }
+  .chat-pop-6 { animation-delay: 3.3s; }
+  @media (prefers-reduced-motion: reduce) {
+    .rise, .chat-pop { animation: none; opacity: 1; transform: none; }
+    .float-soft { animation: none; }
+  }
 }
 
 @keyframes shimmer {
@@ -146,4 +194,15 @@
 @keyframes stagger-in {
   from { opacity: 0; transform: translateY(6px); }
   to { opacity: 1; transform: translateY(0); }
+}
+@keyframes join-rise {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes join-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes join-chat-pop {
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }

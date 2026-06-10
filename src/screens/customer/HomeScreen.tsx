@@ -83,7 +83,7 @@ export default function HomeScreen({ navigation }: MainTabsScreenProps<'Home'>) 
           <Text variant="label" weight="600" style={{ marginStart: 4 }}>{pickLocale(area)}</Text>
           <Ionicons name="chevron-down" size={14} color={c.textMuted} style={{ marginStart: 2 }} />
         </Pressable>
-        <Text variant="cardTitle" weight="700" color={c.brandText}>Mshro3e</Text>
+        <Text variant="cardTitle" weight="700" color={c.brandText}>{i18n.t('app.name')}</Text>
         <Pressable onPress={() => navigation.navigate('Favorites')} hitSlop={8} style={[styles.iconBtn, { backgroundColor: c.surfaceAlt }]}>
           <Ionicons name="heart-outline" size={20} color={c.text} />
         </Pressable>

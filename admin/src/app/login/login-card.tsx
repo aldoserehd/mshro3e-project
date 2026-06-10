@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { getDict, type Locale } from '@/i18n/dict';
+import { BRAND } from '@/lib/brand';
 import { Mail, Lock, ArrowRight, ArrowLeft, Eye, EyeOff, Info } from 'lucide-react';
 
 const schema = z.object({
@@ -46,7 +47,7 @@ export function LoginCard({ locale }: { locale: Locale }) {
       uid: 'owner_demo_1',
       role: 'owner',
       displayName: locale === 'ar' ? 'سالم العتيبي' : 'Salem Otaibi',
-      email: _v.identifier.includes('@') ? _v.identifier : 'owner@mshro3e.kw',
+      email: _v.identifier.includes('@') ? _v.identifier : `owner@${BRAND.domain}`,
     });
     const bytes = new TextEncoder().encode(json);
     const binary = Array.from(bytes, (b) => String.fromCharCode(b)).join('');

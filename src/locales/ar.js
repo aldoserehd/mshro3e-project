@@ -1,5 +1,7 @@
+import { BRAND } from '../brand';
+
 export default {
-  app: { name: 'مشروعي', tagline: 'سوق التجار الكويتيين' },
+  app: { name: BRAND.ar, tagline: 'سوق التجار الكويتيين' },
   splash: { loading: 'جاري التحميل…' },
 
   onboarding: {
@@ -48,7 +50,7 @@ export default {
     greeting: 'حياك',
     searchHint: 'دوّر على حلا، عبايات، هدايا…',
     storiesTitle: 'قصص البائعين',
-    newTitle: 'يديد على مشروعي',
+    newTitle: `يديد على ${BRAND.ar}`,
     availableToday: 'متوفر اليوم',
     gatheringTonight: 'عندك عزيمة الليلة؟',
     gatheringSub: 'أطباق تناسب ديوانيتك.',
@@ -124,14 +126,14 @@ export default {
       customerArranges: 'التوصيل على حسابي',
     },
     refLabel: 'رقم الطلب',
-    leadLogged: 'بيشوف البائع إنك وصلته من مشروعي',
+    leadLogged: `بيشوف البائع إنك وصلته من ${BRAND.ar}`,
   },
 
   contact: {
     title: 'تواصل مع البائع',
     prefilledMessage: 'مرحبا، استفسر عن {product} بسعر {price}',
     // رسالة موسومة عشان البائع يعرف إن الطلب وصله من تطبيقنا
-    taggedMessage: 'حياك 👋 وصلتك من تطبيق مشروعي.\nأبي أستفسر عن: {product}\nالسعر: {price}\nالتوصيل: {delivery}\nرقم الطلب: {ref}',
+    taggedMessage: `حياك 👋 وصلتك من تطبيق ${BRAND.ar}.\nأبي أستفسر عن: {product}\nالسعر: {price}\nالتوصيل: {delivery}\nرقم الطلب: {ref}`,
     sendWhatsapp: 'إرسال على واتساب',
     sendInApp: 'رسالة في التطبيق',
   },
@@ -167,11 +169,11 @@ export default {
       notifications: 'الإشعارات',
       language: 'اللغة',
       support: 'المساعدة والدعم',
-      about: 'عن مشروعي',
+      about: `عن ${BRAND.ar}`,
       logout: 'تسجيل الخروج',
     },
     upgrade: {
-      title: 'اعرض مشروعك على مشروعي',
+      title: `اعرض مشروعك على ${BRAND.ar}`,
       body: 'وصّل منتجاتك لعملاء يدوّرون عليك بالكويت، والطلبات توصلك على واتساب.',
       cta: 'سجّل',
     },

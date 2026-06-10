@@ -4,11 +4,13 @@
  * All page copy MUST come from here. Don't hard-code strings.
  */
 
+import { BRAND } from '@/lib/brand';
+
 export type Locale = 'ar' | 'en';
 
 export const dict = {
   ar: {
-    brand: 'مشروعي',
+    brand: BRAND.ar,
     brandTagline: 'دليل تجار الكويت + متاجر مصغّرة',
     nav: {
       overview: 'نظرة عامة',
@@ -88,13 +90,13 @@ export const dict = {
       title: 'تسجيل دخول المشرف',
       subtitle: 'أدخل بياناتك للوصول إلى لوحة التحكم',
       identifier: 'البريد الإلكتروني أو الهاتف',
-      identifierPh: 'name@mshro3e.kw',
+      identifierPh: `name@${BRAND.domain}`,
       password: 'كلمة المرور',
       passwordPh: '••••••••',
       submit: 'دخول',
       forgot: 'نسيت كلمة المرور؟',
       forgotHint: 'للنسخة التجريبية، تواصل مع مسؤول النظام لإعادة الضبط.',
-      heroTitle: 'لوحة تحكم منصة مشروعي',
+      heroTitle: `لوحة تحكم منصة ${BRAND.ar}`,
       heroBody: 'أدِر التجار، المنتجات، والاشتراكات من مكان واحد.',
       remember: 'تذكّرني',
       submitting: 'جارٍ الدخول…',
@@ -332,7 +334,7 @@ export const dict = {
     },
   },
   en: {
-    brand: 'Mshro3e',
+    brand: BRAND.en,
     brandTagline: 'Kuwait vendor directory + mini-stores',
     nav: {
       overview: 'Overview',
@@ -412,13 +414,13 @@ export const dict = {
       title: 'Admin sign-in',
       subtitle: 'Enter your credentials to access the dashboard',
       identifier: 'Email or phone',
-      identifierPh: 'name@mshro3e.kw',
+      identifierPh: `name@${BRAND.domain}`,
       password: 'Password',
       passwordPh: '••••••••',
       submit: 'Sign in',
       forgot: 'Forgot password?',
       forgotHint: 'For this demo, contact your system admin to reset access.',
-      heroTitle: 'Mshro3e control center',
+      heroTitle: `${BRAND.en} control center`,
       heroBody: 'Manage vendors, products, and subscriptions from one place.',
       remember: 'Remember me',
       submitting: 'Signing in…',

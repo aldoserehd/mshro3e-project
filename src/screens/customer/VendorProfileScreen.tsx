@@ -15,6 +15,7 @@ import { useColors } from '../../theme/colors';
 import { radius, shadowStyle, spacing, formatPrice, pickLocale, getCurrentLocale } from '../../theme/ts';
 import { useLocaleStore } from '../../stores/locale';
 import type { RootStackScreenProps } from '../../navigation/types';
+import { BRAND } from '../../brand';
 
 const cleanPhone = (raw: string) => raw.replace(/[^\d]/g, '');
 
@@ -65,8 +66,8 @@ export default function VendorProfileScreen({ route, navigation }: RootStackScre
     Haptics.selectionAsync().catch(() => {});
     const name = pickLocale(vendor.name);
     const message = ar
-      ? `شوف ${name} على مشروعي 👀`
-      : `Check out ${name} on Mshro3e 👀`;
+      ? `شوف ${name} على ${BRAND.ar} 👀`
+      : `Check out ${name} on ${BRAND.en} 👀`;
     Share.share({ message }).catch(() => {});
   };
 
@@ -156,7 +157,7 @@ export default function VendorProfileScreen({ route, navigation }: RootStackScre
           <Divider />
           <InfoRow icon="call-outline" label={ar ? 'الهاتف' : 'Phone'} value={vendor.phone ?? '—'} mono />
           {vendor.whatsapp && (<><Divider /><InfoRow icon="logo-whatsapp" label="WhatsApp" value={vendor.whatsapp} mono /></>)}
-          {isPro && (<><Divider /><InfoRow icon="globe-outline" label={ar ? 'الموقع' : 'Website'} value={`mshro3e.com/@${vendor.handle ?? vendor.slug}`} /></>)}
+          {isPro && (<><Divider /><InfoRow icon="globe-outline" label={ar ? 'الموقع' : 'Website'} value={BRAND.storeUrl(vendor.handle ?? vendor.slug)} /></>)}
           <Divider />
           <InfoRow icon="card-outline" label={ar ? 'الدفع' : 'Payment'} value={ar ? 'بالتنسيق مع البائع مباشرة' : 'Arrange directly with the vendor'} />
         </Card>

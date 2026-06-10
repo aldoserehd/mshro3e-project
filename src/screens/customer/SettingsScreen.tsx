@@ -15,6 +15,7 @@ import { useUserStore } from '../../stores/user';
 import { firebaseAuth } from '@shared/firebase';
 import { seedFirestore } from '../../lib/seed-firestore';
 import type { RootStackScreenProps } from '../../navigation/types';
+import { BRAND } from '../../brand';
 
 // ── Generic segmented control ──
 function Segmented<T extends string>({
@@ -149,7 +150,7 @@ export default function SettingsScreen({ navigation }: RootStackScreenProps<'Set
         <SectionLabel>{ar ? 'التطبيق' : 'APP'}</SectionLabel>
         <View style={[styles.card, { backgroundColor: c.surface, borderColor: c.border }]}>
           <LinkRow first icon="notifications-outline" label={ar ? 'الإشعارات' : 'Notifications'} onPress={() => navigation.navigate('Notifications')} />
-          <LinkRow icon="information-circle-outline" label={ar ? 'عن مشروعي' : 'About Mshro3e'} onPress={() => navigation.navigate('Info', { topic: 'about' })} />
+          <LinkRow icon="information-circle-outline" label={ar ? `عن ${BRAND.ar}` : `About ${BRAND.en}`} onPress={() => navigation.navigate('Info', { topic: 'about' })} />
           <LinkRow icon="help-circle-outline" label={ar ? 'المساعدة والدعم' : 'Help & support'} onPress={() => navigation.navigate('Info', { topic: 'help' })} />
           <LinkRow icon="shield-checkmark-outline" label={ar ? 'سياسة الخصوصية' : 'Privacy policy'} onPress={() => navigation.navigate('Info', { topic: 'privacy' })} />
         </View>
@@ -187,7 +188,7 @@ export default function SettingsScreen({ navigation }: RootStackScreenProps<'Set
             <LinearGradient colors={['#2a4686', '#001a41']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
             <View style={styles.bannerIcon}><Ionicons name="storefront-outline" size={20} color="#fff" /></View>
             <View style={{ flex: 1, marginStart: spacing.s3 }}>
-              <Text variant="cardTitle" weight="700" color="#fff">{ar ? 'اعرض مشروعك على مشروعي' : 'List your business on Mshro3e'}</Text>
+              <Text variant="cardTitle" weight="700" color="#fff">{ar ? `اعرض مشروعك على ${BRAND.ar}` : `List your business on ${BRAND.en}`}</Text>
               <Text variant="caption" color="#9db7ff">{ar ? 'اشتراك شهر أو ٣ أشهر — التسجيل على الموقع' : '1 or 3-month plans — sign up on the site'}</Text>
             </View>
             <Ionicons name="chevron-back" size={18} color="#9db7ff" style={{ transform: [{ scaleX: -1 }] }} />
@@ -199,7 +200,7 @@ export default function SettingsScreen({ navigation }: RootStackScreenProps<'Set
           <Text variant="button" weight="600" color={c.danger} style={{ marginStart: spacing.s2 }}>{ar ? 'تسجيل الخروج' : 'Log out'}</Text>
         </Pressable>
 
-        <Text variant="microcopy" color={c.textMuted} align="center" style={{ marginTop: spacing.s4 }}>Mshro3e v1.0.0</Text>
+        <Text variant="microcopy" color={c.textMuted} align="center" style={{ marginTop: spacing.s4 }}>{BRAND.en} {BRAND.version}</Text>
       </ScrollView>
 
       <VendorCtaSheet visible={vendorCtaOpen} onClose={() => setVendorCtaOpen(false)} />
