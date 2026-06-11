@@ -5,8 +5,6 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 import SplashScreen from '../screens/SplashScreen';
 import OnboardingScreen from '../screens/OnboardingScreen';
-import PhoneEntryScreen from '../screens/auth/PhoneEntryScreen';
-import CodeVerifyScreen from '../screens/auth/CodeVerifyScreen';
 import SignInScreen from '../screens/auth/SignInScreen';
 import SignUpScreen from '../screens/auth/SignUpScreen';
 import PreferencesScreen from '../screens/auth/PreferencesScreen';
@@ -76,8 +74,6 @@ export default function AppNavigator() {
       >
         <Stack.Screen name="Splash" component={SplashScreen} />
         <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-        <Stack.Screen name="PhoneEntry" component={PhoneEntryScreen} options={{ animation: 'slide_from_bottom' }} />
-        <Stack.Screen name="CodeVerify" component={CodeVerifyScreen} />
         <Stack.Screen name="SignIn" component={SignInScreen} />
         <Stack.Screen name="SignUp" component={SignUpScreen} />
         <Stack.Screen name="Preferences" component={PreferencesScreen} />

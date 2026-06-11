@@ -2,10 +2,10 @@ import * as React from 'react';
 import { CreditCard, Check, Info } from 'lucide-react';
 import { getLocale } from '@/lib/locale';
 import { getDict } from '@/i18n/dict';
-import { listVendors } from '@/lib/data/vendors';
-import { overviewMetrics } from '@/data/seed';
+import { liveVendors } from '@/lib/data/live';
 import { PageHeader } from '@/components/domain/page-header';
-import { TierPill, SubscriptionStatusPill } from '@/components/domain/status-pill';
+import { TierPill } from '@/components/domain/status-pill';
+import { TierControl } from '@/components/domain/tier-control';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -13,16 +13,14 @@ import { Table, THead, TBody, TRow, TH, TCell } from '@/components/ui/table';
 import { EmptyState } from '@/components/ui/empty-state';
 import { KpiCard } from '@/components/ui/kpi-card';
 import { formatCurrency, formatDate, cn } from '@/lib/utils';
-import type { SubscriptionStatus, SubscriptionTier } from '@shared/types';
+import type { SubscriptionTier } from '@shared/types';
 
 const initials = (n: string) => n.trim().split(/\s+/).slice(0, 2).map((p) => p[0]).join('').toUpperCase();
 
 /**
  * Launch prices (docs/CREATIVE-STRATEGY.md) — Basic 6 / Pro 14 / Business 29
- * KWD, each on a 1-month or 3-month cycle. `m3` is the total charged for
- * 3 months (a discount vs. 3× monthly). The 'managed' tier id maps to the
- * "Business" plan (done-for-you was folded into Business).
- * Single source for the public site: admin/src/lib/marketing/plans.ts.
+ * KWD/mo; 3-month totals 15 / 36 / 75. The 'managed' tier id = the "Business"
+ * plan. Single source for the public site: admin/src/lib/marketing/plans.ts.
  */
 const TIER_PRICES: Record<SubscriptionTier, { m1: number; m3: number }> = {
   basic: { m1: 6, m3: 15 },
@@ -30,18 +28,21 @@ const TIER_PRICES: Record<SubscriptionTier, { m1: number; m3: number }> = {
   managed: { m1: 29, m3: 75 },
 };
 
-// Phase 2 placeholder — assigns mock tiers/statuses/cycles by index. Real Firestore later.
-const fakeTierFor = (i: number): SubscriptionTier => (['basic', 'pro', 'managed'] as const)[i % 3];
-const fakeStatusFor = (i: number): SubscriptionStatus =>
-  (['active', 'active', 'active', 'trialing', 'past_due', 'paused'] as const)[i % 6];
-const fakeCycleFor = (i: number): 1 | 3 => (i % 5 === 0 ? 3 : 1);
-
 export default async function SubscriptionsPage() {
   const locale = await getLocale();
   const t = getDict(locale);
-  const vendors = await listVendors({});
-  const m = overviewMetrics();
+  const vendors = await liveVendors();
   const tag = locale === 'ar' ? 'ar-KW' : 'en-US';
+
+  const now = Date.now();
+  const withTier = vendors.filter((v) => v.tier && (v.subscriptionUntil ?? 0) > now);
+  const counts: Record<SubscriptionTier, number> = { basic: 0, pro: 0, managed: 0 };
+  let mrr = 0;
+  for (const v of withTier) {
+    const tier = v.tier as SubscriptionTier;
+    counts[tier] += 1;
+    mrr += TIER_PRICES[tier].m1;
+  }
 
   const plans: { tier: SubscriptionTier; label: string; feats: string[]; popular?: boolean }[] = [
     { tier: 'basic', label: t.subscriptions.tierBasic, feats: [t.subscriptions.featBasic1, t.subscriptions.featBasic2, t.subscriptions.featBasic3] },
@@ -49,18 +50,31 @@ export default async function SubscriptionsPage() {
     { tier: 'managed', label: t.subscriptions.tierManaged, feats: [t.subscriptions.featManaged1, t.subscriptions.featManaged2, t.subscriptions.featManaged3] },
   ];
 
+  const tierLabels = {
+    placeholder: t.subscriptions.setTier,
+    free: t.subscriptions.tierFree,
+    basic1: `${t.subscriptions.tierBasic} · ${t.subscriptions.cycle1mo}`,
+    basic3: `${t.subscriptions.tierBasic} · ${t.subscriptions.cycle3mo}`,
+    pro1: `${t.subscriptions.tierPro} · ${t.subscriptions.cycle1mo}`,
+    pro3: `${t.subscriptions.tierPro} · ${t.subscriptions.cycle3mo}`,
+    business1: `${t.subscriptions.tierManaged} · ${t.subscriptions.cycle1mo}`,
+    business3: `${t.subscriptions.tierManaged} · ${t.subscriptions.cycle3mo}`,
+    done: t.subscriptions.tierUpdated,
+    failed: t.vendors.actionFailed,
+  };
+
   return (
     <div className="flex flex-col gap-6">
       <PageHeader title={t.subscriptions.title} subtitle={t.subscriptions.subtitle} />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="p-4"><KpiCard label={t.subscriptions.mrr} value={<span className="tabular-nums">{formatCurrency(m.mrr, 'KWD', tag)}</span>} /></Card>
-        <Card className="p-4"><KpiCard label={t.subscriptions.tierBasic} value={<span className="tabular-nums">{m.tierBreakdown.basic}</span>} /></Card>
-        <Card className="p-4"><KpiCard label={t.subscriptions.tierPro} value={<span className="tabular-nums">{m.tierBreakdown.pro}</span>} /></Card>
-        <Card className="p-4"><KpiCard label={t.subscriptions.tierManaged} value={<span className="tabular-nums">{m.tierBreakdown.managed}</span>} /></Card>
+        <Card className="p-4"><KpiCard label={t.subscriptions.mrr} value={<span className="tabular-nums">{formatCurrency(mrr, 'KWD', tag)}</span>} /></Card>
+        <Card className="p-4"><KpiCard label={t.subscriptions.tierBasic} value={<span className="tabular-nums">{counts.basic}</span>} /></Card>
+        <Card className="p-4"><KpiCard label={t.subscriptions.tierPro} value={<span className="tabular-nums">{counts.pro}</span>} /></Card>
+        <Card className="p-4"><KpiCard label={t.subscriptions.tierManaged} value={<span className="tabular-nums">{counts.managed}</span>} /></Card>
       </div>
 
-      {/* Plans & pricing — 1-month / 3-month structure, placeholder prices. */}
+      {/* Plans & pricing — 1-month / 3-month structure. */}
       <div className="flex flex-col gap-3">
         <div className="flex flex-wrap items-end justify-between gap-2">
           <div>
@@ -69,7 +83,7 @@ export default async function SubscriptionsPage() {
           </div>
           <span className="inline-flex items-center gap-1.5 text-[12px] text-ink-500">
             <Info className="size-3.5" />
-            {t.subscriptions.placeholderNote}
+            {t.subscriptions.manualNote}
           </span>
         </div>
 
@@ -121,7 +135,7 @@ export default async function SubscriptionsPage() {
         </div>
       </div>
 
-      {/* Active subscriptions table. */}
+      {/* All vendors and their real subscription state. */}
       <div className="flex flex-col gap-3">
         <h2 className="text-[18px] font-bold text-ink-900">{t.subscriptions.activeSubs}</h2>
         <Card className="p-0 overflow-hidden">
@@ -133,19 +147,15 @@ export default async function SubscriptionsPage() {
                 <TRow>
                   <TH>{t.subscriptions.colVendor}</TH>
                   <TH>{t.subscriptions.colTier}</TH>
-                  <TH>{t.subscriptions.colCycle}</TH>
-                  <TH>{t.subscriptions.colStatus}</TH>
-                  <TH className="text-end">{t.subscriptions.colPrice}</TH>
                   <TH>{t.subscriptions.colRenewsAt}</TH>
+                  <TH className="text-end">{t.subscriptions.colActions}</TH>
                 </TRow>
               </THead>
               <TBody>
-                {vendors.map((v, i) => {
-                  const tier = fakeTierFor(i);
-                  const status = fakeStatusFor(i);
-                  const cycle = fakeCycleFor(i);
-                  const price = cycle === 3 ? TIER_PRICES[tier].m3 : TIER_PRICES[tier].m1;
-                  const renewsAt = Date.now() + ((i % 28) + 2) * 24 * 60 * 60 * 1000;
+                {vendors.map((v) => {
+                  const tier = v.tier as SubscriptionTier | null | undefined;
+                  const until = v.subscriptionUntil as number | undefined;
+                  const live = tier && (until ?? 0) > now;
                   return (
                     <TRow key={v.id}>
                       <TCell>
@@ -157,15 +167,13 @@ export default async function SubscriptionsPage() {
                           <span className="font-semibold">{v.name[locale]}</span>
                         </div>
                       </TCell>
-                      <TCell><TierPill tier={tier} t={t} /></TCell>
                       <TCell>
-                        <span className="text-ink-500">
-                          {cycle === 3 ? t.subscriptions.cycle3mo : t.subscriptions.cycle1mo}
-                        </span>
+                        {live ? <TierPill tier={tier!} t={t} /> : <Badge tone="neutral">{t.subscriptions.tierFree}</Badge>}
                       </TCell>
-                      <TCell><SubscriptionStatusPill status={status} t={t} /></TCell>
-                      <TCell className="text-end tabular-nums font-semibold">{formatCurrency(price, 'KWD', tag)}</TCell>
-                      <TCell>{formatDate(renewsAt, tag)}</TCell>
+                      <TCell>{live && until ? formatDate(until, tag) : '—'}</TCell>
+                      <TCell className="text-end">
+                        <TierControl vendorId={v.id} labels={tierLabels} />
+                      </TCell>
                     </TRow>
                   );
                 })}

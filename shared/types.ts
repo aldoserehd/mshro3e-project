@@ -57,8 +57,10 @@ export interface Vendor {
   rating: number;
   reviewCount: number;
   status: VendorStatus;
-  /** Current subscription tier — null = no active subscription */
+  /** Current subscription tier — null = no active subscription (Free) */
   tier?: 'basic' | 'pro' | 'managed' | null;
+  /** Epoch ms when the paid subscription expires; <= now means Free. */
+  subscriptionUntil?: Timestamp | null;
   verifiedAt?: Timestamp;
   createdAt: Timestamp;
   updatedAt: Timestamp;

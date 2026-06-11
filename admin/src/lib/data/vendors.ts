@@ -1,7 +1,8 @@
 import 'server-only';
 import { cache } from 'react';
 import type { Vendor, VendorStatus } from '@shared/types';
-import { seedVendors, vendorById, seedOrders, seedReviews, seedServices } from '@/data/seed';
+import { seedVendors, vendorById } from '@/data/seed';
+import { liveLeads, liveProducts, liveReviews } from '@/lib/data/live';
 import { adminDb } from '@/lib/firebase-admin';
 import { COL } from '@shared/firestore-paths';
 
@@ -72,25 +73,33 @@ export async function listPendingVendors(): Promise<Vendor[]> {
   return listVendors({ status: 'pending' });
 }
 
-/** Aggregated metrics for a single vendor — uses product sales as revenue source. */
+/**
+ * Aggregated metrics for a single vendor — lead/attribution based.
+ * We never process payments, so "value" = WhatsApp leads + vendor-logged sales.
+ */
 export async function getVendorMetrics(vendorId: string) {
-  const orders = seedOrders.filter((o) => o.vendorId === vendorId);
-  const reviews = seedReviews.filter((r) => r.vendorId === vendorId);
-  const products = seedServices.filter((s) => s.vendorId === vendorId);
-  const revenueMtd = orders
-    .filter((o) => o.status === 'paid' || o.status === 'delivered' || o.status === 'shipped')
-    .reduce((sum, o) => sum + o.total, 0);
-  return { orders, reviews, products, revenueMtd };
+  const [allLeads, allProducts, allReviews] = await Promise.all([
+    liveLeads(),
+    liveProducts(),
+    liveReviews(),
+  ]);
+  const leads = allLeads.filter((l) => l.vendorId === vendorId);
+  const products = allProducts.filter((p) => p.vendorId === vendorId);
+  const reviews = allReviews.filter((r) => r.vendorId === vendorId);
+  const soldKwd = leads
+    .filter((l) => l.status === 'sold')
+    .reduce((sum, l) => sum + (l.saleAmount ?? 0), 0);
+  return { leads, products, reviews, soldKwd };
 }
 
-/** All-vendors metrics (used by the vendors table). */
+/** All-vendors metrics (used by the vendors table) — lead counts, not orders. */
 export async function listVendorsWithMetrics(filters: VendorFilters = {}) {
-  const vendors = await listVendors(filters);
+  const [vendors, allLeads] = await Promise.all([listVendors(filters), liveLeads()]);
   return vendors.map((v) => {
-    const orders = seedOrders.filter((o) => o.vendorId === v.id);
-    const revenueMtd = orders
-      .filter((o) => o.status === 'paid' || o.status === 'delivered' || o.status === 'shipped')
-      .reduce((sum, o) => sum + o.total, 0);
-    return { ...v, ordersCount: orders.length, revenueMtd };
+    const leads = allLeads.filter((l) => l.vendorId === v.id);
+    const soldKwd = leads
+      .filter((l) => l.status === 'sold')
+      .reduce((sum, l) => sum + (l.saleAmount ?? 0), 0);
+    return { ...v, leadsCount: leads.length, soldKwd };
   });
 }

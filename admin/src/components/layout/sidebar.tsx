@@ -10,11 +10,9 @@ import {
   Users,
   Tags,
   MessageSquare,
-  Wallet,
   Settings,
   UserCheck,
   CreditCard,
-  ShoppingBag,
   PanelLeftClose,
   PanelLeftOpen,
 } from 'lucide-react';
@@ -56,8 +54,6 @@ const groups: NavGroup[] = [
     titleKey: 'groupOps',
     items: [
       { href: '/subscriptions', labelKey: 'subscriptions', icon: CreditCard },
-      { href: '/orders', labelKey: 'orders', icon: ShoppingBag },
-      { href: '/payouts', labelKey: 'payouts', icon: Wallet },
       { href: '/reviews', labelKey: 'reviews', icon: MessageSquare },
     ],
   },

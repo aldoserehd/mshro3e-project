@@ -48,4 +48,65 @@ export const liveProducts = cache(async (): Promise<Service[]> => {
   }
 });
 
+/** WhatsApp lead events from Firestore (attribution). */
+export interface LeadRow {
+  id: string;
+  vendorId: string;
+  productId?: string;
+  productTitle?: string;
+  ref: string;
+  status?: string;
+  saleAmount?: number | null;
+  createdAt?: number;
+}
+
+export const liveLeads = cache(async (): Promise<LeadRow[]> => {
+  if (!useFirebase) return [];
+  try {
+    const snap = await adminDb().collection(COL.leads).get();
+    return mapDocs<LeadRow>(snap).sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0));
+  } catch {
+    return [];
+  }
+});
+
+/** Customer accounts (users collection). */
+export interface UserRow {
+  id: string;
+  displayName?: string;
+  email?: string;
+  phone?: string;
+  interests?: string[];
+  createdAt?: number;
+}
+
+export const liveUsers = cache(async (): Promise<UserRow[]> => {
+  if (!useFirebase) return [];
+  try {
+    const snap = await adminDb().collection(COL.users).get();
+    return mapDocs<UserRow>(snap).sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0));
+  } catch {
+    return [];
+  }
+});
+
+/** Reviews from Firestore (live collection — seed removed). */
+export interface ReviewRow {
+  id: string;
+  vendorId: string;
+  rating: number;
+  comment?: string;
+  createdAt?: number;
+}
+
+export const liveReviews = cache(async (): Promise<ReviewRow[]> => {
+  if (!useFirebase) return [];
+  try {
+    const snap = await adminDb().collection(COL.reviews).get();
+    return mapDocs<ReviewRow>(snap).sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0));
+  } catch {
+    return [];
+  }
+});
+
 export const firestoreConfigured = useFirebase;

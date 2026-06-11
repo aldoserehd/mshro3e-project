@@ -6,12 +6,13 @@ import { getLocale } from '@/lib/locale';
 import { getDict } from '@/i18n/dict';
 import { tFmt } from '@/i18n/dict';
 import { getVendor, getVendorMetrics } from '@/lib/data/vendors';
+import { liveCategories } from '@/lib/data/live';
 import { PageHeader } from '@/components/domain/page-header';
 import { VendorActionButton } from '@/components/domain/vendor-action-button';
 import { approveVendor, rejectVendor, verifyVendor, suspendVendor, activateVendor } from '@/lib/actions/vendors';
 import { EmptyState } from '@/components/ui/empty-state';
-import { Package as PackageIcon, ShoppingBag, MessageSquare } from 'lucide-react';
-import { VendorStatusPill, OrderStatusPill } from '@/components/domain/status-pill';
+import { Package as PackageIcon, Inbox, MessageSquare, TrendingUp } from 'lucide-react';
+import { VendorStatusPill } from '@/components/domain/status-pill';
 import { RatingStars } from '@/components/domain/rating-stars';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -19,7 +20,6 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Table, THead, TBody, TRow, TH, TCell } from '@/components/ui/table';
 import { formatCurrency, formatDate, formatDateTime } from '@/lib/utils';
-import { seedCategories, seedCustomers } from '@/data/seed';
 
 const initials = (n: string) => n.trim().split(/\s+/).slice(0, 2).map((p) => p[0]).join('').toUpperCase();
 
@@ -34,12 +34,14 @@ export default async function VendorDetailPage({ params }: PageProps) {
   const vendor = await getVendor(id);
   if (!vendor) notFound();
 
-  const { orders, reviews, products, revenueMtd } = await getVendorMetrics(id);
+  const [{ leads, reviews, products, soldKwd }, allCategories] = await Promise.all([
+    getVendorMetrics(id),
+    liveCategories(),
+  ]);
   const tag = locale === 'ar' ? 'ar-KW' : 'en-US';
-  const categories = vendor!.categoryIds
-    .map((cid) => seedCategories.find((c) => c.id === cid))
+  const categories = (vendor!.categoryIds ?? [])
+    .map((cid) => allCategories.find((c) => c.id === cid))
     .filter(Boolean);
-  const cust = (uid: string) => seedCustomers.find((c) => c.uid === uid);
   const BackIcon = locale === 'ar' ? ChevronRight : ChevronLeft;
 
   return (
@@ -157,8 +159,7 @@ export default async function VendorDetailPage({ params }: PageProps) {
         <TabsList>
           <TabsTrigger value="overview">{t.vendors.tabsOverview}</TabsTrigger>
           <TabsTrigger value="products">{t.vendors.tabsProducts}</TabsTrigger>
-          <TabsTrigger value="orders">{t.vendors.tabsOrders}</TabsTrigger>
-          <TabsTrigger value="revenue">{t.vendors.tabsRevenue}</TabsTrigger>
+          <TabsTrigger value="leads">{t.vendors.tabsLeads}</TabsTrigger>
           <TabsTrigger value="reviews">{t.vendors.tabsReviews}</TabsTrigger>
         </TabsList>
 
@@ -183,11 +184,13 @@ export default async function VendorDetailPage({ params }: PageProps) {
               </ul>
             </Card>
             <Card className="p-5">
-              <h3 className="font-semibold mb-1">{t.overview.gmvMonth}</h3>
-              <div className="text-[28px] font-bold tabular-nums">
-                {formatCurrency(revenueMtd, 'KWD', tag)}
-              </div>
-              <p className="text-[12px] text-ink-500">{orders.length} {t.orders.title}</p>
+              <h3 className="font-semibold mb-1">{t.vendors.leadsMonth}</h3>
+              <div className="text-[28px] font-bold tabular-nums">{leads.length}</div>
+              <p className="text-[12px] text-ink-500">
+                {soldKwd > 0
+                  ? `${formatCurrency(soldKwd, 'KWD', tag)} · ${t.vendors.trackedSales}`
+                  : t.vendors.tabsLeads}
+              </p>
             </Card>
           </div>
           {vendor!.bio ? (
@@ -208,7 +211,7 @@ export default async function VendorDetailPage({ params }: PageProps) {
                 <TRow>
                   <TH>{t.vendors.tabsProducts}</TH>
                   <TH className="text-center">{t.common.status}</TH>
-                  <TH className="text-end">{t.orders.colTotal}</TH>
+                  <TH className="text-end">{t.products.colPrice}</TH>
                 </TRow>
               </THead>
               <TBody>
@@ -233,46 +236,43 @@ export default async function VendorDetailPage({ params }: PageProps) {
           </Card>
         </TabsContent>
 
-        <TabsContent value="orders">
+        <TabsContent value="leads">
           <Card className="p-0 overflow-hidden">
-            {orders.length === 0 ? (
-              <EmptyState icon={<ShoppingBag className="size-7" />} title={t.orders.noOrders} />
+            {leads.length === 0 ? (
+              <EmptyState icon={<Inbox className="size-7" />} title={t.vendors.noLeads} />
             ) : (
             <Table>
               <THead>
                 <TRow>
-                  <TH>{t.orders.colCustomer}</TH>
-                  <TH>{t.orders.colDate}</TH>
-                  <TH>{t.orders.colStatus}</TH>
-                  <TH className="text-end">{t.orders.colTotal}</TH>
+                  <TH>{t.vendors.tabsProducts}</TH>
+                  <TH>{t.vendors.joinedAt}</TH>
+                  <TH className="text-center">{t.common.status}</TH>
+                  <TH className="text-end">{t.vendors.colRef}</TH>
                 </TRow>
               </THead>
               <TBody>
-                {orders.slice(0, 20).map((o) => (
-                  <TRow key={o.id}>
-                    <TCell>{cust(o.customerUid)?.displayName ?? '—'}</TCell>
-                    <TCell>{formatDateTime(o.createdAt, tag)}</TCell>
-                    <TCell><OrderStatusPill status={o.status} t={t} /></TCell>
-                    <TCell className="text-end tabular-nums font-semibold">
-                      {formatCurrency(o.total, o.currency, tag)}
+                {leads.slice(0, 30).map((l) => (
+                  <TRow key={l.id}>
+                    <TCell className="font-medium">{l.productTitle ?? '—'}</TCell>
+                    <TCell>{formatDateTime(l.createdAt ?? 0, tag)}</TCell>
+                    <TCell className="text-center">
+                      {l.status === 'sold' ? (
+                        <Badge tone="success">
+                          <TrendingUp className="size-3" />
+                          {l.saleAmount ? formatCurrency(l.saleAmount, 'KWD', tag) : t.vendors.soldLabel}
+                        </Badge>
+                      ) : l.status === 'replied' ? (
+                        <Badge tone="info">{t.vendors.repliedLabel}</Badge>
+                      ) : (
+                        <Badge tone="warning">{t.vendors.newLabel}</Badge>
+                      )}
                     </TCell>
+                    <TCell className="text-end font-mono text-[12px] text-navy-700">{l.ref}</TCell>
                   </TRow>
                 ))}
               </TBody>
             </Table>
             )}
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="revenue">
-          <Card className="p-6">
-            <div className="text-[14px] text-ink-500">{t.overview.gmvMonth}</div>
-            <div className="text-[40px] font-bold tabular-nums">
-              {formatCurrency(revenueMtd, 'KWD', tag)}
-            </div>
-            <div className="mt-4 text-[12px] text-ink-500">
-              {/* TODO: revenue chart per month */}
-            </div>
           </Card>
         </TabsContent>
 
@@ -285,7 +285,7 @@ export default async function VendorDetailPage({ params }: PageProps) {
                 <Card key={r.id} className="p-4">
                   <div className="flex items-center gap-3">
                     <RatingStars value={r.rating} />
-                    <span className="text-[12px] text-ink-500">· {formatDate(r.createdAt, tag)}</span>
+                    <span className="text-[12px] text-ink-500">· {formatDate(r.createdAt ?? 0, tag)}</span>
                   </div>
                   {r.comment ? <p className="mt-2 text-[14px]">{r.comment}</p> : null}
                 </Card>
