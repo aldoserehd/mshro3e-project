@@ -15,6 +15,7 @@ import i18n from '../../locales/i18n';
 import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
 import PressableScale from '../../ui/PressableScale';
+import NavyHero from '../../ui/NavyHero';
 import { LoadingState } from '../../ui/EmptyState';
 import { useCategories, useServices, useVendors } from '../../data/hooks';
 import { KUWAIT_AREAS, type Area } from '../../data/areas';
@@ -76,38 +77,47 @@ export default function HomeScreen({ navigation }: MainTabsScreenProps<'Home'>) 
 
   return (
     <Screen>
-      {/* ── Top bar: location · brand · favorites ── */}
-      <View style={[styles.topBar, { backgroundColor: c.surface, borderBottomColor: c.border }]}>
-        <Pressable style={[styles.locationPill, { backgroundColor: c.surfaceAlt }]} hitSlop={8} onPress={() => setAreaOpen(true)}>
-          <Ionicons name="location" size={16} color={c.brandText} />
-          <Text variant="label" weight="600" style={{ marginStart: 4 }}>{pickLocale(area)}</Text>
-          <Ionicons name="chevron-down" size={14} color={c.textMuted} style={{ marginStart: 2 }} />
-        </Pressable>
-        <Text variant="cardTitle" weight="700" color={c.brandText}>{i18n.t('app.name')}</Text>
-        <Pressable onPress={() => navigation.navigate('Favorites')} hitSlop={8} style={[styles.iconBtn, { backgroundColor: c.surfaceAlt }]}>
-          <Ionicons name="heart-outline" size={20} color={c.text} />
-        </Pressable>
-      </View>
+      {/* ── Immersive navy hero: greeting · brand · location · search ── */}
+      <NavyHero
+        eyebrow={`${i18n.t('home.greeting')} 👋`}
+        title={i18n.t('app.name')}
+        pattern="dots"
+        paddingBottom={spacing.s6}
+        leading={
+          <Pressable style={styles.glassPill} hitSlop={8} onPress={() => setAreaOpen(true)}>
+            <Ionicons name="location" size={15} color="#9db7ff" />
+            <Text variant="label" weight="600" color="#fff" style={{ marginStart: 4 }} numberOfLines={1}>
+              {pickLocale(area)}
+            </Text>
+            <Ionicons name="chevron-down" size={13} color="rgba(255,255,255,0.7)" style={{ marginStart: 2 }} />
+          </Pressable>
+        }
+        trailing={
+          <Pressable onPress={() => navigation.navigate('Favorites')} hitSlop={8} style={styles.glassBtn}>
+            <Ionicons name="heart-outline" size={20} color="#fff" />
+          </Pressable>
+        }
+        searchSlot={
+          <View style={[styles.searchBar, { backgroundColor: c.surface }]}>
+            <Ionicons name="search" size={20} color={c.textMuted} />
+            <TextInput
+              value={query}
+              onChangeText={setQuery}
+              placeholder={i18n.t('home.searchHint')}
+              placeholderTextColor={c.textMuted}
+              style={[styles.searchInput, { color: c.text, textAlign: locale === 'ar' ? 'right' : 'left' }]}
+              returnKeyType="search"
+            />
+            {query.length > 0 && (
+              <Pressable onPress={() => setQuery('')} hitSlop={8}>
+                <Ionicons name="close-circle" size={18} color={c.textMuted} />
+              </Pressable>
+            )}
+          </View>
+        }
+      />
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-        {/* ── Inline search field ── */}
-        <View style={[styles.searchBar, { backgroundColor: c.surface, borderColor: c.border }]}>
-          <Ionicons name="search" size={20} color={c.textMuted} />
-          <TextInput
-            value={query}
-            onChangeText={setQuery}
-            placeholder={i18n.t('home.searchHint')}
-            placeholderTextColor={c.textMuted}
-            style={[styles.searchInput, { color: c.text, textAlign: locale === 'ar' ? 'right' : 'left' }]}
-            returnKeyType="search"
-          />
-          {query.length > 0 && (
-            <Pressable onPress={() => setQuery('')} hitSlop={8}>
-              <Ionicons name="close-circle" size={18} color={c.textMuted} />
-            </Pressable>
-          )}
-        </View>
-
         {productsLoading && products.length === 0 ? (
           <LoadingState
             label={getCurrentLocale() === 'ar' ? 'جاري التحميل…' : 'Loading…'}
@@ -116,9 +126,7 @@ export default function HomeScreen({ navigation }: MainTabsScreenProps<'Home'>) 
         ) : results ? (
           /* ── Search results (in-page) ── */
           <>
-            <View style={styles.sectionHead}>
-              <Text variant="sectionTitle" weight="700">{i18n.t('home.resultsFor')} · {results.length}</Text>
-            </View>
+            <SectionHeader title={`${i18n.t('home.resultsFor')} · ${results.length}`} />
             {results.length === 0 ? (
               <View style={styles.empty}>
                 <Ionicons name="search-outline" size={40} color={c.textMuted} />
@@ -154,9 +162,7 @@ export default function HomeScreen({ navigation }: MainTabsScreenProps<'Home'>) 
             </ScrollView>
 
             {/* ── Available Today ── */}
-            <View style={styles.sectionHead}>
-              <Text variant="sectionTitle" weight="700">{i18n.t('home.availableToday')}</Text>
-            </View>
+            <SectionHeader title={i18n.t('home.availableToday')} />
             {today.length === 0 ? (
               <EmptyHint />
             ) : (
@@ -179,10 +185,7 @@ export default function HomeScreen({ navigation }: MainTabsScreenProps<'Home'>) 
             {/* ── Occasion collection ── */}
             {collection.length > 0 && (
               <>
-                <View style={styles.collectionHead}>
-                  <Text variant="sectionTitle" weight="700">{i18n.t('home.gatheringTonight')}</Text>
-                  <Text variant="body" color={c.textMuted}>{i18n.t('home.gatheringSub')}</Text>
-                </View>
+                <SectionHeader title={i18n.t('home.gatheringTonight')} subtitle={i18n.t('home.gatheringSub')} />
                 <View style={styles.grid}>
                   {collection.map((p) => (
                     <SquareProductCard
@@ -241,6 +244,22 @@ export default function HomeScreen({ navigation }: MainTabsScreenProps<'Home'>) 
 
 // ── components ──
 
+/** Section title with a brand accent bar — the new visual signature. */
+const SectionHeader: React.FC<{ title: string; subtitle?: string }> = ({ title, subtitle }) => {
+  const c = useColors();
+  return (
+    <View style={styles.sectionHead}>
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+        <View style={[styles.accentBar, { backgroundColor: c.brand }]} />
+        <View>
+          <Text variant="sectionTitle" weight="700">{title}</Text>
+          {subtitle ? <Text variant="caption" color={c.textMuted} style={{ marginTop: 1 }}>{subtitle}</Text> : null}
+        </View>
+      </View>
+    </View>
+  );
+};
+
 const TallProductCard: React.FC<{ product: Service; vendor?: Vendor; onPress: () => void }> = ({ product, vendor, onPress }) => {
   const c = useColors();
   return (
@@ -298,29 +317,30 @@ const EmptyHint: React.FC = () => {
 };
 
 const styles = StyleSheet.create({
-  topBar: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: spacing.s5, paddingVertical: spacing.s3,
-    borderBottomWidth: 1,
-  },
-  locationPill: {
+  glassPill: {
     flexDirection: 'row', alignItems: 'center',
     paddingHorizontal: spacing.s3, height: 34, borderRadius: 999,
+    backgroundColor: 'rgba(255,255,255,0.12)',
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)',
+    maxWidth: 160,
   },
-  iconBtn: {
+  glassBtn: {
     width: 38, height: 38, borderRadius: 999,
     alignItems: 'center', justifyContent: 'center',
+    backgroundColor: 'rgba(255,255,255,0.12)',
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)',
   },
   scroll: { paddingBottom: 130 },
   searchBar: {
     flexDirection: 'row', alignItems: 'center',
-    borderWidth: 1,
     borderRadius: radius.lg,
-    marginHorizontal: spacing.s5, marginTop: spacing.s4,
     paddingHorizontal: spacing.s4, height: 52, gap: spacing.s2,
-    ...shadowStyle(1),
+    ...shadowStyle(3),
   },
   searchInput: { flex: 1, fontSize: 15 },
+  accentBar: {
+    width: 4, height: 22, borderRadius: 999, marginEnd: spacing.s2,
+  },
   chipRow: { paddingHorizontal: spacing.s5, paddingTop: spacing.s4, gap: spacing.s2 },
   chip: {
     flexDirection: 'row', alignItems: 'center',
@@ -346,7 +366,6 @@ const styles = StyleSheet.create({
   },
   tallBody: { padding: spacing.s4, gap: 4 },
   vendorRow: { flexDirection: 'row', alignItems: 'center' },
-  collectionHead: { paddingHorizontal: spacing.s5, marginTop: spacing.s6, marginBottom: spacing.s3, gap: 2 },
   grid: {
     flexDirection: 'row', flexWrap: 'wrap',
     paddingHorizontal: spacing.s5, justifyContent: 'space-between', gap: spacing.s3,

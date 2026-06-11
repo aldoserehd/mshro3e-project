@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import Logo from '../../ui/Logo';
+import NavyHero from '../../ui/NavyHero';
 import i18n from '../../locales/i18n';
 import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
@@ -43,23 +44,17 @@ export default function CategoryScreen({ route, navigation }: RootStackScreenPro
 
   return (
     <Screen>
-      {/* Hero (deep navy brand block — reads well in both themes) */}
-      <View style={styles.hero}>
-        <Pressable onPress={() => navigation.goBack()} style={styles.backBtn}>
-          <Ionicons name="chevron-back" size={20} color="#fff" style={{ transform: [{ scaleX: -1 }] }} />
-        </Pressable>
-        <View style={styles.heroContent}>
-          <Text variant="caption" color="#c2cfe3">
-            {i18n.t('cats.productCount', { n: products.length })}
-          </Text>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.s2 }}>
-            <Text variant="hero" color="#fff" weight="700">{category?.emoji ?? '🏷️'}</Text>
-            <Text variant="pageTitle" color="#fff" weight="700">
-              {category ? pickLocale(category.name) : ''}
-            </Text>
-          </View>
-        </View>
-      </View>
+      {/* Animated navy hero (gradient + drifting dots + sweep glow) */}
+      <NavyHero
+        eyebrow={i18n.t('cats.productCount', { n: products.length })}
+        title={`${category?.emoji ?? '🏷️'} ${category ? pickLocale(category.name) : ''}`}
+        pattern="dots"
+        leading={
+          <Pressable onPress={() => navigation.goBack()} style={styles.backBtn}>
+            <Ionicons name="chevron-back" size={20} color="#fff" style={{ transform: [{ scaleX: ar ? -1 : 1 }] }} />
+          </Pressable>
+        }
+      />
 
       {/* Sort row */}
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.sortRow}>
@@ -152,21 +147,12 @@ const ProductTile: React.FC<{ product: Service; vendor?: Vendor; width: number; 
 };
 
 const styles = StyleSheet.create({
-  hero: {
-    backgroundColor: '#001a41',
-    paddingHorizontal: spacing.s5,
-    paddingTop: spacing.s5,
-    paddingBottom: spacing.s6,
-    borderBottomStartRadius: radius.xl,
-    borderBottomEndRadius: radius.xl,
-  },
   backBtn: {
     width: 40, height: 40, borderRadius: 999,
     backgroundColor: 'rgba(255,255,255,0.12)',
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.18)',
     alignItems: 'center', justifyContent: 'center',
-    marginBottom: spacing.s4,
   },
-  heroContent: { gap: spacing.s1 },
   sortRow: { paddingHorizontal: spacing.s5, paddingTop: spacing.s4, gap: spacing.s2 },
   sortChip: {
     paddingHorizontal: spacing.s3, height: 36, borderRadius: 999,

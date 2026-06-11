@@ -62,7 +62,7 @@ export const BlurTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, na
       <Animated.View
         style={[
           styles.indicator,
-          { width: tabWidth - spacing.s2 * 2, marginStart: spacing.s2, backgroundColor: c.brandFill },
+          { width: tabWidth - spacing.s2 * 2, marginStart: spacing.s2, backgroundColor: c.brand },
           indicatorStyle,
         ]}
       />
@@ -99,8 +99,8 @@ export const BlurTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, na
               <TabIcon focused={focused} active={iconSet.active} inactive={iconSet.inactive} />
               <Text
                 variant="microcopy"
-                weight="500"
-                color={focused ? c.brandText : c.textMuted}
+                weight={focused ? '700' : '500'}
+                color={focused ? c.textOnBrand : c.textMuted}
                 style={styles.label}
               >
                 {label as string}
@@ -120,18 +120,23 @@ const TabIcon: React.FC<{
 }> = ({ focused, active, inactive }) => {
   const c = useColors();
   const opacity = useSharedValue(focused ? 1 : 0);
+  const scale = useSharedValue(focused ? 1 : 0.9);
 
   useEffect(() => {
     opacity.value = withTiming(focused ? 1 : 0, { duration: 180 });
-  }, [focused, opacity]);
+    scale.value = withSpring(focused ? 1.08 : 0.9, { damping: 12, stiffness: 220 });
+  }, [focused, opacity, scale]);
 
-  const activeStyle = useAnimatedStyle(() => ({ opacity: opacity.value }));
+  const activeStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+    transform: [{ scale: scale.value }],
+  }));
   const inactiveStyle = useAnimatedStyle(() => ({ opacity: 1 - opacity.value }));
 
   return (
     <View style={styles.iconWrap}>
       <Animated.View style={[StyleSheet.absoluteFill, activeStyle, styles.iconCenter]}>
-        <Ionicons name={active} size={22} color={c.brandText} />
+        <Ionicons name={active} size={22} color={c.textOnBrand} />
       </Animated.View>
       <Animated.View style={[inactiveStyle, styles.iconCenter]}>
         <Ionicons name={inactive} size={22} color={c.textMuted} />

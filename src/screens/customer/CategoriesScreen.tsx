@@ -12,6 +12,7 @@ import { useCategories, useServices } from '../../data/hooks';
 import { palette, radius, shadowStyle, spacing, pickLocale } from '../../theme/ts';
 import { useColors } from '../../theme/colors';
 import { useLocaleStore } from '../../stores/locale';
+import { BRAND } from '../../brand';
 import type { Category } from '@shared/types';
 import type { MainTabsScreenProps } from '../../navigation/types';
 
@@ -80,7 +81,7 @@ export default function CategoriesScreen({ navigation }: MainTabsScreenProps<'Se
 
           <Animated.View entering={FadeIn.duration(400)} style={styles.heroBody}>
             <Text variant="caption" color={palette.navy300} weight="600" style={{ letterSpacing: 1 }}>
-              MSHRO3E · {locale === 'ar' ? 'سوق التجار' : 'MARKETPLACE'}
+              {BRAND.en.toUpperCase()} · {locale === 'ar' ? 'سوق التجار' : 'MARKETPLACE'}
             </Text>
             <Text variant="hero" color="#fff" weight="700" style={{ fontSize: 28, lineHeight: 34, marginTop: 6 }}>
               {i18n.t('cats.title')}
