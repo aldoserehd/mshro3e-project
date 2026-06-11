@@ -189,7 +189,7 @@ export default function SettingsScreen({ navigation }: RootStackScreenProps<'Set
             <View style={styles.bannerIcon}><Ionicons name="storefront-outline" size={20} color="#fff" /></View>
             <View style={{ flex: 1, marginStart: spacing.s3 }}>
               <Text variant="cardTitle" weight="700" color="#fff">{ar ? `اعرض مشروعك على ${BRAND.ar}` : `List your business on ${BRAND.en}`}</Text>
-              <Text variant="caption" color="#9db7ff">{ar ? 'اشتراك شهر أو ٣ أشهر — التسجيل على الموقع' : '1 or 3-month plans — sign up on the site'}</Text>
+              <Text variant="caption" color="#9db7ff">{ar ? 'ابدأ مجاناً — والذكاء الاصطناعي يبني متجرك' : 'Start free — AI builds your store'}</Text>
             </View>
             <Ionicons name="chevron-back" size={18} color="#9db7ff" style={{ transform: [{ scaleX: -1 }] }} />
           </View>

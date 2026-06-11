@@ -10,7 +10,7 @@ export default async function LoginPage() {
   return (
     <main className="min-h-dvh grid lg:grid-cols-[1fr_minmax(400px,520px)]">
       {/* Hero panel — start side. With dir=rtl this is the right; with ltr the left. */}
-      <section className="relative hidden lg:flex flex-col justify-between p-10 text-white overflow-hidden bg-navy-900">
+      <section className="join-hero join-noise relative hidden lg:flex flex-col justify-between p-10 text-white overflow-hidden">
         <div aria-hidden className="absolute inset-0 bg-grid-navy opacity-60" />
         <div
           aria-hidden

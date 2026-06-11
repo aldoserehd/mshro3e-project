@@ -18,14 +18,16 @@ import type { SubscriptionStatus, SubscriptionTier } from '@shared/types';
 const initials = (n: string) => n.trim().split(/\s+/).slice(0, 2).map((p) => p[0]).join('').toUpperCase();
 
 /**
- * PLACEHOLDER prices — exact amounts are TBD. Each plan is offered on a
- * 1-month or 3-month cycle. `m3` is the total charged for 3 months (a small
- * discount vs. 3× the monthly rate). Replace with real pricing later.
+ * Launch prices (docs/CREATIVE-STRATEGY.md) — Basic 6 / Pro 14 / Business 29
+ * KWD, each on a 1-month or 3-month cycle. `m3` is the total charged for
+ * 3 months (a discount vs. 3× monthly). The 'managed' tier id maps to the
+ * "Business" plan (done-for-you was folded into Business).
+ * Single source for the public site: admin/src/lib/marketing/plans.ts.
  */
 const TIER_PRICES: Record<SubscriptionTier, { m1: number; m3: number }> = {
-  basic: { m1: 9, m3: 24 },
-  pro: { m1: 15, m3: 39 },
-  managed: { m1: 23, m3: 60 },
+  basic: { m1: 6, m3: 15 },
+  pro: { m1: 14, m3: 36 },
+  managed: { m1: 29, m3: 75 },
 };
 
 // Phase 2 placeholder — assigns mock tiers/statuses/cycles by index. Real Firestore later.

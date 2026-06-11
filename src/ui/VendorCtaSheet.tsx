@@ -34,9 +34,9 @@ export const VendorCtaSheet: React.FC<VendorCtaSheetProps> = ({ visible, onClose
         cta: 'سجّل مشروعك',
         later: 'مو الحين',
         bullets: [
-          { icon: 'eye-outline' as const, text: 'التصفّح مجاني للعملاء — بدون اشتراك ولا تسجيل.' },
+          { icon: 'sparkles-outline' as const, text: 'دزّ ٥ صور ورسالة صوتية — والذكاء الاصطناعي يبني متجرك كامل بالعربي والإنجليزي.' },
           { icon: 'logo-whatsapp' as const, text: 'العميل يكلّمك مباشرة على واتساب، والطلبات توصلك بدون وسيط.' },
-          { icon: 'pricetags-outline' as const, text: 'خطط بسيطة: اشتراك شهر أو ٣ أشهر. التسجيل والدفع على الموقع.' },
+          { icon: 'pricetags-outline' as const, text: 'تبدأ مجاناً، وخطط من ٦ د.ك بالشهر — بدون أي عمولة على مبيعاتك.' },
           { icon: 'shield-checkmark-outline' as const, text: 'ما نتدخّل بالدفع ولا التوصيل — الترتيب بينك وبين العميل.' },
         ],
         note: `بنفتح لك موقع ${BRAND.ar} للتسجيل واختيار الخطة.`,
@@ -47,9 +47,9 @@ export const VendorCtaSheet: React.FC<VendorCtaSheetProps> = ({ visible, onClose
         cta: 'List your business',
         later: 'Not now',
         bullets: [
-          { icon: 'eye-outline' as const, text: 'Browsing is free for customers — no signup, no account needed.' },
+          { icon: 'sparkles-outline' as const, text: 'Send 5 photos + a voice note — AI builds your full bilingual store.' },
           { icon: 'logo-whatsapp' as const, text: 'Customers message you directly on WhatsApp — leads reach you, no middleman.' },
-          { icon: 'pricetags-outline' as const, text: 'Simple plans: 1 month or 3 months. Sign-up and payment happen on the website.' },
+          { icon: 'pricetags-outline' as const, text: 'Start free, plans from KD 6/month — and never any commission on your sales.' },
           { icon: 'shield-checkmark-outline' as const, text: "We don't handle payment or delivery — you arrange that with the customer." },
         ],
         note: `We'll open the ${BRAND.en} site so you can register and pick a plan.`,

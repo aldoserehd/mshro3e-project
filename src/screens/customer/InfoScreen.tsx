@@ -41,7 +41,7 @@ const COPY: Record<string, { ar: { title: string; intro: string; body: string[] 
       body: [
         `${BRAND.ar} يربط بين العملاء والبائعين الكويتيين بمنتجات فريدة من بيوتهم.`,
         'نحن لا نتولّى الدفع ولا التوصيل — تتم الترتيبات مباشرة بين العميل والبائع عبر واتساب أو محادثة التطبيق.',
-        `٠٪ رسوم على المبيعات. اشتراك بسيط للبائعين فقط (شهر أو ٣ أشهر)، والتسجيل يتم على موقع ${BRAND.ar}.`,
+        `٠٪ رسوم على المبيعات. البائع يبدأ مجاناً وخطط مدفوعة من ٦ د.ك بالشهر، والتسجيل يتم على موقع ${BRAND.ar}.`,
         'صنع في الكويت 🇰🇼',
       ],
     },
@@ -51,7 +51,7 @@ const COPY: Record<string, { ar: { title: string; intro: string; body: string[] 
       body: [
         `${BRAND.en} connects customers with Kuwaiti vendors selling unique handmade products.`,
         'We do not handle payment or delivery — arrangements happen directly between customer and vendor via WhatsApp or in-app chat.',
-        `0% transaction fees. Simple vendor-only plans (1 or 3 months), with sign-up on the ${BRAND.en} website.`,
+        `0% transaction fees. Vendors start free with paid plans from KD 6/month, signing up on the ${BRAND.en} website.`,
         'Made in Kuwait 🇰🇼',
       ],
     },

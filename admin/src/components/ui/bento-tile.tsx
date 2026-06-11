@@ -11,7 +11,7 @@ const tile = cva(
   {
     variants: {
       variant: {
-        hero: 'bg-gradient-to-br from-navy-900 via-navy-800 to-navy-700 text-white border-transparent shadow-[var(--shadow-elev2)]',
+        hero: 'join-hero join-noise text-white border-transparent shadow-[var(--shadow-elev3)]',
         mid: 'bg-white',
         kpi: 'bg-white',
         accent: 'bg-navy-50 border-navy-100',
