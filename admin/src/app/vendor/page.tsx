@@ -13,7 +13,7 @@ import { Card } from '@/components/ui/card';
 export default function VendorDashboardPage() {
   const { loading, vendor } = useVendorAuth();
   const locale = useVendorLocale();
-  const [counts, setCounts] = React.useState<{ products: number; leads: number } | null>(null);
+  const [counts, setCounts] = React.useState<{ products: number; leads: number; soldKwd: number } | null>(null);
 
   React.useEffect(() => {
     let alive = true;
@@ -21,9 +21,10 @@ export default function VendorDashboardPage() {
     (async () => {
       try {
         const [p, l] = await Promise.all([listMyProducts(vendor.id), listMyLeads(vendor.id)]);
-        if (alive) setCounts({ products: p.length, leads: l.length });
+        const soldKwd = l.filter((x) => x.status === 'sold').reduce((s, x) => s + (x.saleAmount ?? 0), 0);
+        if (alive) setCounts({ products: p.length, leads: l.length, soldKwd });
       } catch {
-        if (alive) setCounts({ products: 0, leads: 0 });
+        if (alive) setCounts({ products: 0, leads: 0, soldKwd: 0 });
       }
     })();
     return () => { alive = false; };
@@ -93,13 +94,36 @@ export default function VendorDashboardPage() {
         <Stat icon={<Store className="size-5" />} label={ar ? 'التقييم' : 'Rating'} value={vendor.rating ?? 0} href="/vendor/storefront" />
       </div>
 
-      <div className="rounded-[16px] border border-ink-200 bg-white p-5">
-        <p className="text-[13px] text-ink-500">
-          {ar
-            ? `الطلبات هي عدد العملاء اللي تواصلوا معك عبر واتساب من تطبيق ${BRAND.ar} — دليل قيمة المنصة لك.`
-            : `Leads are customers who contacted you via WhatsApp from the ${BRAND.en} app — your proof of value.`}
-        </p>
-      </div>
+      {/* Value banner — leads framed as money, links to the Lead Inbox. */}
+      <Link
+        href={'/vendor/leads' as never}
+        className="group relative overflow-hidden rounded-[18px] bg-gradient-to-l from-[#001a41] to-navy-700 p-6 text-white transition-transform hover:scale-[1.005] ltr:bg-gradient-to-r"
+      >
+        <div className="bg-dot-navy pointer-events-none absolute inset-0" />
+        <div className="relative flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <p className="text-[13px] font-semibold text-[#9db7ff]">
+              {ar ? `قيمتك من ${BRAND.ar}` : `Your value from ${BRAND.en}`}
+            </p>
+            <p className="mt-1.5 text-[24px] font-bold leading-tight">
+              {counts && counts.soldKwd > 0
+                ? (ar ? `${counts.soldKwd} د.ك مبيعات موثّقة 💰` : `KD ${counts.soldKwd} in tracked sales 💰`)
+                : counts && counts.leads > 0
+                  ? (ar ? `${counts.leads} عميل تواصلوا معك` : `${counts.leads} customers reached you`)
+                  : (ar ? 'طلباتك بتظهر هنا' : 'Your leads will show here')}
+            </p>
+            <p className="mt-1 text-[13px] text-white/65">
+              {ar
+                ? 'علّم طلباتك «تم البيع» في صندوق الطلبات — وشوف كم رجّعت لك المنصة.'
+                : 'Mark leads "Sold" in your Lead Inbox — and see what the platform returns.'}
+            </p>
+          </div>
+          <span className="inline-flex h-11 items-center gap-2 rounded-[12px] bg-white/10 px-5 text-[14px] font-bold ring-1 ring-white/20 backdrop-blur-sm transition-colors group-hover:bg-white/20">
+            {ar ? 'افتح صندوق الطلبات' : 'Open Lead Inbox'}
+            <ArrowRight className={`size-4 ${ar ? 'rotate-180' : ''}`} />
+          </span>
+        </div>
+      </Link>
     </div>
   );
 }

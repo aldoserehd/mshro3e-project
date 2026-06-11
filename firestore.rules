@@ -40,10 +40,15 @@ service cloud.firestore {
     // vendorId client-side). NOTE: tighten later so a vendor can only read
     // leads where the lead's vendor is owned by them (needs a rules `get()`
     // join or denormalising ownerUid onto each lead).
+    // UPDATE is limited to the Lead-Inbox status fields (mark replied/sold +
+    // sale amount) — the original attribution fields stay immutable.
     match /leads/{id} {
       allow create: if true;
       allow read: if request.auth != null;
-      allow update, delete: if false;
+      allow update: if request.auth != null
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['status', 'saleAmount', 'statusUpdatedAt']);
+      allow delete: if false;
     }
 
     // Seed marker — only signed-in users can read/write

@@ -157,6 +157,9 @@ export async function listCategories(): Promise<Category[]> {
 
 // ─── leads (attribution) ──────────────────────────────────────────────
 
+/** Lead Inbox statuses — the mini-CRM that turns "leads" into "money". */
+export type LeadStatus = 'new' | 'replied' | 'sold';
+
 export interface Lead {
   id: string;
   vendorId: string;
@@ -166,7 +169,9 @@ export interface Lead {
   note?: string | null;
   ref: string;
   channel?: string;
-  status?: string;
+  status?: LeadStatus | string;
+  /** KWD amount the vendor logged when marking the lead "sold". */
+  saleAmount?: number | null;
   createdAt?: number;
 }
 
@@ -174,4 +179,17 @@ export async function listMyLeads(vendorId: string): Promise<Lead[]> {
   // Avoid a composite index: filter by vendorId only, sort client-side.
   const snap = await getDocs(query(collection(dbClient(), COL.leads), where('vendorId', '==', vendorId)));
   return mapDocs<Lead>(snap.docs).sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0));
+}
+
+/** Vendor marks a lead replied / sold (+ optional KWD amount). */
+export async function updateLeadStatus(
+  leadId: string,
+  status: LeadStatus,
+  saleAmount?: number | null,
+): Promise<void> {
+  await updateDoc(doc(dbClient(), COL.leads, leadId), {
+    status,
+    saleAmount: status === 'sold' ? (saleAmount ?? null) : null,
+    statusUpdatedAt: Date.now(),
+  });
 }
