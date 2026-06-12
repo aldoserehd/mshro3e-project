@@ -26,4 +26,9 @@ export const BRAND = {
   siteUrl: 'https://mshro3e.kw',
   /** Support inbox. */
   supportEmail: 'support@mshro3e.kw',
+  /**
+   * Owner WhatsApp for subscription requests (wa.me digits, no +).
+   * PLACEHOLDER — set your real number before launch.
+   */
+  supportWhatsapp: '96550000000',
 } as const;

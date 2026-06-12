@@ -8,6 +8,7 @@ import {
   Store,
   Package,
   Inbox,
+  CreditCard,
   LogOut,
   Loader2,
 } from 'lucide-react';
@@ -29,6 +30,7 @@ const NAV: { href: string; icon: React.ComponentType<{ className?: string }>; ar
   { href: '/vendor/storefront', icon: Store, ar: 'متجري', en: 'Storefront' },
   { href: '/vendor/products', icon: Package, ar: 'منتجاتي', en: 'Products' },
   { href: '/vendor/leads', icon: Inbox, ar: 'الطلبات', en: 'Leads' },
+  { href: '/vendor/subscription', icon: CreditCard, ar: 'اشتراكي', en: 'Subscription' },
 ];
 
 export function VendorShell({ children }: { children: React.ReactNode }) {

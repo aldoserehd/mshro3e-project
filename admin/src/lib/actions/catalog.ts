@@ -12,10 +12,21 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { adminDb } from '@/lib/firebase-admin';
 import { COL } from '@shared/firestore-paths';
+import { liveCategories } from '@/lib/data/live';
+import type { Category } from '@shared/types';
 
 export interface ActionState {
   ok: boolean;
   error?: string;
+}
+
+/**
+ * Categories for client pages (vendor portal). Runs on the server via the
+ * Admin SDK, so it works even when the client Firebase SDK can't read
+ * (rules/config issues) — the reliable path for the storefront form.
+ */
+export async function fetchCategoriesAction(): Promise<Category[]> {
+  return liveCategories();
 }
 
 function slugify(s: string): string {
