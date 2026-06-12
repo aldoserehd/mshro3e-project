@@ -3,7 +3,8 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { AlertTriangle } from 'lucide-react';
+import { AlertTriangle, Sparkles, Loader2 } from 'lucide-react';
+import { authClient } from '@/lib/firebase-client';
 import { useVendorLocale } from '@/components/vendor/shell';
 import { createProduct, updateProduct, type ProductInput } from '@/lib/vendor/data';
 import { Card } from '@/components/ui/card';
@@ -42,6 +43,49 @@ export function ProductForm({
   const set = <K extends keyof ProductInput>(k: K, v: ProductInput[K]) => setForm((f) => ({ ...f, [k]: v }));
   const toggleCat = (id: string) =>
     setForm((f) => ({ ...f, categoryIds: f.categoryIds.includes(id) ? f.categoryIds.filter((x) => x !== id) : [...f.categoryIds, id] }));
+
+  const [aiBusy, setAiBusy] = React.useState(false);
+
+  /** ✨ AI writer: sends the title/hints to our server endpoint, fills the form. */
+  const onAiWrite = async () => {
+    if (aiBusy) return;
+    if (!form.titleAr.trim() && !form.titleEn.trim()) {
+      setErr(ar ? 'اكتب اسم المنتج أولاً وخلّ الذكاء الاصطناعي يكمل الباقي.' : 'Type a product name first — AI does the rest.');
+      return;
+    }
+    setAiBusy(true); setErr('');
+    try {
+      const token = await authClient()?.currentUser?.getIdToken();
+      const res = await fetch('/api/ai/describe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ vendorId, titleAr: form.titleAr, titleEn: form.titleEn, price: Number(priceText) || undefined }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        if (data.error === 'quota_exceeded') {
+          setErr(ar ? `وصلت حد الذكاء الاصطناعي لخطتك (${data.limit}/شهر) — رقِّ خطتك للمزيد.` : `You hit your plan's AI limit (${data.limit}/mo) — upgrade for more.`);
+        } else if (data.error === 'ai_not_configured') {
+          setErr(ar ? 'ميزة الذكاء الاصطناعي غير مفعّلة بعد.' : 'AI is not configured yet.');
+        } else {
+          setErr(ar ? 'تعذّر التوليد، حاول مرة ثانية.' : 'Generation failed, try again.');
+        }
+        return;
+      }
+      setForm((f) => ({
+        ...f,
+        titleAr: data.titleAr || f.titleAr,
+        titleEn: data.titleEn || f.titleEn,
+        descAr: data.descAr || f.descAr,
+        descEn: data.descEn || f.descEn,
+      }));
+      toast.success(ar ? `✨ تم! (${data.used}/${data.limit} هذا الشهر)` : `✨ Done! (${data.used}/${data.limit} this month)`);
+    } catch {
+      setErr(ar ? 'تعذّر الاتصال بالخادم.' : 'Could not reach the server.');
+    } finally {
+      setAiBusy(false);
+    }
+  };
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,7 +134,18 @@ export function ProductForm({
       )}
 
       <Card className="p-5 flex flex-col gap-4">
-        <h3 className="text-[15px] font-bold text-ink-900">{t.details}</h3>
+        <div className="flex items-center justify-between gap-3">
+          <h3 className="text-[15px] font-bold text-ink-900">{t.details}</h3>
+          <button
+            type="button"
+            onClick={onAiWrite}
+            disabled={aiBusy}
+            className="inline-flex h-9 items-center gap-1.5 rounded-full bg-gradient-to-l from-navy-700 to-navy-900 px-4 text-[13px] font-bold text-white shadow-[var(--shadow-elev1)] transition-transform hover:scale-[1.03] disabled:opacity-60 ltr:bg-gradient-to-r"
+          >
+            {aiBusy ? <Loader2 className="size-3.5 animate-spin" /> : <Sparkles className="size-3.5" />}
+            {ar ? 'اكتب لي الوصف' : 'Write it for me'}
+          </button>
+        </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label={t.titleAr}><Input dir="rtl" value={form.titleAr} onChange={(e) => set('titleAr', e.target.value)} required /></Field>
           <Field label={t.titleEn}><Input value={form.titleEn} onChange={(e) => set('titleEn', e.target.value)} /></Field>

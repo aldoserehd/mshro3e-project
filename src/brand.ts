@@ -8,10 +8,10 @@
  * admin/src/lib/brand.ts — keep the two in sync.)
  */
 export const BRAND = {
-  /** Latin display name. */
-  en: 'Mshro3e',
-  /** Arabic display name. */
-  ar: 'مشروعي',
+  /** Latin display name. PLACEHOLDER — final name not chosen yet. */
+  en: 'Our Platform',
+  /** Arabic display name. PLACEHOLDER — final name not chosen yet. */
+  ar: 'منصّتنا',
   /** Primary public domain (no protocol). */
   domain: 'mshro3e.kw',
   /** Public website root. */

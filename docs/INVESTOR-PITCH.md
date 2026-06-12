@@ -1,6 +1,7 @@
-# Mshro3e (مشروعي) — Investor Brief / ملف المستثمر
+# Kuwait Home-Business Platform — Investor Brief / ملف المستثمر
+### *(Brand name & logo: reveal pending / الاسم والشعار: قيد الاختيار)*
 
-> **Working title — rebrand in progress.** One platform, two sides: a free marketplace app where Kuwaitis discover home businesses, and an AI-powered SaaS that runs each vendor's marketing for a monthly subscription.
+> One platform, two sides: a free marketplace app where Kuwaitis discover home businesses, and an AI-powered SaaS that runs each vendor's marketing for a monthly subscription.
 
 ---
 

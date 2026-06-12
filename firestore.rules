@@ -8,22 +8,40 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Public catalog — anyone can read, only signed-in users can seed/write
+    // Public catalog — anyone can read. Writes are OWNER-SCOPED:
+    // a signed-in vendor can only create/update docs they own. The owner
+    // admin writes via the Admin SDK (bypasses rules entirely).
     match /categories/{id} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if false; // owner admin only (Admin SDK)
     }
     match /vendors/{id} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow create: if request.auth != null
+        && request.resource.data.ownerUid == request.auth.uid;
+      allow update: if request.auth != null
+        && resource.data.ownerUid == request.auth.uid
+        // vendors cannot self-assign moderation/subscription fields
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['name', 'bio', 'address', 'phone', 'whatsapp',
+                       'logoImage', 'coverImage', 'categoryIds', 'updatedAt',
+                       'workingHours', 'slug', 'handle']);
+      allow delete: if false;
     }
     match /products/{id} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow create: if request.auth != null
+        && get(/databases/$(database)/documents/vendors/$(request.resource.data.vendorId))
+             .data.ownerUid == request.auth.uid;
+      allow update, delete: if request.auth != null
+        && get(/databases/$(database)/documents/vendors/$(resource.data.vendorId))
+             .data.ownerUid == request.auth.uid;
     }
     match /reviews/{id} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow create: if request.auth != null
+        && request.resource.data.customerUid == request.auth.uid;
+      allow update, delete: if false;
     }
 
     // User profile — read/write only your own doc
@@ -44,8 +62,13 @@ service cloud.firestore {
     // sale amount) — the original attribution fields stay immutable.
     match /leads/{id} {
       allow create: if true;
-      allow read: if request.auth != null;
+      // A vendor can only read/update leads belonging to a vendor doc they own.
+      allow read: if request.auth != null
+        && get(/databases/$(database)/documents/vendors/$(resource.data.vendorId))
+             .data.ownerUid == request.auth.uid;
       allow update: if request.auth != null
+        && get(/databases/$(database)/documents/vendors/$(resource.data.vendorId))
+             .data.ownerUid == request.auth.uid
         && request.resource.data.diff(resource.data).affectedKeys()
              .hasOnly(['status', 'saleAmount', 'statusUpdatedAt']);
       allow delete: if false;
