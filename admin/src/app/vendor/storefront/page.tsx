@@ -39,6 +39,7 @@ export default function StorefrontPage() {
   const [phone, setPhone] = React.useState('');       // 8 local digits
   const [whatsapp, setWhatsapp] = React.useState(''); // 8 local digits
   const [logoImage, setLogoImage] = React.useState('');
+  const [logoZoom, setLogoZoom] = React.useState(1);
   const [coverImage, setCoverImage] = React.useState('');
   const [categoryIds, setCategoryIds] = React.useState<string[]>([]);
   const [showEn, setShowEn] = React.useState(false);
@@ -75,6 +76,7 @@ export default function StorefrontPage() {
     setPhone(kwDigits(vendor.phone ?? ''));
     setWhatsapp(kwDigits(vendor.whatsapp ?? ''));
     setLogoImage(vendor.logoImage ?? '');
+    setLogoZoom(vendor.logoZoom ?? 1);
     setCoverImage(vendor.coverImage ?? '');
     setCategoryIds(vendor.categoryIds ?? []);
   }, [vendor, ar]);
@@ -137,7 +139,7 @@ export default function StorefrontPage() {
       addressEn: area?.en ?? '',
       phone: phone.length === 8 ? `+965${phone}` : '',
       whatsapp: `+965${whatsapp}`,
-      logoImage, coverImage, categoryIds,
+      logoImage, logoZoom, coverImage, categoryIds,
     };
     // When the vendor works in English, keep AR fields sensible.
     if (!ar) { input.nameAr = nameEn ? name : name; input.bioAr = bio; }
@@ -270,6 +272,15 @@ export default function StorefrontPage() {
               <Field label={t.logo}><Input dir="ltr" placeholder="https://…" value={logoImage} onChange={(e) => setLogoImage(e.target.value)} /></Field>
               <Field label={t.cover}><Input dir="ltr" placeholder="https://…" value={coverImage} onChange={(e) => setCoverImage(e.target.value)} /></Field>
             </div>
+            {logoImage ? (
+              <Field label={ar ? `تكبير الشعار (${logoZoom.toFixed(1)}×) — شوف النتيجة في المعاينة` : `Logo zoom (${logoZoom.toFixed(1)}×) — watch the preview`}>
+                <input
+                  type="range" min={0.5} max={2} step={0.1} value={logoZoom}
+                  onChange={(e) => setLogoZoom(Number(e.target.value))}
+                  className="w-full max-w-xs accent-navy-900"
+                />
+              </Field>
+            ) : null}
 
             <div className="mt-1 flex items-center gap-2">
               <Tags className="size-4 text-navy-600" />
@@ -345,6 +356,7 @@ export default function StorefrontPage() {
             bio={bio}
             areaLabel={areaLabel}
             logo={logoImage}
+            logoZoom={logoZoom}
             cover={coverImage}
             cats={(cats ?? []).filter((c) => categoryIds.includes(c.id))}
             locale={locale}
@@ -375,9 +387,9 @@ function KwPhoneInput({ value, onChange }: { value: string; onChange: (v: string
 
 /** Mini phone-frame mock of the customer-facing store page. */
 function StorePreview({
-  name, bio, areaLabel, logo, cover, cats, locale,
+  name, bio, areaLabel, logo, logoZoom = 1, cover, cats, locale,
 }: {
-  name: string; bio: string; areaLabel: string; logo: string; cover: string;
+  name: string; bio: string; areaLabel: string; logo: string; logoZoom?: number; cover: string;
   cats: Category[]; locale: 'ar' | 'en';
 }) {
   const initial = name.trim().charAt(0).toUpperCase() || 'م';
@@ -396,7 +408,13 @@ function StorePreview({
         <div className="flex size-16 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-navy-50 text-[22px] font-bold text-navy-700 shadow-[var(--shadow-elev1)]">
           {logo ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={logo} alt="" className="h-full w-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+            <img
+              src={logo}
+              alt=""
+              className="h-full w-full object-cover"
+              style={{ transform: `scale(${logoZoom})` }}
+              onError={(e) => { e.currentTarget.style.display = 'none'; }}
+            />
           ) : initial}
         </div>
         <p className="mt-2 text-[17px] font-bold text-ink-900">{name}</p>

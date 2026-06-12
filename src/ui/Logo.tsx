@@ -11,6 +11,8 @@ interface Props {
   fg?: string;
   /** Real uploaded logo. Falls back to initials when empty/missing. */
   uri?: string;
+  /** Vendor-chosen zoom inside the circle (0.5–2, default 1). */
+  zoom?: number;
   style?: ViewStyle;
 }
 
@@ -19,15 +21,22 @@ interface Props {
  * Replaces external avatar-service URLs which cropped weirdly on iOS.
  * When real uploaded logos arrive, swap to <ExpoImage source={...} contentFit="contain" />.
  */
-export const Logo: React.FC<Props> = ({ name, size = 48, bg, fg = palette.white, uri, style }) => {
+export const Logo: React.FC<Props> = ({ name, size = 48, bg, fg = palette.white, uri, zoom = 1, style }) => {
   if (uri) {
     return (
-      <Image
-        source={{ uri }}
-        style={[{ width: size, height: size, borderRadius: size / 2, backgroundColor: palette.navy100 }, style as object]}
-        contentFit="cover"
-        transition={120}
-      />
+      <View
+        style={[
+          { width: size, height: size, borderRadius: size / 2, backgroundColor: palette.navy100, overflow: 'hidden' },
+          style,
+        ]}
+      >
+        <Image
+          source={{ uri }}
+          style={{ width: '100%', height: '100%', transform: [{ scale: zoom }] }}
+          contentFit="cover"
+          transition={120}
+        />
+      </View>
     );
   }
 

@@ -35,6 +35,8 @@ export interface StorefrontInput {
   phone: string;
   whatsapp: string;
   logoImage: string;
+  /** 0.5–2 — how zoomed the logo sits inside its circle. */
+  logoZoom?: number;
   coverImage: string;
   categoryIds: string[];
 }
@@ -61,6 +63,7 @@ export async function saveStorefront(
     phone: input.phone,
     whatsapp: input.whatsapp || input.phone,
     logoImage: input.logoImage || null,
+    logoZoom: input.logoZoom ?? 1,
     coverImage: input.coverImage || null,
     categoryIds: input.categoryIds,
     updatedAt: Date.now(),

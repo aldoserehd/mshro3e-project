@@ -95,7 +95,7 @@ export default function VendorProfileScreen({ route, navigation }: RootStackScre
         {/* Identity */}
         <View style={styles.identityWrap}>
           <View style={[styles.logoRing, { backgroundColor: c.surface }]}>
-            <Logo name={vendor.name.en} size={84} uri={vendor.logoImage} />
+            <Logo name={vendor.name.en} size={84} uri={vendor.logoImage} zoom={vendor.logoZoom ?? 1} />
           </View>
           <View style={styles.nameRow}>
             <Text variant="pageTitle" weight="700">{pickLocale(vendor.name)}</Text>

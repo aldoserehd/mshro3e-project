@@ -46,6 +46,8 @@ export interface Vendor {
   bio?: LocalizedString;
   coverImage?: string;
   logoImage?: string;
+  /** Logo zoom inside its circle (0.5–2, default 1). */
+  logoZoom?: number;
   categoryIds: ID[];
   location?: GeoLocation;
   address?: LocalizedString;
