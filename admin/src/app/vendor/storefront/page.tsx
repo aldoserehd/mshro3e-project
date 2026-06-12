@@ -10,7 +10,7 @@ import {
 import { useVendorAuth } from '@/lib/vendor/auth';
 import { authClient } from '@/lib/firebase-client';
 import { useVendorLocale } from '@/components/vendor/shell';
-import { listCategories, saveStorefront, type StorefrontInput } from '@/lib/vendor/data';
+import { listCategories, saveStorefront, suggestCategory, type StorefrontInput } from '@/lib/vendor/data';
 import { fetchCategoriesAction } from '@/lib/actions/catalog';
 import { KW_AREAS } from '@/lib/areas';
 import { Card } from '@/components/ui/card';
@@ -42,6 +42,8 @@ export default function StorefrontPage() {
   const [coverImage, setCoverImage] = React.useState('');
   const [categoryIds, setCategoryIds] = React.useState<string[]>([]);
   const [showEn, setShowEn] = React.useState(false);
+  const [suggestion, setSuggestion] = React.useState('');
+  const [suggestBusy, setSuggestBusy] = React.useState(false);
   const [busy, setBusy] = React.useState(false);
   const [aiBusy, setAiBusy] = React.useState(false);
   const [err, setErr] = React.useState('');
@@ -296,6 +298,36 @@ export default function StorefrontPage() {
                 })}
               </div>
             )}
+
+            {/* suggest a missing category */}
+            <div className="mt-1 flex items-center gap-2">
+              <Input
+                dir="auto"
+                value={suggestion}
+                onChange={(e) => setSuggestion(e.target.value)}
+                placeholder={ar ? 'ما لقيت فئتك؟ اكتبها هنا واقترحها' : "Can't find your category? Suggest it"}
+                className="max-w-xs"
+              />
+              <button
+                type="button"
+                disabled={suggestBusy || !suggestion.trim()}
+                onClick={async () => {
+                  setSuggestBusy(true);
+                  try {
+                    await suggestCategory(suggestion, name);
+                    setSuggestion('');
+                    toast.success(ar ? 'وصل اقتراحك — بنضيفها قريباً 🙌' : 'Suggestion received — coming soon 🙌');
+                  } catch {
+                    toast.error(ar ? 'تعذّر الإرسال' : 'Could not send');
+                  } finally {
+                    setSuggestBusy(false);
+                  }
+                }}
+                className="h-10 rounded-[10px] border border-ink-200 px-3 text-[13px] font-semibold text-ink-900 hover:bg-navy-50 disabled:opacity-50"
+              >
+                {suggestBusy ? '…' : ar ? 'اقترح' : 'Suggest'}
+              </button>
+            </div>
           </Card>
 
           <div className="flex justify-end">

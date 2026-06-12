@@ -155,6 +155,15 @@ export async function listCategories(): Promise<Category[]> {
   return mapDocs<Category>(snap.docs).sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 }
 
+/** Vendor proposes a category that doesn't exist yet (owner reviews later). */
+export async function suggestCategory(text: string, vendorName?: string): Promise<void> {
+  await addDoc(collection(dbClient(), 'categorySuggestions'), {
+    text: text.trim(),
+    vendorName: vendorName ?? null,
+    createdAt: Date.now(),
+  });
+}
+
 // ─── leads (attribution) ──────────────────────────────────────────────
 
 /** Lead Inbox statuses — the mini-CRM that turns "leads" into "money". */

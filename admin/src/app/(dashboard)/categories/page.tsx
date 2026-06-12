@@ -9,6 +9,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { DeleteCategoryButton } from './delete-category-button';
+import { StarterPackButton } from './starter-pack-button';
 
 export default async function CategoriesPage() {
   const locale = await getLocale();
@@ -22,12 +23,18 @@ export default async function CategoriesPage() {
         title={t.categories.title}
         subtitle={t.categories.subtitle}
         actions={
-          <Button asChild>
-            <Link href={'/categories/new' as never}>
-              <Plus className="size-4" />
-              {t.categories.addNew}
-            </Link>
-          </Button>
+          <div className="flex gap-2">
+            <StarterPackButton
+              label={t.categories.starterPack}
+              done={t.categories.starterPackDone}
+            />
+            <Button asChild>
+              <Link href={'/categories/new' as never}>
+                <Plus className="size-4" />
+                {t.categories.addNew}
+              </Link>
+            </Button>
+          </div>
         }
       />
 

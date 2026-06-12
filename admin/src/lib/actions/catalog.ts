@@ -29,6 +29,43 @@ export async function fetchCategoriesAction(): Promise<Category[]> {
   return liveCategories();
 }
 
+/** Standard Kuwaiti home-business categories — one-tap starter pack. */
+const STARTER_CATEGORIES: { ar: string; en: string; emoji: string; slug: string }[] = [
+  { ar: 'حلويات ومخبوزات', en: 'Sweets & Bakery', emoji: '🍰', slug: 'sweets' },
+  { ar: 'أكل بيت', en: 'Home Food', emoji: '🍲', slug: 'home-food' },
+  { ar: 'عبايات وأزياء', en: 'Abayas & Fashion', emoji: '🧕', slug: 'fashion' },
+  { ar: 'عطور وبخور', en: 'Perfumes & Bukhoor', emoji: '🌸', slug: 'perfumes' },
+  { ar: 'هدايا وتغليف', en: 'Gifts & Wrapping', emoji: '🎁', slug: 'gifts' },
+  { ar: 'إكسسوارات ومجوهرات', en: 'Accessories & Jewelry', emoji: '💍', slug: 'accessories' },
+  { ar: 'ورد وتنسيق', en: 'Flowers & Arrangements', emoji: '💐', slug: 'flowers' },
+  { ar: 'عناية وجمال', en: 'Beauty & Care', emoji: '✨', slug: 'beauty' },
+  { ar: 'قهوة ومشروبات', en: 'Coffee & Drinks', emoji: '☕', slug: 'coffee' },
+  { ar: 'أعمال يدوية', en: 'Handmade Crafts', emoji: '🧶', slug: 'handmade' },
+  { ar: 'ديكور ومنزل', en: 'Home & Decor', emoji: '🏺', slug: 'decor' },
+  { ar: 'أطفال ومواليد', en: 'Kids & Newborns', emoji: '🧸', slug: 'kids' },
+  { ar: 'قرطاسية ورسم', en: 'Stationery & Art', emoji: '🎨', slug: 'art' },
+  { ar: 'ضيافة وعزائم', en: 'Catering & Gatherings', emoji: '🫖', slug: 'catering' },
+];
+
+/** Insert the starter categories, skipping slugs that already exist. */
+export async function seedStarterCategoriesAction(): Promise<{ added: number }> {
+  const db = adminDb();
+  const existing = await db.collection(COL.categories).get();
+  const have = new Set(existing.docs.map((d) => d.data().slug));
+  let order = existing.size;
+  let added = 0;
+  const batch = db.batch();
+  for (const c of STARTER_CATEGORIES) {
+    if (have.has(c.slug)) continue;
+    const ref = db.collection(COL.categories).doc();
+    batch.set(ref, { name: { ar: c.ar, en: c.en }, emoji: c.emoji, slug: c.slug, icon: c.emoji, order: order++, createdAt: Date.now() });
+    added++;
+  }
+  if (added > 0) await batch.commit();
+  revalidatePath('/categories');
+  return { added };
+}
+
 function slugify(s: string): string {
   const base = s
     .toLowerCase()
