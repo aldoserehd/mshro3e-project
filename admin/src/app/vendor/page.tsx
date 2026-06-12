@@ -75,16 +75,25 @@ export default function VendorDashboardPage() {
         <Button asChild><Link href={'/vendor/products/new' as never}><Plus className="size-4" />{ar ? 'منتج جديد' : 'New product'}</Link></Button>
       </div>
 
-      {counts && counts.products === 0 && (
-        <Card className="flex flex-wrap items-center justify-between gap-4 border-navy-200 bg-navy-50 p-5">
-          <div className="flex items-center gap-3">
-            <span className="inline-flex size-11 items-center justify-center rounded-full bg-navy-900 text-white"><Package className="size-6" /></span>
-            <div>
-              <p className="text-[15px] font-semibold text-ink-900">{ar ? 'الخطوة الجاية: أضف منتجاتك' : 'Next step: add your products'}</p>
-              <p className="text-[13px] text-ink-500">{ar ? 'متجرك جاهز — ضيف منتجاتك عشان يلقاك العملاء.' : 'Your store is ready — add products so customers can find you.'}</p>
-            </div>
+      {counts && (counts.products === 0 || counts.leads === 0) && (
+        <Card className="border-navy-200 bg-navy-50/60 p-5">
+          <p className="mb-3 text-[15px] font-bold text-ink-900">
+            {ar ? 'خارطة طريقك 🚀' : 'Your roadmap 🚀'}
+          </p>
+          <div className="flex flex-col gap-2.5">
+            <ChecklistRow done label={ar ? 'أنشأت متجرك' : 'Store created'} />
+            <ChecklistRow
+              done={counts.products > 0}
+              label={ar ? 'أضف أول منتج' : 'Add your first product'}
+              href="/vendor/products/new"
+              cta={ar ? 'أضف منتج' : 'Add product'}
+            />
+            <ChecklistRow
+              done={counts.leads > 0}
+              label={ar ? 'استقبل أول طلب واتساب' : 'Receive your first WhatsApp lead'}
+              hint={ar ? 'شارك رابط متجرك في انستقرام وقروبات الواتساب' : 'Share your store on Instagram and WhatsApp groups'}
+            />
           </div>
-          <Button asChild><Link href={'/vendor/products/new' as never}><Plus className="size-4" />{ar ? 'أضف منتج' : 'Add a product'}</Link></Button>
         </Card>
       )}
 
@@ -124,6 +133,23 @@ export default function VendorDashboardPage() {
           </span>
         </div>
       </Link>
+    </div>
+  );
+}
+
+function ChecklistRow({ done, label, hint, href, cta }: { done?: boolean; label: string; hint?: string; href?: string; cta?: string }) {
+  return (
+    <div className="flex items-center gap-3">
+      <span className={`inline-flex size-6 shrink-0 items-center justify-center rounded-full text-[12px] font-bold ${done ? 'bg-emerald-500 text-white' : 'border-2 border-ink-200 bg-white text-transparent'}`}>
+        ✓
+      </span>
+      <span className={`text-[14px] ${done ? 'text-ink-500 line-through' : 'font-semibold text-ink-900'}`}>{label}</span>
+      {!done && hint ? <span className="hidden text-[12px] text-ink-500 sm:inline">— {hint}</span> : null}
+      {!done && href && cta ? (
+        <Link href={href as never} className="ms-auto rounded-full bg-navy-900 px-3 py-1.5 text-[12px] font-bold text-white hover:bg-navy-700">
+          {cta}
+        </Link>
+      ) : null}
     </div>
   );
 }
