@@ -3,9 +3,10 @@ import Link from 'next/link';
 import { Plus, Store } from 'lucide-react';
 import { getLocale } from '@/lib/locale';
 import { getDict, tFmt } from '@/i18n/dict';
-import { listVendors, type VendorFilters } from '@/lib/data/vendors';
+import { listVendorsWithMetrics, type VendorFilters } from '@/lib/data/vendors';
+import { liveCategories } from '@/lib/data/live';
 import { PageHeader } from '@/components/domain/page-header';
-import { VendorStatusPill } from '@/components/domain/status-pill';
+import { VendorStatusPill, TierPill } from '@/components/domain/status-pill';
 import { RatingStars } from '@/components/domain/rating-stars';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -21,8 +22,7 @@ import {
 } from '@/components/ui/table';
 import { EmptyState } from '@/components/ui/empty-state';
 import { formatCurrency, cn } from '@/lib/utils';
-import { seedCategories } from '@/data/seed';
-import type { VendorStatus } from '@shared/types';
+import type { VendorStatus, SubscriptionTier } from '@shared/types';
 
 const STATUSES: (VendorStatus | 'all')[] = ['all', 'active', 'pending', 'suspended', 'rejected'];
 
@@ -50,7 +50,8 @@ export default async function VendorsPage({ searchParams }: PageProps) {
     status: (sp.status as VendorStatus | 'all') ?? 'all',
     categoryId: sp.cat ?? 'all',
   };
-  const vendors = await listVendors(filters);
+  const [vendors, categories] = await Promise.all([listVendorsWithMetrics(filters), liveCategories()]);
+  const now = Date.now();
   const localeTag = locale === 'ar' ? 'ar-KW' : 'en-US';
   const buildHref = (overrides: Record<string, string>) => ({
     pathname: '/vendors',
@@ -102,7 +103,7 @@ export default async function VendorsPage({ searchParams }: PageProps) {
               className="h-9 rounded-[10px] border border-ink-200 bg-white px-3 text-[13px] outline-none focus:border-navy-600"
             >
               <option value="all">{t.common.category} — {t.common.all}</option>
-              {seedCategories.map((c) => (
+              {categories.map((c) => (
                 <option key={c.id} value={c.id}>{c.name[locale]}</option>
               ))}
             </select>
@@ -130,14 +131,16 @@ export default async function VendorsPage({ searchParams }: PageProps) {
                 <TH>{t.vendors.colName}</TH>
                 <TH>{t.vendors.colCategory}</TH>
                 <TH>{t.vendors.colStatus}</TH>
+                <TH>{t.subscriptions.colTier}</TH>
                 <TH className="text-center">{t.vendors.colRating}</TH>
-                <TH className="text-end">{t.vendors.colRevenueMtd}</TH>
+                <TH className="text-center">{t.vendors.tabsLeads}</TH>
+                <TH className="text-end">{t.vendors.trackedSales}</TH>
               </TRow>
             </THead>
             <TBody>
               {vendors.map((v) => {
-                const cat = seedCategories.find((c) => v.categoryIds.includes(c.id));
-                const revenue = (v.reviewCount % 100) * 3 + 50;
+                const cat = categories.find((c) => v.categoryIds?.includes(c.id));
+                const tierLive = v.tier && ((v.subscriptionUntil ?? 0) as number) > now;
                 return (
                   <TRow key={v.id}>
                     <TCell>
@@ -156,9 +159,15 @@ export default async function VendorsPage({ searchParams }: PageProps) {
                     </TCell>
                     <TCell><span className="text-ink-500">{cat?.name[locale] ?? '—'}</span></TCell>
                     <TCell><VendorStatusPill status={v.status} t={t} /></TCell>
+                    <TCell>
+                      {tierLive
+                        ? <TierPill tier={v.tier as SubscriptionTier} t={t} />
+                        : <span className="text-[12px] text-ink-500">{t.subscriptions.tierFree}</span>}
+                    </TCell>
                     <TCell className="text-center"><RatingStars value={v.rating} /></TCell>
+                    <TCell className="text-center tabular-nums">{v.leadsCount}</TCell>
                     <TCell className="text-end tabular-nums font-semibold">
-                      {formatCurrency(revenue, 'KWD', localeTag)}
+                      {v.soldKwd > 0 ? formatCurrency(v.soldKwd, 'KWD', localeTag) : '—'}
                     </TCell>
                   </TRow>
                 );
