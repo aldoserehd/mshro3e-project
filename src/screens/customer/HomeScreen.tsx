@@ -16,6 +16,7 @@ import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
 import PressableScale from '../../ui/PressableScale';
 import NavyHero from '../../ui/NavyHero';
+import ProductCard from '../../ui/ProductCard';
 import { LoadingState } from '../../ui/EmptyState';
 import { useCategories, useServices, useVendors } from '../../data/hooks';
 import { KUWAIT_AREAS, type Area } from '../../data/areas';
@@ -137,9 +138,10 @@ export default function HomeScreen({ navigation }: MainTabsScreenProps<'Home'>) 
             ) : (
               <View style={styles.grid}>
                 {results.map((p) => (
-                  <SquareProductCard
+                  <ProductCard
                     key={p.id}
                     product={p}
+                    vendor={vendorMap[p.vendorId]}
                     width={gridTile}
                     onPress={() => navigation.navigate('ServiceDetail', { serviceId: p.id })}
                   />
@@ -188,9 +190,10 @@ export default function HomeScreen({ navigation }: MainTabsScreenProps<'Home'>) 
                 <SectionHeader title={i18n.t('home.gatheringTonight')} subtitle={i18n.t('home.gatheringSub')} />
                 <View style={styles.grid}>
                   {collection.map((p) => (
-                    <SquareProductCard
+                    <ProductCard
                       key={p.id}
                       product={p}
+                      vendor={vendorMap[p.vendorId]}
                       width={gridTile}
                       onPress={() => navigation.navigate('ServiceDetail', { serviceId: p.id })}
                     />
@@ -287,23 +290,6 @@ const TallProductCard: React.FC<{ product: Service; vendor?: Vendor; onPress: ()
   );
 };
 
-const SquareProductCard: React.FC<{ product: Service; width: number; onPress: () => void }> = ({ product, width, onPress }) => {
-  const c = useColors();
-  return (
-    <PressableScale onPress={onPress}>
-      <View style={[styles.sqCard, { width, backgroundColor: c.surface, borderColor: c.border }]}>
-        <Image source={{ uri: product.images?.[0] }} style={[styles.sqImg, { backgroundColor: c.surfaceSunken }]} contentFit="cover" transition={150} />
-        <View style={{ padding: spacing.s3 }}>
-          <Text variant="label" weight="600" numberOfLines={1}>{pickLocale(product.title)}</Text>
-          <Text variant="cardTitle" weight="700" color={c.brandText} style={{ marginTop: 2 }} forceLtr>
-            {formatPrice(product.price, product.currency)}
-          </Text>
-        </View>
-      </View>
-    </PressableScale>
-  );
-};
-
 const EmptyHint: React.FC = () => {
   const c = useColors();
   return (
@@ -370,11 +356,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row', flexWrap: 'wrap',
     paddingHorizontal: spacing.s5, justifyContent: 'space-between', gap: spacing.s3,
   },
-  sqCard: {
-    borderRadius: radius.xl, overflow: 'hidden',
-    borderWidth: 1, marginBottom: spacing.s3, ...shadowStyle(1),
-  },
-  sqImg: { width: '100%', aspectRatio: 1 },
   empty: { padding: spacing.s7, alignItems: 'center', justifyContent: 'center' },
   // area sheet
   backdrop: { flex: 1, justifyContent: 'flex-end' },

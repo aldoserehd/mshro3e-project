@@ -6,6 +6,7 @@ import * as Haptics from 'expo-haptics';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import Logo from '../../ui/Logo';
 import NavyHero from '../../ui/NavyHero';
+import ProductCard from '../../ui/ProductCard';
 import i18n from '../../locales/i18n';
 import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
@@ -95,7 +96,7 @@ export default function CategoryScreen({ route, navigation }: RootStackScreenPro
           contentContainerStyle={{ paddingTop: spacing.s3, paddingBottom: 120 }}
           renderItem={({ item, index }) => (
             <Animated.View entering={FadeInDown.delay(index * 40).duration(360)}>
-              <ProductTile
+              <ProductCard
                 product={item}
                 vendor={vendorMap[item.vendorId]}
                 width={tileWidth}
@@ -109,42 +110,6 @@ export default function CategoryScreen({ route, navigation }: RootStackScreenPro
   );
 }
 
-const ProductTile: React.FC<{ product: Service; vendor?: Vendor; width: number; onPress: () => void }> = ({ product, vendor, width, onPress }) => {
-  const c = useColors();
-  const isFav = useFavoritesStore((s) => s.productIds.has(product.id));
-  const toggleProduct = useFavoritesStore((s) => s.toggleProduct);
-  return (
-    <PressableScale onPress={onPress}>
-      <View style={{ width, marginBottom: spacing.s4 }}>
-        <View style={styles.tileImgWrap}>
-          <Image source={{ uri: product.images?.[0] }} style={[styles.tileImg, { backgroundColor: c.surfaceSunken }]} contentFit="cover" />
-          <Pressable
-            onPress={() => { Haptics.selectionAsync().catch(() => {}); toggleProduct(product.id); }}
-            hitSlop={8}
-            style={[styles.heart, { backgroundColor: c.glass }]}
-          >
-            <Ionicons name={isFav ? 'heart' : 'heart-outline'} size={14} color={isFav ? c.danger : c.text} />
-          </Pressable>
-        </View>
-        <Text variant="label" weight="600" numberOfLines={1} style={{ marginTop: 10 }}>
-          {pickLocale(product.title)}
-        </Text>
-        <Text variant="cardTitle" color={c.brandText} weight="700" forceLtr>
-          {formatPrice(product.price, product.currency)}
-        </Text>
-        {vendor && (
-          <View style={styles.vendorStrip}>
-            <Logo name={vendor.name.en} size={20} uri={vendor.logoImage} />
-            <Text variant="caption" color={c.textMuted} numberOfLines={1} style={{ flex: 1, marginStart: 4 }}>
-              {pickLocale(vendor.name)}
-            </Text>
-            {vendor.verifiedAt && <Ionicons name="checkmark-circle" size={12} color={c.brandText} />}
-          </View>
-        )}
-      </View>
-    </PressableScale>
-  );
-};
 
 const styles = StyleSheet.create({
   backBtn: {
