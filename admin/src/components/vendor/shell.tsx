@@ -37,6 +37,12 @@ export function VendorShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const locale = useVendorLocale();
 
+  // Redirect signed-out visitors from an effect — never during render.
+  const mustRedirect = ready && !loading && !user && pathname !== '/vendor/login';
+  React.useEffect(() => {
+    if (mustRedirect) router.replace('/vendor/login');
+  }, [mustRedirect, router]);
+
   // Login route renders bare (no shell, no guard).
   if (pathname === '/vendor/login') return <>{children}</>;
 
@@ -61,7 +67,6 @@ export function VendorShell({ children }: { children: React.ReactNode }) {
   }
 
   if (!user) {
-    if (typeof window !== 'undefined') router.replace('/vendor/login');
     return <Centered><Loader2 className="size-6 animate-spin text-navy-600" /></Centered>;
   }
 
