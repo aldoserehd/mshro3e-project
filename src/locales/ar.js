@@ -32,8 +32,19 @@ export default {
   tabs: {
     home: 'الرئيسية',
     search: 'التصنيفات',
+    requests: 'طلباتي',
     favorites: 'المفضلة',
     account: 'حسابي',
+  },
+
+  requests: {
+    title: 'طلباتي',
+    subtitle: 'كل تواصلك مع البائعين عبر واتساب',
+    product: 'منتج',
+    signInHint: 'سجّل دخولك عشان تشوف طلباتك السابقة.',
+    signInCta: 'تسجيل الدخول',
+    emptyTitle: 'ما عندك طلبات بعد',
+    emptyBody: 'أول ما تضغط «اطلب عبر واتساب» على أي منتج، بيظهر طلبك هنا مع رقمه المرجعي.',
   },
 
   cats: {

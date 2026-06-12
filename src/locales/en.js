@@ -29,7 +29,17 @@ export default {
     verify: 'Verify',
   },
 
-  tabs: { home: 'Home', search: 'Categories', favorites: 'Favorites', account: 'Account' },
+  tabs: { home: 'Home', search: 'Categories', requests: 'Requests', favorites: 'Favorites', account: 'Account' },
+
+  requests: {
+    title: 'My requests',
+    subtitle: 'Your WhatsApp contact history with vendors',
+    product: 'Product',
+    signInHint: 'Sign in to see your past requests.',
+    signInCta: 'Sign in',
+    emptyTitle: 'No requests yet',
+    emptyBody: 'When you tap "Order via WhatsApp" on a product, it shows here with its reference code.',
+  },
 
   cats: {
     title: 'Browse by category',

@@ -62,10 +62,12 @@ service cloud.firestore {
     // sale amount) — the original attribution fields stay immutable.
     match /leads/{id} {
       allow create: if true;
-      // A vendor can only read/update leads belonging to a vendor doc they own.
+      // A customer reads their own leads; a vendor reads leads for a vendor
+      // doc they own.
       allow read: if request.auth != null
-        && get(/databases/$(database)/documents/vendors/$(resource.data.vendorId))
-             .data.ownerUid == request.auth.uid;
+        && (resource.data.customerUid == request.auth.uid
+          || get(/databases/$(database)/documents/vendors/$(resource.data.vendorId))
+               .data.ownerUid == request.auth.uid);
       allow update: if request.auth != null
         && get(/databases/$(database)/documents/vendors/$(resource.data.vendorId))
              .data.ownerUid == request.auth.uid
