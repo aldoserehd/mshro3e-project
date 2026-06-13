@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { LineChart as LineChartIcon } from 'lucide-react';
 import {
   Area,
   AreaChart,
@@ -16,7 +17,20 @@ export interface SignupsPoint {
   value: number;
 }
 
-export function SignupsLine({ data }: { data: SignupsPoint[] }) {
+export function SignupsLine({ data, emptyLabel = 'No data' }: { data: SignupsPoint[]; emptyLabel?: string }) {
+  const hasSignal = data.some((d) => d.value > 0);
+
+  if (!hasSignal) {
+    return (
+      <div className="flex h-[240px] flex-col items-center justify-center gap-2 text-center">
+        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-navy-50 text-navy-300">
+          <LineChartIcon className="size-5" />
+        </span>
+        <p className="text-[13px] text-ink-500">{emptyLabel}</p>
+      </div>
+    );
+  }
+
   return (
     <div style={{ width: '100%', height: 240 }} dir="ltr">
       <ResponsiveContainer width="100%" height="100%">

@@ -130,10 +130,12 @@ export default function StorefrontPage() {
       return;
     }
     const area = KW_AREAS.find((a) => a.id === areaId);
+    // `name`/`bio` hold the locale the vendor is editing in; the EN fields hold
+    // the auto-filled English. Map both to AR/EN, falling back across each other.
     const input: StorefrontInput = {
-      nameAr: ar ? name : (nameEn && name !== nameEn ? name : name),
+      nameAr: ar ? name : (nameEn || name),
       nameEn: nameEn || name,
-      bioAr: ar ? bio : (bioEn ? bio : bio),
+      bioAr: ar ? bio : (bioEn || bio),
       bioEn: bioEn || bio,
       addressAr: area?.ar ?? '',
       addressEn: area?.en ?? '',
@@ -141,8 +143,6 @@ export default function StorefrontPage() {
       whatsapp: `+965${whatsapp}`,
       logoImage, logoZoom, coverImage, categoryIds,
     };
-    // When the vendor works in English, keep AR fields sensible.
-    if (!ar) { input.nameAr = nameEn ? name : name; input.bioAr = bio; }
     const isNew = !vendor;
     setBusy(true); setErr('');
     try {
@@ -242,8 +242,9 @@ export default function StorefrontPage() {
               </button>
             </div>
 
-            <button type="button" onClick={() => setShowEn((s) => !s)} className="self-start text-[13px] font-semibold text-navy-600 hover:text-navy-800">
-              {showEn ? '▾' : '▸'} {t.en}
+            <button type="button" onClick={() => setShowEn((s) => !s)} className="inline-flex items-center gap-1.5 self-start text-[13px] font-semibold text-navy-600 hover:text-navy-800">
+              <ChevronDown className={`size-4 transition-transform ${showEn ? '' : '-rotate-90 rtl:rotate-90'}`} />
+              {t.en}
             </button>
             {showEn && (
               <div className="grid gap-4 rounded-[12px] bg-navy-50/50 p-4">
@@ -350,6 +351,9 @@ export default function StorefrontPage() {
         <div className="lg:sticky lg:top-6">
           <div className="mb-2 flex items-center gap-1.5 text-[12.5px] font-bold text-ink-500">
             <Eye className="size-3.5" /> {t.preview}
+            <span className="ms-1 inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-600">
+              <span className="size-1.5 rounded-full bg-emerald-500" /> {ar ? 'مباشر' : 'live'}
+            </span>
           </div>
           <StorePreview
             name={name || (ar ? 'اسم متجرك' : 'Your store name')}

@@ -195,7 +195,7 @@ export default async function VendorDetailPage({ params }: PageProps) {
           </div>
           {vendor!.bio ? (
             <Card className="p-5 mt-4">
-              <h3 className="font-semibold mb-2">{t.vendors.tabsOverview}</h3>
+              <h3 className="font-semibold mb-2">{t.vendors.about}</h3>
               <p className="text-[14px] leading-[22px] text-ink-900">{vendor!.bio[locale]}</p>
             </Card>
           ) : null}
@@ -209,7 +209,7 @@ export default async function VendorDetailPage({ params }: PageProps) {
             <Table>
               <THead>
                 <TRow>
-                  <TH>{t.vendors.tabsProducts}</TH>
+                  <TH>{t.products.colProduct}</TH>
                   <TH className="text-center">{t.common.status}</TH>
                   <TH className="text-end">{t.products.colPrice}</TH>
                 </TRow>
@@ -220,9 +220,9 @@ export default async function VendorDetailPage({ params }: PageProps) {
                     <TCell className="font-medium">{p.title[locale]}</TCell>
                     <TCell className="text-center">
                       {p.active ? (
-                        <Badge tone="success">{t.subscriptions.statusActive}</Badge>
+                        <Badge tone="success">{t.products.active}</Badge>
                       ) : (
-                        <Badge tone="neutral">{t.common.cancel}</Badge>
+                        <Badge tone="neutral">{t.products.inactive}</Badge>
                       )}
                     </TCell>
                     <TCell className="text-end tabular-nums font-semibold">
@@ -244,8 +244,8 @@ export default async function VendorDetailPage({ params }: PageProps) {
             <Table>
               <THead>
                 <TRow>
-                  <TH>{t.vendors.tabsProducts}</TH>
-                  <TH>{t.vendors.joinedAt}</TH>
+                  <TH>{t.products.colProduct}</TH>
+                  <TH>{t.reviews.colDate}</TH>
                   <TH className="text-center">{t.common.status}</TH>
                   <TH className="text-end">{t.vendors.colRef}</TH>
                 </TRow>

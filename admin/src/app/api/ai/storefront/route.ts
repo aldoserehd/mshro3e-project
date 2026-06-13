@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Anthropic from '@anthropic-ai/sdk';
-import { getAuth } from 'firebase-admin/auth';
-import { adminDb } from '@/lib/firebase-admin';
-import { COL } from '@shared/firestore-paths';
 import { BRAND } from '@/lib/brand';
+import {
+  aiConfigured,
+  anthropic,
+  aiModel,
+  verifyBearer,
+  resolveTier,
+  claimQuota,
+  refundQuota,
+  clampField,
+  MAX_TOTAL_LEN,
+} from '@/lib/ai';
 
 /**
  * AI Storefront Writer — takes whatever the vendor typed (one language,
@@ -12,60 +19,52 @@ import { BRAND } from '@/lib/brand';
  * write in?" problem entirely: write anything, AI fills both.
  *
  * POST { name, bio?, area? }  ·  Authorization: Bearer <Firebase ID token>
- * Quota is keyed by uid (works before the vendor doc exists).
+ * Quota is keyed by uid (works before the vendor doc exists). Atomic claim +
+ * per-uid rate-limit via the shared ai helper.
  */
-const QUOTA: Record<string, number> = { free: 5, basic: 30, pro: 200, managed: 500 };
-const MONTH_MS = 30 * 24 * 60 * 60 * 1000;
-
 export async function POST(req: NextRequest) {
-  if (!process.env.ANTHROPIC_API_KEY) {
+  if (!aiConfigured()) {
     return NextResponse.json({ error: 'ai_not_configured' }, { status: 503 });
   }
 
-  const authz = req.headers.get('authorization') ?? '';
-  const idToken = authz.startsWith('Bearer ') ? authz.slice(7) : null;
-  if (!idToken) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
-
-  let uid: string;
-  try {
-    adminDb();
-    uid = (await getAuth().verifyIdToken(idToken)).uid;
-  } catch {
-    return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
-  }
+  const uid = await verifyBearer(req.headers.get('authorization'));
+  if (!uid) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
 
   const body = await req.json().catch(() => ({}));
-  const { name, bio, area } = body as { name?: string; bio?: string; area?: string };
-  if (!name?.trim()) return NextResponse.json({ error: 'bad_request' }, { status: 400 });
+  const name = clampField((body as { name?: unknown }).name);
+  const bio = clampField((body as { bio?: unknown }).bio);
+  const area = clampField((body as { area?: unknown }).area, 80);
+  if (!name) return NextResponse.json({ error: 'bad_request' }, { status: 400 });
 
   // Tier from the vendor doc when it exists; new signups count as free tier.
-  let tier = 'free';
-  try {
-    const snap = await adminDb().collection(COL.vendors).where('ownerUid', '==', uid).limit(1).get();
-    const v = snap.docs[0]?.data();
-    if (v?.tier && (v.subscriptionUntil ?? 0) > Date.now()) tier = v.tier as string;
-  } catch { /* default free */ }
+  const tier = await resolveTier(uid);
 
-  const usageRef = adminDb().collection('aiUsage').doc(uid);
-  const usage = (await usageRef.get()).data() ?? { count: 0, resetAt: 0 };
-  const now = Date.now();
-  if (usage.resetAt < now) { usage.count = 0; usage.resetAt = now + MONTH_MS; }
-  const limit = QUOTA[tier] ?? QUOTA.free;
-  if (usage.count >= limit) {
-    return NextResponse.json({ error: 'quota_exceeded', limit, tier }, { status: 429 });
+  // ── atomic monthly quota (keyed by uid) ──
+  const claim = await claimQuota(uid, tier);
+  if (!claim.ok) {
+    return NextResponse.json(
+      { error: claim.reason, limit: claim.limit, tier: claim.tier },
+      {
+        status: 429,
+        ...(claim.retryAfterMs
+          ? { headers: { 'Retry-After': String(Math.ceil(claim.retryAfterMs / 1000)) } }
+          : {}),
+      },
+    );
   }
 
-  const client = new Anthropic();
-  const model = process.env.AI_MODEL || 'claude-opus-4-8';
   const input = [
-    `اسم المتجر كما كتبه صاحبه: ${name.trim()}`,
-    bio?.trim() ? `النبذة كما كتبها: ${bio.trim()}` : null,
+    `اسم المتجر كما كتبه صاحبه: ${name}`,
+    bio ? `النبذة كما كتبها: ${bio}` : null,
     area ? `المنطقة: ${area}` : null,
-  ].filter(Boolean).join('\n');
+  ]
+    .filter(Boolean)
+    .join('\n')
+    .slice(0, MAX_TOTAL_LEN);
 
   try {
-    const response = await client.messages.parse({
-      model,
+    const response = await anthropic().messages.parse({
+      model: aiModel(),
       max_tokens: 1024,
       system:
         `أنت كاتب هوية تجارية لمنصة ${BRAND.ar} (${BRAND.en}) لمشاريع البيوت الكويتية. ` +
@@ -93,16 +92,17 @@ export async function POST(req: NextRequest) {
     });
 
     if (response.stop_reason === 'refusal' || !response.parsed_output) {
+      await refundQuota(uid);
       return NextResponse.json({ error: 'generation_failed' }, { status: 502 });
     }
 
-    await usageRef.set({ count: usage.count + 1, resetAt: usage.resetAt, updatedAt: now }, { merge: true });
     return NextResponse.json({
       ...(response.parsed_output as Record<string, string>),
-      used: usage.count + 1,
-      limit,
+      used: claim.used,
+      limit: claim.limit,
     });
-  } catch (e) {
-    return NextResponse.json({ error: e instanceof Error ? e.message : 'ai_error' }, { status: 502 });
+  } catch {
+    await refundQuota(uid);
+    return NextResponse.json({ error: 'ai_error' }, { status: 502 });
   }
 }

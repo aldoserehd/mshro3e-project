@@ -1,6 +1,9 @@
-# OSX
+# OSX / OS junk
 #
 .DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
 
 # Xcode
 #
@@ -53,8 +56,17 @@ buck-out/
 
 # Expo
 .expo/
+.expo-shared/
 web-build/
 dist/
+
+# Logs
+*.log
+logs/
+
+# Build / TS incremental
+.next/
+*.tsbuildinfo
 
 # Security
 *.jks

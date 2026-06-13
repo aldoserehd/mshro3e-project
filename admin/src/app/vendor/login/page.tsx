@@ -40,7 +40,7 @@ export default function VendorLoginPage() {
   }, [user, router]);
 
   const t = ar
-    ? { title: 'لوحة البائع', sub: 'سجّل دخولك لإدارة متجرك', email: 'البريد الإلكتروني', pass: 'كلمة المرور',
+    ? { title: 'لوحة البائع', sub: 'سجّل دخولك لإدارة متجرك', subUp: 'أنشئ حسابك وابدأ متجرك بدقائق', email: 'البريد الإلكتروني', pass: 'كلمة المرور',
         signIn: 'تسجيل الدخول', signUp: 'إنشاء حساب بائع', toUp: 'بائع جديد؟ أنشئ حساب', toIn: 'لديك حساب؟ سجّل دخولك',
         forgot: 'نسيت كلمة المرور؟', showPw: 'إظهار كلمة المرور', hidePw: 'إخفاء كلمة المرور',
         bad: 'البريد أو كلمة المرور غير صحيحة.', weak: 'كلمة المرور قصيرة (٦ أحرف على الأقل).', used: 'البريد مستخدم مسبقاً.',
@@ -50,7 +50,7 @@ export default function VendorLoginPage() {
         resetDone: 'تم الإرسال! تحقّق من بريدك (وصندوق المهملات) لإعادة تعيين كلمة المرور.',
         resetNoUser: 'ما لقينا حساب بهذا البريد.',
         newVendorHint: 'حساب جديد بينقلك مباشرة لإنشاء متجرك.', joinLink: `تعرّف على ${BRAND.ar} للأعمال` }
-    : { title: 'Vendor portal', sub: 'Sign in to manage your store', email: 'Email', pass: 'Password',
+    : { title: 'Vendor portal', sub: 'Sign in to manage your store', subUp: 'Create your account and start your store in minutes', email: 'Email', pass: 'Password',
         signIn: 'Sign in', signUp: 'Create vendor account', toUp: 'New vendor? Create an account', toIn: 'Have an account? Sign in',
         forgot: 'Forgot password?', showPw: 'Show password', hidePw: 'Hide password',
         bad: 'Wrong email or password.', weak: 'Password too short (6+ characters).', used: 'Email already in use.',
@@ -120,7 +120,7 @@ export default function VendorLoginPage() {
         <div className="mb-6 flex flex-col items-center text-center">
           <span className="inline-flex h-14 w-14 items-center justify-center rounded-[16px] bg-navy-900 text-white font-bold text-[24px]">م</span>
           <h1 className="mt-3 text-[24px] font-bold text-ink-900">{view === 'reset' ? t.resetTitle : t.title}</h1>
-          <p className="mt-1 text-[14px] text-ink-500">{view === 'reset' ? t.resetSub : t.sub}</p>
+          <p className="mt-1 text-[14px] text-ink-500">{view === 'reset' ? t.resetSub : mode === 'up' ? t.subUp : t.sub}</p>
         </div>
 
         {!ready && (
@@ -131,6 +131,20 @@ export default function VendorLoginPage() {
 
         {view === 'auth' ? (
           <form onSubmit={onSubmit} className="flex flex-col gap-4 rounded-[16px] border border-ink-200 bg-white p-6 shadow-[var(--shadow-elev1)]">
+            {/* segmented sign-in / sign-up toggle */}
+            <div className="grid grid-cols-2 gap-1 rounded-[12px] bg-navy-50 p-1">
+              {(['in', 'up'] as const).map((m) => (
+                <button
+                  key={m}
+                  type="button"
+                  onClick={() => { setMode(m); setErr(''); }}
+                  className={`h-9 rounded-[9px] text-[13px] font-bold transition-colors ${mode === m ? 'bg-white text-navy-900 shadow-[var(--shadow-elev1)]' : 'text-ink-500 hover:text-ink-900'}`}
+                >
+                  {m === 'in' ? t.signIn : (ar ? 'حساب جديد' : 'Sign up')}
+                </button>
+              ))}
+            </div>
+
             {err && (
               <p className="flex items-start gap-2 rounded-[10px] border border-red-300 bg-red-50 p-2.5 text-[12px] text-red-700">
                 <AlertTriangle className="size-3.5 mt-0.5 shrink-0" />{err}
@@ -179,10 +193,6 @@ export default function VendorLoginPage() {
             {mode === 'up' && (
               <p className="-mt-1 text-center text-[12px] text-ink-500">{t.newVendorHint}</p>
             )}
-
-            <button type="button" onClick={() => { setMode(mode === 'in' ? 'up' : 'in'); setErr(''); }} className="text-[13px] text-navy-600 hover:text-navy-700 hover:underline">
-              {mode === 'in' ? t.toUp : t.toIn}
-            </button>
           </form>
         ) : (
           <form onSubmit={onReset} className="flex flex-col gap-4 rounded-[16px] border border-ink-200 bg-white p-6 shadow-[var(--shadow-elev1)]">

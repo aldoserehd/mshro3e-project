@@ -2,7 +2,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { Tag, Plus } from 'lucide-react';
 import { getLocale } from '@/lib/locale';
-import { getDict } from '@/i18n/dict';
+import { getDict, tFmt } from '@/i18n/dict';
 import { liveCategories, liveVendors } from '@/lib/data/live';
 import { PageHeader } from '@/components/domain/page-header';
 import { Card } from '@/components/ui/card';
@@ -69,12 +69,14 @@ export default async function CategoriesPage() {
                   id={c.id}
                   confirmText={t.categories.deleteConfirm}
                   label={t.common.delete}
+                  successText={t.categories.deleted}
+                  failureText={t.vendors.actionFailed}
                 />
               </li>
             ))}
           </ul>
           <div className="border-t border-ink-200/70 px-5 py-3 text-[12px] text-ink-500">
-            {categories.length} · {t.nav.categories}
+            {tFmt(t.common.showingN, { n: categories.length })}
           </div>
         </Card>
       )}

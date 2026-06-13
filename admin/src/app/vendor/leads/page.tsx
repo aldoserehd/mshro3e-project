@@ -125,7 +125,7 @@ export default function VendorLeadsPage() {
               <span className="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-navy-50 text-navy-700"><Check className="size-5" /></span>
               <div>
                 <p className="text-[22px] font-bold leading-none text-ink-900 tabular-nums">{soldLeads.length}</p>
-                <p className="mt-1 text-[12px] text-ink-500">{ar ? 'بيعة مأكّدة' : 'confirmed sales'}</p>
+                <p className="mt-1 text-[12px] text-ink-500">{ar ? 'بيعة مؤكّدة' : 'Confirmed sales'}</p>
               </div>
             </Card>
             <Card className={cn('flex items-center gap-3 p-4', totalKwd > 0 && 'border-emerald-200 bg-emerald-50/50')}>
@@ -171,7 +171,8 @@ export default function VendorLeadsPage() {
                     <p className="mt-0.5 text-[13px] text-ink-500">{when(l.createdAt)}{l.note ? ` · ${l.note}` : ''}</p>
                   </div>
 
-                  <span className="shrink-0 rounded-full bg-navy-50 px-2.5 py-1 font-mono text-[12px] text-navy-700" title={ar ? 'ابحث عن هذا الرقم في واتساب لتلقى المحادثة' : 'Search WhatsApp for this code to find the chat'}>
+                  <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-navy-50 px-2.5 py-1 font-mono text-[12px] text-navy-700" title={ar ? 'ابحث عن هذا الرقم في واتساب لتلقى المحادثة' : 'Search WhatsApp for this code to find the chat'}>
+                    <span className="font-sans text-[10px] font-bold text-ink-500">{ar ? 'مرجع' : 'REF'}</span>
                     {l.ref}
                   </span>
 

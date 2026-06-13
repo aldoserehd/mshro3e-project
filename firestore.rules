@@ -39,7 +39,10 @@ service cloud.firestore {
     match /reviews/{id} {
       allow read: if true;
       allow create: if request.auth != null
-        && request.resource.data.customerUid == request.auth.uid;
+        && request.resource.data.customerUid == request.auth.uid
+        && request.resource.data.rating is number
+        && request.resource.data.rating >= 1
+        && request.resource.data.rating <= 5;
       allow update, delete: if false;
     }
 
@@ -71,14 +74,30 @@ service cloud.firestore {
         && get(/databases/$(database)/documents/vendors/$(resource.data.vendorId))
              .data.ownerUid == request.auth.uid
         && request.resource.data.diff(resource.data).affectedKeys()
-             .hasOnly(['status', 'saleAmount', 'statusUpdatedAt']);
+             .hasOnly(['status', 'saleAmount', 'statusUpdatedAt'])
+        // vendorId can't be repointed at a vendor you own to hijack a lead
+        && request.resource.data.vendorId == resource.data.vendorId
+        && request.resource.data.status in ['new', 'replied', 'sold']
+        && (!('saleAmount' in request.resource.data.diff(resource.data).affectedKeys())
+            || request.resource.data.saleAmount is number);
       allow delete: if false;
     }
 
     // Vendors can suggest new categories; only the owner admin reads/acts.
+    // Create-only, shape-validated so the doc can't be used as scratch storage.
     match /categorySuggestions/{id} {
-      allow create: if request.auth != null;
+      allow create: if request.auth != null
+        && request.resource.data.text is string
+        && request.resource.data.text.size() > 0
+        && request.resource.data.text.size() <= 200;
       allow read, update, delete: if false;
+    }
+
+    // AI quota counters — written ONLY by the server (Admin SDK, which bypasses
+    // rules). No client may read or write: clients could otherwise reset their
+    // own monthly count and bypass tier billing.
+    match /aiUsage/{id} {
+      allow read, write: if false;
     }
 
     // Seed marker — only signed-in users can read/write

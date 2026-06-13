@@ -160,7 +160,7 @@ export default async function OverviewPage() {
         {/* Wide: vendor signups over time */}
         <BentoTile variant="chart" span="3x2" className="col-span-12 lg:col-span-7 row-span-2">
           <ChartCard title={t.overview.signupsOverTime} subtitle={t.overview.last8Weeks}>
-            <SignupsLine data={signups} />
+            <SignupsLine data={signups} emptyLabel={t.overview.noSignups} />
           </ChartCard>
         </BentoTile>
 
@@ -175,7 +175,11 @@ export default async function OverviewPage() {
               </Link>
             }
           >
-            <CategoryDonut data={byCategory} />
+            <CategoryDonut
+              data={byCategory}
+              unitLabel={t.overview.vendorsUnit}
+              emptyLabel={t.overview.noCategoryData}
+            />
           </ChartCard>
         </BentoTile>
       </div>

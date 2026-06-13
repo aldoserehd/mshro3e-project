@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { MessageSquareWarning } from 'lucide-react';
 import { getLocale } from '@/lib/locale';
-import { getDict } from '@/i18n/dict';
+import { getDict, tFmt } from '@/i18n/dict';
 import { liveReviews, liveVendors } from '@/lib/data/live';
 import { PageHeader } from '@/components/domain/page-header';
 import { Card } from '@/components/ui/card';
@@ -29,24 +29,29 @@ export default async function ReviewsPage() {
           />
         </Card>
       ) : (
-        <div className="grid gap-4">
-          {reviews.slice(0, 30).map((r) => {
-            const v = vendor(r.vendorId);
-            return (
-              <Card key={r.id} className="p-5">
-                <div className="flex items-center gap-3">
-                  <span className="font-semibold">{v?.name[locale] ?? '—'}</span>
-                  <RatingStars value={r.rating} />
-                  <span className="text-[12px] text-ink-500">{r.createdAt ? formatDate(r.createdAt, tag) : ''}</span>
-                </div>
-                {r.comment ? (
-                  <p className="mt-3 text-[14px] leading-[22px] text-ink-900 bg-navy-50/60 rounded-[10px] p-3">
-                    {r.comment}
-                  </p>
-                ) : null}
-              </Card>
-            );
-          })}
+        <div className="flex flex-col gap-4">
+          <div className="grid gap-4">
+            {reviews.slice(0, 30).map((r) => {
+              const v = vendor(r.vendorId);
+              return (
+                <Card key={r.id} className="p-5">
+                  <div className="flex items-center gap-3">
+                    <span className="font-semibold">{v?.name[locale] ?? '—'}</span>
+                    <RatingStars value={r.rating} />
+                    <span className="text-[12px] text-ink-500">{r.createdAt ? formatDate(r.createdAt, tag) : ''}</span>
+                  </div>
+                  {r.comment ? (
+                    <p className="mt-3 text-[14px] leading-[22px] text-ink-900 bg-navy-50/60 rounded-[10px] p-3">
+                      {r.comment}
+                    </p>
+                  ) : null}
+                </Card>
+              );
+            })}
+          </div>
+          <p className="px-1 text-[12px] text-ink-500">
+            {tFmt(t.common.showingN, { n: Math.min(reviews.length, 30) })}
+          </p>
         </div>
       )}
     </div>

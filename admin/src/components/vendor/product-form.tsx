@@ -146,11 +146,12 @@ export function ProductForm({
             {ar ? 'اكتب لي الوصف' : 'Write it for me'}
           </button>
         </div>
+        <p className="-mt-1 text-[12px] text-ink-500">{ar ? 'اكتب الاسم وخلّ زر «اكتب لي الوصف» يكمّل الوصف بالعربي والإنجليزي.' : 'Type a name, then let “Write it for me” fill the description in Arabic & English.'}</p>
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label={t.titleAr}><Input dir="rtl" value={form.titleAr} onChange={(e) => set('titleAr', e.target.value)} required /></Field>
-          <Field label={t.titleEn}><Input value={form.titleEn} onChange={(e) => set('titleEn', e.target.value)} /></Field>
-          <Field label={t.descAr}><Textarea dir="rtl" value={form.descAr} onChange={(e) => set('descAr', e.target.value)} /></Field>
-          <Field label={t.descEn}><Textarea value={form.descEn} onChange={(e) => set('descEn', e.target.value)} /></Field>
+          <Field label={t.titleAr}><Input dir="auto" value={form.titleAr} onChange={(e) => set('titleAr', e.target.value)} required /></Field>
+          <Field label={t.titleEn}><Input dir="auto" value={form.titleEn} onChange={(e) => set('titleEn', e.target.value)} /></Field>
+          <Field label={t.descAr}><Textarea dir="auto" value={form.descAr} onChange={(e) => set('descAr', e.target.value)} /></Field>
+          <Field label={t.descEn}><Textarea dir="auto" value={form.descEn} onChange={(e) => set('descEn', e.target.value)} /></Field>
         </div>
       </Card>
 
@@ -160,9 +161,12 @@ export function ProductForm({
           <Field label={t.price}><Input dir="ltr" inputMode="decimal" value={priceText} onChange={(e) => setPriceText(e.target.value)} placeholder="5.500" required /></Field>
           <Field label={t.prep}><Input dir="ltr" inputMode="numeric" value={prepText} onChange={(e) => setPrepText(e.target.value)} placeholder="2" /></Field>
         </div>
-        <label className="inline-flex items-center gap-2 text-[14px] cursor-pointer">
-          <input type="checkbox" checked={form.active} onChange={(e) => set('active', e.target.checked)} className="accent-navy-900 size-4" />
-          {t.active}
+        <label className="flex items-start gap-2.5 cursor-pointer">
+          <input type="checkbox" checked={form.active} onChange={(e) => set('active', e.target.checked)} className="mt-0.5 accent-navy-900 size-4" />
+          <span>
+            <span className="block text-[14px] font-medium text-ink-900">{t.active}</span>
+            <span className="block text-[12px] text-ink-500">{ar ? 'لما يكون مفعّل، يشوفه العملاء في التطبيق. أطفئه لتخفيه مؤقتاً.' : 'When on, customers see it in the app. Turn off to hide it temporarily.'}</span>
+          </span>
         </label>
       </Card>
 
@@ -175,13 +179,16 @@ export function ProductForm({
 
       <Card className="p-5 flex flex-col gap-4">
         <h3 className="text-[15px] font-bold text-ink-900">{t.cats}</h3>
+        {categories.length === 0 ? (
+          <p className="text-[13px] text-ink-500">{ar ? 'ما في فئات بعد — بتظهر أول ما يضيفها فريق المنصة.' : 'No categories yet — they appear once the platform team adds them.'}</p>
+        ) : null}
         <div className="flex flex-wrap gap-2">
           {categories.map((c) => {
             const on = form.categoryIds.includes(c.id);
             return (
               <button type="button" key={c.id} onClick={() => toggleCat(c.id)}
                 className={`inline-flex items-center gap-2 rounded-full border px-3 h-9 text-[13px] transition-colors ${on ? 'bg-navy-900 text-white border-navy-900' : 'bg-white text-ink-900 border-navy-200 hover:bg-navy-50'}`}>
-                {c.emoji ? <span>{c.emoji}</span> : null}{c.name[locale]}
+                {c.emoji ? <span>{c.emoji}</span> : null}{c.name[locale] || c.name.ar}
               </button>
             );
           })}

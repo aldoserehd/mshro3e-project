@@ -75,6 +75,8 @@ export default async function VendorsPage({ searchParams }: PageProps) {
 
       <Card className="p-4">
         <form className="flex flex-col gap-3 lg:flex-row lg:items-center">
+          {/* Preserve the active status pill across text/category submits. */}
+          <input type="hidden" name="status" value={sp.status ?? 'all'} />
           <Input
             name="q"
             defaultValue={sp.q ?? ''}

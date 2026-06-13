@@ -1,15 +1,33 @@
 'use client';
 
 import * as React from 'react';
+import { toast } from 'sonner';
 import { Trash2, Loader2 } from 'lucide-react';
 import { deleteCategory } from '@/lib/actions/catalog';
 
-export function DeleteCategoryButton({ id, confirmText, label }: { id: string; confirmText: string; label: string }) {
+export function DeleteCategoryButton({
+  id,
+  confirmText,
+  label,
+  successText,
+  failureText,
+}: {
+  id: string;
+  confirmText: string;
+  label: string;
+  successText: string;
+  failureText: string;
+}) {
   const [pending, startTransition] = React.useTransition();
   const onClick = () => {
     if (!window.confirm(confirmText)) return;
     startTransition(async () => {
-      await deleteCategory(id);
+      try {
+        await deleteCategory(id);
+        toast.success(successText);
+      } catch {
+        toast.error(failureText);
+      }
     });
   };
   return (

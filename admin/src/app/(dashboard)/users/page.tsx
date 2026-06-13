@@ -1,4 +1,5 @@
 import * as React from 'react';
+import Link from 'next/link';
 import { Users } from 'lucide-react';
 import { getLocale } from '@/lib/locale';
 import { getDict, tFmt } from '@/i18n/dict';
@@ -50,11 +51,24 @@ export default async function UsersPage({ searchParams }: PageProps) {
 
       <Card className="p-0 overflow-hidden">
         {users.length === 0 ? (
-          <EmptyState
-            icon={<Users className="size-7" />}
-            title={t.users.noUsers}
-            body={t.users.noUsersBody}
-          />
+          q ? (
+            <EmptyState
+              icon={<Users className="size-7" />}
+              title={t.common.noResults}
+              body={t.common.tryAdjusting}
+              action={
+                <Button asChild variant="secondary" size="sm">
+                  <Link href="/users">{t.common.clearFilters}</Link>
+                </Button>
+              }
+            />
+          ) : (
+            <EmptyState
+              icon={<Users className="size-7" />}
+              title={t.users.noUsers}
+              body={t.users.noUsersBody}
+            />
+          )
         ) : (
           <Table>
             <THead>

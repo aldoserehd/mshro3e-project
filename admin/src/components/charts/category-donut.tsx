@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { PieChartIcon } from 'lucide-react';
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 
 export interface DonutDatum {
@@ -11,8 +12,27 @@ export interface DonutDatum {
 
 const PALETTE = ['#0A1020', '#1B2A4E', '#2E4A8A', '#5B7AB8', '#8FA4CC', '#C2CFE3', '#E2E8F2', '#243B6B'];
 
-export function CategoryDonut({ data }: { data: DonutDatum[] }) {
+export function CategoryDonut({
+  data,
+  unitLabel = 'vendors',
+  emptyLabel = 'No data',
+}: {
+  data: DonutDatum[];
+  unitLabel?: string;
+  emptyLabel?: string;
+}) {
   const total = data.reduce((s, d) => s + d.value, 0);
+
+  if (total === 0) {
+    return (
+      <div className="flex h-full min-h-[220px] flex-col items-center justify-center gap-2 text-center">
+        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-navy-50 text-navy-300">
+          <PieChartIcon className="size-5" />
+        </span>
+        <p className="text-[13px] text-ink-500">{emptyLabel}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-3 items-center h-full">
@@ -45,7 +65,7 @@ export function CategoryDonut({ data }: { data: DonutDatum[] }) {
         </ResponsiveContainer>
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
           <span className="text-[26px] font-bold text-ink-900 tabular-nums leading-none">{total}</span>
-          <span className="text-[11px] text-ink-500 mt-1">vendors</span>
+          <span className="text-[11px] text-ink-500 mt-1">{unitLabel}</span>
         </div>
       </div>
 

@@ -78,25 +78,40 @@ export default function VendorProductsPage() {
         />
       ) : (
         <div className="grid gap-3">
-          {products.map((p) => (
-            <Card key={p.id} className="flex items-center gap-4 p-3">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={p.images?.[0] || ''} alt="" className="size-14 rounded-[10px] object-cover bg-navy-50 shrink-0" />
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  <p className="font-semibold text-ink-900 truncate">{p.title[locale] || p.title.en}</p>
-                  {!p.active && <span className="inline-flex items-center gap-1 text-[11px] text-ink-500"><EyeOff className="size-3" />{ar ? 'مخفي' : 'Hidden'}</span>}
+          {products.map((p) => {
+            const img = p.images?.[0];
+            return (
+              <Card key={p.id} className={`flex items-center gap-4 p-3 transition-colors ${p.active ? '' : 'bg-navy-50/40'}`}>
+                {img ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={img} alt="" className={`size-14 rounded-[10px] object-cover bg-navy-50 shrink-0 ${p.active ? '' : 'opacity-60'}`} />
+                ) : (
+                  <span className="inline-flex size-14 shrink-0 items-center justify-center rounded-[10px] bg-navy-50 text-navy-300">
+                    <Package className="size-5" />
+                  </span>
+                )}
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <p className="font-semibold text-ink-900 truncate">{p.title[locale] || p.title.en}</p>
+                    {p.active ? (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-700">
+                        <span className="size-1.5 rounded-full bg-emerald-500" />{ar ? 'ظاهر' : 'Live'}
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-navy-50 px-2 py-0.5 text-[11px] font-semibold text-ink-500"><EyeOff className="size-3" />{ar ? 'مخفي' : 'Hidden'}</span>
+                    )}
+                  </div>
+                  <p className="mt-0.5 text-[13px] font-semibold text-navy-700 tabular-nums">{fmt(p.price)}</p>
                 </div>
-                <p className="text-[13px] font-semibold text-navy-700 tabular-nums">{fmt(p.price)}</p>
-              </div>
-              <div className="flex items-center gap-1 shrink-0">
-                <Button asChild variant="ghost" size="icon" aria-label="edit"><Link href={`/vendor/products/${p.id}` as never}><Pencil className="size-4" /></Link></Button>
-                <Button variant="ghost" size="icon" aria-label="delete" onClick={() => onDelete(p.id)} disabled={deleting === p.id}>
-                  {deleting === p.id ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4 text-red-600" />}
-                </Button>
-              </div>
-            </Card>
-          ))}
+                <div className="flex items-center gap-1 shrink-0">
+                  <Button asChild variant="ghost" size="icon" aria-label={ar ? 'تعديل' : 'edit'}><Link href={`/vendor/products/${p.id}` as never}><Pencil className="size-4" /></Link></Button>
+                  <Button variant="ghost" size="icon" aria-label={ar ? 'حذف' : 'delete'} onClick={() => onDelete(p.id)} disabled={deleting === p.id}>
+                    {deleting === p.id ? <Loader2 className="size-4 animate-spin" /> : <Trash2 className="size-4 text-red-600" />}
+                  </Button>
+                </div>
+              </Card>
+            );
+          })}
         </div>
       )}
     </div>

@@ -1,9 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
-import Anthropic from '@anthropic-ai/sdk';
-import { getAuth } from 'firebase-admin/auth';
 import { adminDb } from '@/lib/firebase-admin';
 import { COL } from '@shared/firestore-paths';
 import { BRAND } from '@/lib/brand';
+import {
+  aiConfigured,
+  anthropic,
+  aiModel,
+  verifyBearer,
+  resolveTier,
+  claimQuota,
+  refundQuota,
+  clampField,
+  MAX_TOTAL_LEN,
+} from '@/lib/ai';
 
 /**
  * AI Product Description Writer — the first paid AI feature.
@@ -12,80 +21,71 @@ import { BRAND } from '@/lib/brand';
  * Header: Authorization: Bearer <Firebase ID token>
  *
  * Flow: verify the vendor's Firebase token → confirm they own the vendor doc
- * → enforce the monthly AI quota for their tier → one Claude call with a
- * fixed server-side prompt (vendors never send free-form prompts) → return
- * { titleAr, titleEn, descAr, descEn }.
+ * → atomically claim one unit of the monthly AI quota for their tier (with a
+ * per-vendor rate-limit guard) → one Claude call with a fixed server-side
+ * prompt (vendors never send free-form prompts) → return
+ * { titleAr, titleEn, descAr, descEn, used, limit }.
  *
  * Requires ANTHROPIC_API_KEY in admin/.env.local. Model overridable via
  * AI_MODEL (defaults to claude-opus-4-8).
  */
-
-/** Monthly AI generations per tier — the upsell ladder. */
-const QUOTA: Record<string, number> = { free: 5, basic: 30, pro: 200, managed: 500 };
-const MONTH_MS = 30 * 24 * 60 * 60 * 1000;
-
 export async function POST(req: NextRequest) {
-  if (!process.env.ANTHROPIC_API_KEY) {
+  if (!aiConfigured()) {
     return NextResponse.json({ error: 'ai_not_configured' }, { status: 503 });
   }
 
   // ── auth: Firebase ID token → uid ──
-  const authz = req.headers.get('authorization') ?? '';
-  const idToken = authz.startsWith('Bearer ') ? authz.slice(7) : null;
-  if (!idToken) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
-
-  let uid: string;
-  try {
-    adminDb(); // ensures the admin app is initialized
-    uid = (await getAuth().verifyIdToken(idToken)).uid;
-  } catch {
-    return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
-  }
+  const uid = await verifyBearer(req.headers.get('authorization'));
+  if (!uid) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
 
   const body = await req.json().catch(() => ({}));
-  const { vendorId, titleAr, titleEn, hints, price } = body as {
-    vendorId?: string; titleAr?: string; titleEn?: string; hints?: string; price?: number;
-  };
+  const { vendorId: rawVendorId, price: rawPrice } = body as { vendorId?: unknown; price?: unknown };
+  const vendorId = typeof rawVendorId === 'string' ? rawVendorId.trim() : '';
+  const titleAr = clampField((body as { titleAr?: unknown }).titleAr);
+  const titleEn = clampField((body as { titleEn?: unknown }).titleEn);
+  const hints = clampField((body as { hints?: unknown }).hints);
+  const price = typeof rawPrice === 'number' && Number.isFinite(rawPrice) ? rawPrice : undefined;
+
   if (!vendorId || (!titleAr && !titleEn && !hints)) {
     return NextResponse.json({ error: 'bad_request' }, { status: 400 });
   }
 
-  // ── ownership + tier ──
+  // ── ownership ──
   const vendorSnap = await adminDb().collection(COL.vendors).doc(vendorId).get();
   const vendor = vendorSnap.data();
   if (!vendor || vendor.ownerUid !== uid) {
     return NextResponse.json({ error: 'forbidden' }, { status: 403 });
   }
-  const tierActive = vendor.tier && (vendor.subscriptionUntil ?? 0) > Date.now();
-  const tier = tierActive ? (vendor.tier as string) : 'free';
 
-  // ── monthly quota ──
-  const usageRef = adminDb().collection('aiUsage').doc(vendorId);
-  const usageSnap = await usageRef.get();
-  const usage = usageSnap.data() ?? { count: 0, resetAt: 0 };
-  const now = Date.now();
-  if (usage.resetAt < now) {
-    usage.count = 0;
-    usage.resetAt = now + MONTH_MS;
-  }
-  const limit = QUOTA[tier] ?? QUOTA.free;
-  if (usage.count >= limit) {
-    return NextResponse.json({ error: 'quota_exceeded', limit, tier }, { status: 429 });
+  // ── tier + atomic monthly quota (keyed by vendorId) ──
+  const tier = await resolveTier(uid, vendorId);
+  const claim = await claimQuota(vendorId, tier);
+  if (!claim.ok) {
+    return NextResponse.json(
+      { error: claim.reason, limit: claim.limit, tier: claim.tier },
+      {
+        status: 429,
+        ...(claim.retryAfterMs
+          ? { headers: { 'Retry-After': String(Math.ceil(claim.retryAfterMs / 1000)) } }
+          : {}),
+      },
+    );
   }
 
   // ── the Claude call: fixed template, vendor data slotted in ──
-  const client = new Anthropic();
-  const model = process.env.AI_MODEL || 'claude-opus-4-8';
   const input = [
     titleAr ? `الاسم بالعربي: ${titleAr}` : null,
     titleEn ? `Name in English: ${titleEn}` : null,
     hints ? `ملاحظات البائع: ${hints}` : null,
     typeof price === 'number' && price > 0 ? `السعر: ${price} د.ك` : null,
-  ].filter(Boolean).join('\n');
+  ]
+    .filter(Boolean)
+    .join('\n')
+    .slice(0, MAX_TOTAL_LEN);
 
   try {
-    const response = await client.messages.parse({
-      model,
+    const response = await anthropic().messages.parse({
+      model: aiModel(),
       max_tokens: 1024,
       system:
         `أنت كاتب تسويقي لمنصة ${BRAND.ar} (${BRAND.en}) — سوق المشاريع المنزلية الكويتية. ` +
@@ -112,22 +112,17 @@ export async function POST(req: NextRequest) {
     });
 
     if (response.stop_reason === 'refusal' || !response.parsed_output) {
+      await refundQuota(vendorId);
       return NextResponse.json({ error: 'generation_failed' }, { status: 502 });
     }
 
-    // count the successful generation
-    await usageRef.set(
-      { count: usage.count + 1, resetAt: usage.resetAt, updatedAt: now },
-      { merge: true },
-    );
-
     return NextResponse.json({
       ...(response.parsed_output as Record<string, string>),
-      used: usage.count + 1,
-      limit,
+      used: claim.used,
+      limit: claim.limit,
     });
-  } catch (e) {
-    const msg = e instanceof Error ? e.message : 'ai_error';
-    return NextResponse.json({ error: msg }, { status: 502 });
+  } catch {
+    await refundQuota(vendorId);
+    return NextResponse.json({ error: 'ai_error' }, { status: 502 });
   }
 }

@@ -24,13 +24,13 @@ export default function VendorSubscriptionPage() {
 
   const t = ar
     ? { title: 'اشتراكي', sub: 'اختر خطتك — وميزات الذكاء الاصطناعي تتفعّل حسب الخطة.',
-        current: 'خطتك الحالية', free: 'مجاني', month: '/ شهر', or3: 'أو {p} د.ك لكل ٣ أشهر',
+        current: 'خطتك الحالية', currentBadge: 'خطتك الحالية', free: 'مجاني', month: '/ شهر', or3: 'أو {p} د.ك لكل ٣ أشهر',
         cta: 'اطلب التفعيل عبر واتساب', note: 'بعد الدفع برابط كي نت، تتفعّل خطتك خلال دقائق.',
-        until: 'صالح حتى', save: 'وفّر {p}٪' }
+        until: 'صالح حتى', save: 'وفّر {p}٪', popular: 'الأكثر اختياراً' }
     : { title: 'My subscription', sub: 'Pick your plan — AI features unlock based on it.',
-        current: 'Your current plan', free: 'Free', month: '/ month', or3: 'or KD {p} per 3 months',
+        current: 'Your current plan', currentBadge: 'Current plan', free: 'Free', month: '/ month', or3: 'or KD {p} per 3 months',
         cta: 'Request activation via WhatsApp', note: 'After paying the KNET link, your plan activates within minutes.',
-        until: 'Valid until', save: 'Save {p}%' };
+        until: 'Valid until', save: 'Save {p}%', popular: 'Most popular' };
 
   const waLink = (planName: string) => {
     const msg = ar
@@ -70,13 +70,16 @@ export default function VendorSubscriptionPage() {
           const saving = savingPercent(plan);
           const paid = (plan.priceMonth1 ?? 0) > 0;
           return (
-            <Card key={plan.id} className={`flex flex-col p-5 ${plan.highlighted ? 'border-navy-900 ring-1 ring-navy-900 shadow-[var(--shadow-elev3)]' : ''}`}>
+            <Card key={plan.id} className={`relative flex flex-col p-5 ${plan.highlighted ? 'border-navy-900 ring-1 ring-navy-900 shadow-[var(--shadow-elev3)]' : ''} ${isCurrent ? 'ring-2 ring-emerald-400' : ''}`}>
+              {plan.highlighted && !isCurrent ? (
+                <span className="absolute -top-2.5 start-4 inline-flex items-center gap-1 rounded-full bg-navy-900 px-2.5 py-0.5 text-[10.5px] font-bold text-white shadow-[var(--shadow-elev2)]">
+                  <Sparkles className="size-3" />{t.popular}
+                </span>
+              ) : null}
               <div className="flex items-center justify-between">
                 <h3 className="text-[16px] font-bold text-ink-900">{plan.name[locale]}</h3>
                 {isCurrent ? (
-                  <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-700">✓</span>
-                ) : plan.highlighted ? (
-                  <Sparkles className="size-4 text-navy-700" />
+                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10.5px] font-bold text-emerald-700"><BadgeCheck className="size-3" />{t.currentBadge}</span>
                 ) : null}
               </div>
               <p className="mt-2 rounded-[10px] bg-navy-50 px-3 py-2 text-[12.5px] font-bold leading-snug text-navy-900">
