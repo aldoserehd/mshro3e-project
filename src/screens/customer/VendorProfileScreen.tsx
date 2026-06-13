@@ -141,8 +141,8 @@ export default function VendorProfileScreen({ route, navigation }: RootStackScre
         {/* Contact actions */}
         <View style={styles.actionsRow}>
           <ActionBtn icon="logo-whatsapp" label="WhatsApp" onPress={openWhatsapp} primary />
-          <ActionBtn icon="chatbubble-ellipses-outline" label={ar ? 'محادثة' : 'Chat'} onPress={() => navigation.navigate('Chat', { vendorId: vendor.id })} />
           <ActionBtn icon="call-outline" label={ar ? 'اتصال' : 'Call'} onPress={callPhone} />
+          <ActionBtn icon="share-social-outline" label={ar ? 'مشاركة' : 'Share'} onPress={onShare} />
         </View>
 
         {/* Bio */}
