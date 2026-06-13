@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { I18nManager, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
@@ -43,8 +43,11 @@ export const BlurTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, na
     indicatorX.value = withSpring(state.index * tabWidth, motion.spring.tab);
   }, [state.index, tabWidth, indicatorX]);
 
+  // RN doesn't mirror transforms under RTL — flip the travel direction so the
+  // pill lands on the focused tab instead of its mirror twin.
+  const dir = I18nManager.isRTL ? -1 : 1;
   const indicatorStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: indicatorX.value }],
+    transform: [{ translateX: dir * indicatorX.value }],
   }));
 
   return (
@@ -58,8 +61,18 @@ export const BlurTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, na
         },
       ]}
     >
-      <BlurView intensity={85} tint={c.isDark ? 'dark' : 'light'} style={StyleSheet.absoluteFill} />
-      <View style={[StyleSheet.absoluteFill, { backgroundColor: c.isDark ? 'rgba(20,26,46,0.82)' : 'rgba(255,255,255,0.7)' }]} />
+      <BlurView intensity={90} tint={c.isDark ? 'dark' : 'light'} style={StyleSheet.absoluteFill} />
+      <View
+        style={[
+          StyleSheet.absoluteFill,
+          {
+            backgroundColor: c.isDark ? 'rgba(20,26,46,0.55)' : 'rgba(255,255,255,0.5)',
+            borderRadius: radius.full,
+            borderWidth: 1,
+            borderColor: c.isDark ? 'rgba(255,255,255,0.10)' : 'rgba(255,255,255,0.65)',
+          },
+        ]}
+      />
       <Animated.View
         style={[
           styles.indicator,
