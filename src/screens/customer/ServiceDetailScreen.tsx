@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Linking, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Alert, Linking, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
@@ -71,6 +71,19 @@ export default function ProductDetailScreen({ route, navigation }: RootStackScre
   const images = product.images?.length ? product.images : [''];
 
   const onOrder = () => {
+    // Ordering requires an account — guests browse, members order.
+    if (!uid) {
+      const ar = getCurrentLocale() === 'ar';
+      Alert.alert(
+        ar ? 'سجّل دخولك أول' : 'Sign in first',
+        ar ? 'عشان تطلب وتتابع طلباتك في «طلباتي»، سجّل دخولك أو أنشئ حساب — ياخذ ثواني.' : 'To order and track it in "My requests", sign in or create an account — takes seconds.',
+        [
+          { text: ar ? 'مو الحين' : 'Not now', style: 'cancel' },
+          { text: ar ? 'تسجيل الدخول' : 'Sign in', onPress: () => navigation.navigate('SignIn') },
+        ],
+      );
+      return;
+    }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
     const ref = makeRef();
     const deliveryLabel = i18n.t(`product.delivery.${delivery}`);
@@ -196,13 +209,17 @@ export default function ProductDetailScreen({ route, navigation }: RootStackScre
             </>
           )}
 
-          {/* ── Bento meta ── */}
-          {prepHours > 0 && (
+          {/* ── Bento meta (always visible — "on request" when no prep set) ── */}
+          {(
             <View style={styles.bento}>
               <View style={[styles.bentoTile, { backgroundColor: c.surfaceAlt }]}>
                 <Ionicons name="time-outline" size={20} color={c.brandText} />
                 <Text variant="caption" color={c.textMuted} style={{ marginTop: 6 }}>{i18n.t('product.prepTime')}</Text>
-                <Text variant="cardTitle" weight="700">{i18n.t('product.hours', { n: String(prepHours) })}</Text>
+                <Text variant="cardTitle" weight="700">
+                  {prepHours > 0
+                    ? i18n.t('product.hours', { n: String(prepHours) })
+                    : getCurrentLocale() === 'ar' ? 'حسب الطلب' : 'On request'}
+                </Text>
               </View>
               <View style={[styles.bentoTile, { backgroundColor: c.surfaceAlt }]}>
                 <Ionicons name="ribbon-outline" size={20} color={c.brandText} />
