@@ -1,5 +1,5 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { FlatList, RefreshControl, StyleSheet, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { FlatList, Linking, Pressable, RefreshControl, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import i18n from '../../locales/i18n';
@@ -11,12 +11,14 @@ import { LoadingState } from '../../ui/EmptyState';
 import { firebaseDb } from '@shared/firebase';
 import { COL } from '@shared/firestore-paths';
 import { useUserStore } from '../../stores/user';
+import { useVendors } from '../../data/hooks';
 import { useColors } from '../../theme/colors';
 import { radius, spacing, getCurrentLocale } from '../../theme/ts';
 import type { MainTabsScreenProps } from '../../navigation/types';
 
 interface LeadRow {
   id: string;
+  vendorId?: string;
   productTitle?: string;
   ref: string;
   createdAt?: number;
@@ -27,7 +29,20 @@ interface LeadRow {
 export default function RequestsScreen({ navigation }: MainTabsScreenProps<'Requests'>) {
   const c = useColors();
   const user = useUserStore((s) => s.user);
+  const { data: vendors } = useVendors();
   const ar = getCurrentLocale() === 'ar';
+  const vendorMap = useMemo(
+    () => Object.fromEntries(vendors.map((v) => [v.id, v])),
+    [vendors],
+  );
+
+  /** The conversation lives in WhatsApp — reopen it with the vendor. */
+  const reopenChat = (lead: LeadRow) => {
+    const v = lead.vendorId ? vendorMap[lead.vendorId] : undefined;
+    const phone = (v?.whatsapp ?? v?.phone ?? '').replace(/[^\d]/g, '');
+    if (!phone) return;
+    Linking.openURL(`https://wa.me/${phone}`).catch(() => {});
+  };
   const [rows, setRows] = useState<LeadRow[] | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -87,20 +102,42 @@ export default function RequestsScreen({ navigation }: MainTabsScreenProps<'Requ
           keyExtractor={(r) => r.id}
           contentContainerStyle={{ padding: spacing.s5, paddingBottom: 130, gap: spacing.s3 }}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={async () => { setRefreshing(true); await load(); setRefreshing(false); }} />}
-          renderItem={({ item }) => (
-            <View style={[styles.card, { backgroundColor: c.surface, borderColor: c.border }]}>
-              <View style={[styles.iconWrap, { backgroundColor: c.brandFill }]}>
-                <Ionicons name="logo-whatsapp" size={20} color={c.brandText} />
-              </View>
-              <View style={{ flex: 1, marginStart: spacing.s3 }}>
-                <Text variant="label" weight="700" numberOfLines={1}>{item.productTitle || i18n.t('requests.product')}</Text>
-                <Text variant="caption" color={c.textMuted}>{when(item.createdAt)}</Text>
-              </View>
-              <View style={[styles.refPill, { backgroundColor: c.surfaceAlt }]}>
-                <Text variant="microcopy" weight="700" color={c.brandText} forceLtr>{item.ref}</Text>
-              </View>
+          ListHeaderComponent={
+            <View style={[styles.hint, { backgroundColor: c.surfaceAlt }]}>
+              <Ionicons name="information-circle-outline" size={16} color={c.textMuted} />
+              <Text variant="caption" color={c.textMuted} style={{ flex: 1, marginStart: 6 }}>
+                {ar
+                  ? 'المحادثة نفسها تصير في واتساب — هذا سجل طلباتك، واضغط أي طلب عشان تكمل المحادثة.'
+                  : 'The conversation happens in WhatsApp — this is your request log. Tap one to continue the chat.'}
+              </Text>
             </View>
-          )}
+          }
+          renderItem={({ item }) => {
+            const v = item.vendorId ? vendorMap[item.vendorId] : undefined;
+            return (
+              <Pressable onPress={() => reopenChat(item)} style={[styles.card, { backgroundColor: c.surface, borderColor: c.border }]}>
+                <View style={[styles.iconWrap, { backgroundColor: 'rgba(37,211,102,0.12)' }]}>
+                  <Ionicons name="logo-whatsapp" size={20} color={c.whatsappDark} />
+                </View>
+                <View style={{ flex: 1, marginStart: spacing.s3 }}>
+                  <Text variant="label" weight="700" numberOfLines={1}>{item.productTitle || i18n.t('requests.product')}</Text>
+                  <Text variant="caption" color={c.textMuted} numberOfLines={1}>
+                    {v ? `${ar ? v.name.ar : v.name.en} · ` : ''}{when(item.createdAt)}
+                  </Text>
+                </View>
+                <View style={{ alignItems: 'flex-end', gap: 4 }}>
+                  <View style={[styles.refPill, { backgroundColor: c.surfaceAlt }]}>
+                    <Text variant="microcopy" weight="700" color={c.brandText} forceLtr>{item.ref}</Text>
+                  </View>
+                  {v ? (
+                    <Text variant="microcopy" weight="600" color={c.whatsappDark}>
+                      {ar ? 'كمّل المحادثة ←' : 'Continue chat →'}
+                    </Text>
+                  ) : null}
+                </View>
+              </Pressable>
+            );
+          }}
         />
       )}
     </Screen>
@@ -115,4 +152,8 @@ const styles = StyleSheet.create({
   },
   iconWrap: { width: 40, height: 40, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   refPill: { paddingHorizontal: spacing.s2, paddingVertical: 4, borderRadius: 999 },
+  hint: {
+    flexDirection: 'row', alignItems: 'center',
+    borderRadius: radius.lg, padding: spacing.s3, marginBottom: spacing.s3,
+  },
 });

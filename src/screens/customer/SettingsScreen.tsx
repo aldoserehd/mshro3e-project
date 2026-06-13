@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, I18nManager, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { signOut } from 'firebase/auth';
@@ -7,6 +7,7 @@ import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
 import PressableScale from '../../ui/PressableScale';
 import VendorCtaSheet from '../../ui/VendorCtaSheet';
+import BackButton from '../../ui/BackButton';
 import { radius, shadowStyle, spacing } from '../../theme/ts';
 import { useColors } from '../../theme/colors';
 import { useLocaleStore } from '../../stores/locale';
@@ -52,7 +53,7 @@ const LinkRow: React.FC<{
         <Text variant="body" weight="600">{label}</Text>
         {description && <Text variant="caption" color={c.textMuted}>{description}</Text>}
       </View>
-      <Ionicons name="chevron-back" size={18} color={c.textMuted} style={{ transform: [{ scaleX: -1 }] }} />
+      <Ionicons name="chevron-forward" size={18} color={c.textMuted} style={{ transform: [{ scaleX: I18nManager.isRTL ? -1 : 1 }] }} />
     </Pressable>
   );
 };
@@ -113,9 +114,7 @@ export default function SettingsScreen({ navigation }: RootStackScreenProps<'Set
   return (
     <Screen>
       <View style={[styles.topBar, { backgroundColor: c.surface, borderBottomColor: c.border }]}>
-        <Pressable onPress={() => navigation.goBack()} hitSlop={12} style={[styles.iconBtn, { backgroundColor: c.surfaceAlt }]}>
-          <Ionicons name="chevron-back" size={20} color={c.text} style={{ transform: [{ scaleX: -1 }] }} />
-        </Pressable>
+        <BackButton onPress={() => navigation.goBack()} />
         <Text variant="cardTitle" weight="700">{ar ? 'الإعدادات' : 'Settings'}</Text>
         <View style={{ width: 40 }} />
       </View>
@@ -191,7 +190,9 @@ export default function SettingsScreen({ navigation }: RootStackScreenProps<'Set
               <Text variant="cardTitle" weight="700" color="#fff">{ar ? `اعرض مشروعك على ${BRAND.ar}` : `List your business on ${BRAND.en}`}</Text>
               <Text variant="caption" color="#9db7ff">{ar ? 'ابدأ مجاناً — والذكاء الاصطناعي يبني متجرك' : 'Start free — AI builds your store'}</Text>
             </View>
-            <Ionicons name="chevron-back" size={18} color="#9db7ff" style={{ transform: [{ scaleX: -1 }] }} />
+            <View style={styles.bannerCta}>
+              <Ionicons name="arrow-forward" size={16} color="#001a41" style={{ transform: [{ scaleX: I18nManager.isRTL ? -1 : 1 }] }} />
+            </View>
           </View>
         </PressableScale>
 
@@ -234,5 +235,6 @@ const styles = StyleSheet.create({
     borderRadius: radius.xl, marginTop: spacing.s5, overflow: 'hidden', ...shadowStyle(2),
   },
   bannerIcon: { width: 44, height: 44, borderRadius: 999, backgroundColor: 'rgba(255,255,255,0.16)', alignItems: 'center', justifyContent: 'center' },
+  bannerCta: { width: 34, height: 34, borderRadius: 999, backgroundColor: '#9db7ff', alignItems: 'center', justifyContent: 'center' },
   logoutBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: spacing.s4, borderRadius: radius.md, marginTop: spacing.s5 },
 });
