@@ -10,6 +10,7 @@ import Text from '../../ui/Text';
 import Card from '../../ui/Card';
 import PressableScale from '../../ui/PressableScale';
 import { LoadingState } from '../../ui/EmptyState';
+import BackButton from '../../ui/BackButton';
 import { useVendor, useServices } from '../../data/hooks';
 import { useColors } from '../../theme/colors';
 import { radius, shadowStyle, spacing, formatPrice, pickLocale, getCurrentLocale } from '../../theme/ts';
@@ -33,9 +34,7 @@ export default function VendorProfileScreen({ route, navigation }: RootStackScre
     return (
       <Screen>
         <View style={[styles.fallbackHeader, { borderBottomColor: c.border }]}>
-          <Pressable onPress={() => navigation.goBack()} hitSlop={10} style={[styles.coverBtn, { position: 'relative', top: 0, backgroundColor: c.surfaceAlt }]}>
-            <Ionicons name="chevron-back" size={20} color={c.text} style={{ transform: [{ scaleX: -1 }] }} />
-          </Pressable>
+          <BackButton onPress={() => navigation.goBack()} />
         </View>
         {loading ? (
           <LoadingState label={arx ? 'جاري التحميل…' : 'Loading…'} />
@@ -84,9 +83,11 @@ export default function VendorProfileScreen({ route, navigation }: RootStackScre
             style={StyleSheet.absoluteFill}
             start={{ x: 0, y: 0 }} end={{ x: 0, y: 1 }}
           />
-          <Pressable onPress={() => navigation.goBack()} style={[styles.coverBtn, { start: spacing.s4, backgroundColor: c.glass }]}>
-            <Ionicons name="chevron-back" size={20} color={c.text} style={{ transform: [{ scaleX: -1 }] }} />
-          </Pressable>
+          <BackButton
+            variant="overlay"
+            onPress={() => navigation.goBack()}
+            style={{ position: 'absolute', start: spacing.s4, top: spacing.s4 }}
+          />
           <Pressable onPress={onShare} hitSlop={8} style={[styles.coverBtn, { end: spacing.s4, backgroundColor: c.glass }]}>
             <Ionicons name="share-outline" size={20} color={c.text} />
           </Pressable>
@@ -197,10 +198,16 @@ const ActionBtn: React.FC<{
     <PressableScale onPress={onPress} style={{ flex: 1 }}>
       <View style={[
         styles.actionBtn,
-        { backgroundColor: primary ? c.brand : c.surface, borderColor: primary ? c.brand : c.border },
+        primary
+          ? { backgroundColor: c.whatsapp, borderColor: c.whatsapp, ...shadowStyle(2) }
+          : { backgroundColor: c.surface, borderColor: c.border, ...shadowStyle(1) },
       ]}>
-        <Ionicons name={icon} size={20} color={primary ? '#fff' : c.text} />
-        <Text variant="label" weight="600" color={primary ? '#fff' : c.text} style={{ marginTop: 4 }}>{label}</Text>
+        <View style={[styles.actionIcon, { backgroundColor: primary ? 'rgba(255,255,255,0.2)' : c.brandFill }]}>
+          <Ionicons name={icon} size={18} color={primary ? '#fff' : c.brandText} />
+        </View>
+        <Text variant="label" weight="700" color={primary ? '#fff' : c.text} style={{ marginTop: 6 }} numberOfLines={1}>
+          {label}
+        </Text>
       </View>
     </PressableScale>
   );
@@ -256,7 +263,11 @@ const styles = StyleSheet.create({
   statDiv: { width: 1, marginVertical: 4 },
   actionsRow: { flexDirection: 'row', paddingHorizontal: spacing.s5, marginTop: spacing.s4, gap: spacing.s2 },
   actionBtn: {
-    paddingVertical: spacing.s3, borderWidth: 1, borderRadius: radius.lg,
+    paddingVertical: spacing.s3, borderWidth: 1, borderRadius: radius.xl,
+    alignItems: 'center', justifyContent: 'center', minHeight: 78,
+  },
+  actionIcon: {
+    width: 34, height: 34, borderRadius: 999,
     alignItems: 'center', justifyContent: 'center',
   },
   bioCard: { margin: spacing.s5, marginBottom: 0, padding: spacing.s4 },

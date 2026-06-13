@@ -7,6 +7,7 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import Logo from '../../ui/Logo';
 import NavyHero from '../../ui/NavyHero';
 import ProductCard from '../../ui/ProductCard';
+import BackButton from '../../ui/BackButton';
 import i18n from '../../locales/i18n';
 import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
@@ -50,11 +51,7 @@ export default function CategoryScreen({ route, navigation }: RootStackScreenPro
         eyebrow={i18n.t('cats.productCount', { n: products.length })}
         title={`${category?.emoji ?? '🏷️'} ${category ? pickLocale(category.name) : ''}`}
         pattern="dots"
-        leading={
-          <Pressable onPress={() => navigation.goBack()} style={styles.backBtn}>
-            <Ionicons name="chevron-back" size={20} color="#fff" style={{ transform: [{ scaleX: ar ? -1 : 1 }] }} />
-          </Pressable>
-        }
+        leading={<BackButton variant="overlay" onPress={() => navigation.goBack()} />}
       />
 
       {/* Sort row */}

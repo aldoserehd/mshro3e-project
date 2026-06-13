@@ -9,6 +9,7 @@ import Text from '../../ui/Text';
 import Logo from '../../ui/Logo';
 import PressableScale from '../../ui/PressableScale';
 import { LoadingState } from '../../ui/EmptyState';
+import BackButton from '../../ui/BackButton';
 import { useService, useServices, useVendor } from '../../data/hooks';
 import { logLead, makeRef } from '../../data/leads';
 import { useUserStore } from '../../stores/user';
@@ -48,9 +49,7 @@ export default function ProductDetailScreen({ route, navigation }: RootStackScre
     return (
       <Screen>
         <View style={[styles.detailHeader, { borderBottomColor: c.border }]}>
-          <Pressable onPress={() => navigation.goBack()} hitSlop={10} style={[styles.headerBack, { backgroundColor: c.surfaceAlt }]}>
-            <Ionicons name="chevron-back" size={20} color={c.text} style={{ transform: [{ scaleX: -1 }] }} />
-          </Pressable>
+          <BackButton onPress={() => navigation.goBack()} />
         </View>
         {loading ? (
           <LoadingState label={i18n.t('common.loading')} />
@@ -122,13 +121,11 @@ export default function ProductDetailScreen({ route, navigation }: RootStackScre
             contentFit="cover"
             transition={180}
           />
-          <Pressable
+          <BackButton
+            variant="overlay"
             onPress={() => navigation.goBack()}
-            style={[styles.fab, { start: spacing.s4, top: spacing.s4, backgroundColor: c.glass }]}
-            hitSlop={8}
-          >
-            <Ionicons name="chevron-back" size={22} color={c.text} style={{ transform: [{ scaleX: -1 }] }} />
-          </Pressable>
+            style={{ position: 'absolute', start: spacing.s4, top: spacing.s4 }}
+          />
           <Pressable
             onPress={() => {
               Haptics.selectionAsync().catch(() => {});
