@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Logo from '../../ui/Logo';
 import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
+import { Chevron } from '../../ui/Chevron';
 import { LoadingState } from '../../ui/EmptyState';
 import { useVendor, useService } from '../../data/hooks';
 import { useColors } from '../../theme/colors';
@@ -71,7 +72,7 @@ export default function ChatScreen({ route, navigation }: RootStackScreenProps<'
       <Screen>
         <View style={[styles.header, { backgroundColor: c.surface, borderBottomColor: c.border }]}>
           <Pressable onPress={() => navigation.goBack()} hitSlop={12} style={[styles.iconBtn, { backgroundColor: c.surfaceAlt }]}>
-            <Ionicons name="chevron-back" size={20} color={c.text} style={{ transform: [{ scaleX: -1 }] }} />
+            <Chevron direction="back" size={20} color={c.text} />
           </Pressable>
         </View>
         {vendorLoading ? (
@@ -94,7 +95,7 @@ export default function ChatScreen({ route, navigation }: RootStackScreenProps<'
         {/* Header */}
         <View style={[styles.header, { backgroundColor: c.surface, borderBottomColor: c.border }]}>
           <Pressable onPress={() => navigation.goBack()} hitSlop={12} style={[styles.iconBtn, { backgroundColor: c.surfaceAlt }]}>
-            <Ionicons name="chevron-back" size={20} color={c.text} style={{ transform: [{ scaleX: -1 }] }} />
+            <Chevron direction="back" size={20} color={c.text} />
           </Pressable>
           <View style={styles.vendor}>
             <Logo name={vendor.name.en} size={44} uri={vendor.logoImage} />

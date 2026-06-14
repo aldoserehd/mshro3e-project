@@ -17,6 +17,7 @@ import Text from '../../ui/Text';
 import PressableScale from '../../ui/PressableScale';
 import NavyHero from '../../ui/NavyHero';
 import ProductCard from '../../ui/ProductCard';
+import SectionHeader from '../../ui/SectionHeader';
 import { LoadingState } from '../../ui/EmptyState';
 import { useCategories, useServices, useVendors } from '../../data/hooks';
 import { KUWAIT_AREAS, type Area } from '../../data/areas';
@@ -247,22 +248,6 @@ export default function HomeScreen({ navigation }: MainTabsScreenProps<'Home'>) 
 
 // ── components ──
 
-/** Section title with a brand accent bar — the new visual signature. */
-const SectionHeader: React.FC<{ title: string; subtitle?: string }> = ({ title, subtitle }) => {
-  const c = useColors();
-  return (
-    <View style={styles.sectionHead}>
-      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-        <View style={[styles.accentBar, { backgroundColor: c.brand }]} />
-        <View>
-          <Text variant="sectionTitle" weight="700">{title}</Text>
-          {subtitle ? <Text variant="caption" color={c.textMuted} style={{ marginTop: 1 }}>{subtitle}</Text> : null}
-        </View>
-      </View>
-    </View>
-  );
-};
-
 const TallProductCard: React.FC<{ product: Service; vendor?: Vendor; onPress: () => void }> = ({ product, vendor, onPress }) => {
   const c = useColors();
   return (
@@ -324,9 +309,6 @@ const styles = StyleSheet.create({
     ...shadowStyle(3),
   },
   searchInput: { flex: 1, fontSize: 15 },
-  accentBar: {
-    width: 4, height: 22, borderRadius: 999, marginEnd: spacing.s2,
-  },
   chipRow: { paddingHorizontal: spacing.s5, paddingTop: spacing.s4, gap: spacing.s2 },
   chip: {
     flexDirection: 'row', alignItems: 'center',
@@ -334,10 +316,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.s4, height: 38, borderRadius: 999,
   },
   chipEmoji: { fontSize: 15, marginEnd: 5, lineHeight: 20 },
-  sectionHead: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: spacing.s5, marginTop: spacing.s6, marginBottom: spacing.s3,
-  },
   todayRow: { paddingHorizontal: spacing.s5, gap: spacing.s4, paddingBottom: spacing.s2 },
   tallCard: {
     width: 230, borderRadius: radius.xl, overflow: 'hidden',

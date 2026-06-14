@@ -10,6 +10,7 @@ import Logo from '../../ui/Logo';
 import PressableScale from '../../ui/PressableScale';
 import { LoadingState } from '../../ui/EmptyState';
 import BackButton from '../../ui/BackButton';
+import { Chevron } from '../../ui/Chevron';
 import { useService, useServices, useVendor } from '../../data/hooks';
 import { logLead, makeRef } from '../../data/leads';
 import { useUserStore } from '../../stores/user';
@@ -193,7 +194,7 @@ export default function ProductDetailScreen({ route, navigation }: RootStackScre
                     )}
                   </View>
                 </View>
-                <Ionicons name="chevron-back" size={18} color={c.textMuted} style={{ transform: [{ scaleX: -1 }] }} />
+                <Chevron direction="forward" size={18} color={c.textMuted} />
               </View>
             </PressableScale>
           )}

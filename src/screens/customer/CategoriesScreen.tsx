@@ -81,7 +81,7 @@ export default function CategoriesScreen({ navigation }: MainTabsScreenProps<'Se
 
           <Animated.View entering={FadeIn.duration(400)} style={styles.heroBody}>
             <Text variant="caption" color={palette.navy300} weight="600" style={{ letterSpacing: 1 }}>
-              {BRAND.en.toUpperCase()} · {locale === 'ar' ? 'سوق التجار' : 'MARKETPLACE'}
+              {BRAND.en.toUpperCase()} · {locale === 'ar' ? 'سوق المشاريع' : 'MARKETPLACE'}
             </Text>
             <Text variant="hero" color="#fff" weight="700" style={{ fontSize: 28, lineHeight: 34, marginTop: 6 }}>
               {i18n.t('cats.title')}
@@ -201,7 +201,6 @@ const CategoryBlock: React.FC<{
   featured?: boolean;
   onPress: () => void;
 }> = ({ category, count, width, onPress }) => {
-  const { locale } = useLocaleStore();
   return (
     <PressableScale onPress={onPress}>
       <View style={[styles.block, { width, marginBottom: spacing.s3 }]}>
@@ -234,7 +233,7 @@ const CategoryBlock: React.FC<{
             {pickLocale(category.name)}
           </Text>
           <Text variant="caption" color={palette.navy300}>
-            {locale === 'ar' ? `${count} منتج` : `${count} products`}
+            {i18n.t('cats.productCount').replace('{n}', String(count))}
           </Text>
         </View>
       </View>

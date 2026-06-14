@@ -1,7 +1,7 @@
 import { BRAND } from '../brand';
 
 export default {
-  app: { name: BRAND.ar, tagline: 'سوق التجار الكويتيين' },
+  app: { name: BRAND.ar, tagline: 'سوق المشاريع الكويتية' },
   splash: { loading: 'جاري التحميل…' },
 
   onboarding: {
@@ -44,13 +44,13 @@ export default {
     signInHint: 'سجّل دخولك عشان تشوف طلباتك السابقة.',
     signInCta: 'تسجيل الدخول',
     emptyTitle: 'ما عندك طلبات بعد',
-    emptyBody: 'أول ما تضغط «اطلب عبر واتساب» على أي منتج، بيظهر طلبك هنا مع رقمه المرجعي.',
+    emptyBody: 'أول ما تضغط «اطلب عبر واتساب» على أي منتج، بيطلع طلبك هني مع رقم الطلب.',
   },
 
   cats: {
     title: 'تصفّح حسب التصنيف',
-    subtitle: 'اختر تصنيفاً لاكتشاف منتجاته',
-    searchPlaceholder: 'ابحث داخل التصنيفات…',
+    subtitle: 'اختر تصنيف وشوف منتجاته',
+    searchPlaceholder: 'دوّر داخل التصنيفات…',
     sortAll: 'الكل',
     sortPopular: 'الأكثر شعبية',
     sortNew: 'الأحدث',
@@ -93,7 +93,7 @@ export default {
 
   search: {
     title: 'بحث',
-    placeholder: 'ابحث عن منتج أو محل',
+    placeholder: 'دوّر على منتج أو محل',
     list: 'قائمة',
     map: 'الخريطة',
     filters: {
@@ -107,7 +107,7 @@ export default {
       picked: 'اخترنا لك',
       popular: 'الأكثر شعبية',
     },
-    empty: 'لا توجد نتائج. جرّب كلمات أخرى.',
+    empty: 'ما في نتائج. جرّب كلمات ثانية.',
   },
 
   vendor: {
@@ -117,8 +117,8 @@ export default {
     moreFromVendor: 'المزيد من هذا التاجر',
     location: 'الموقع',
     tabs: { about: 'نبذة', products: 'المنتجات', reviews: 'التقييمات' },
-    noProducts: 'لا توجد منتجات حالياً.',
-    noReviews: 'لا توجد تقييمات بعد.',
+    noProducts: 'ما في منتجات حالياً.',
+    noReviews: 'ما في تقييمات بعد.',
   },
 
   product: {
@@ -154,7 +154,7 @@ export default {
     tabProducts: 'المنتجات',
     tabVendors: 'المحلات',
     occasions: { all: 'الكل', eid: 'عيد', baby: 'مولود', graduation: 'تخرّج', wedding: 'زواج', other: 'أخرى' },
-    empty: { title: 'لا يوجد محفوظات بعد', subtitle: 'احفظ المنتجات والمحلات اللي تحبها هنا.', cta: 'تصفّح المنتجات' },
+    empty: { title: 'ما عندك محفوظات بعد', subtitle: 'احفظ المنتجات والمحلات اللي تعجبك وبتلقاها هني.', cta: 'تصفّح المنتجات' },
   },
 
   notif: {

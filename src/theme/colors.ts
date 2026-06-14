@@ -46,8 +46,12 @@ export interface Colors {
   /** WhatsApp green — constant across themes. */
   whatsapp: string;
   whatsappDark: string;
+  /** Soft WhatsApp-tinted fill behind icons/pills. */
+  whatsappFill: string;
   /** Destructive. */
   danger: string;
+  /** Soft destructive-tinted fill behind icon circles. */
+  dangerFill: string;
   /** Scrim behind modals/sheets. */
   overlay: string;
   /** Translucent chip bg for floating controls over images. */
@@ -71,7 +75,9 @@ const LIGHT: Colors = {
   brandText: '#415c9d',
   whatsapp: '#25D366',
   whatsappDark: '#1da851',
+  whatsappFill: 'rgba(37,211,102,0.12)',
   danger: '#ba1a1a',
+  dangerFill: '#fdecec',
   overlay: 'rgba(10,14,26,0.5)',
   glass: 'rgba(255,255,255,0.92)',
 };
@@ -93,7 +99,9 @@ const DARK: Colors = {
   brandText: '#9db7ff',
   whatsapp: '#25D366',
   whatsappDark: '#1da851',
+  whatsappFill: 'rgba(37,211,102,0.16)',
   danger: '#ff6b6b',
+  dangerFill: 'rgba(255,107,107,0.16)',
   overlay: 'rgba(0,0,0,0.62)',
   glass: 'rgba(20,26,46,0.86)',
 };

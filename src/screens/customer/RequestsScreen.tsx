@@ -7,7 +7,7 @@ import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
 import NavyHero from '../../ui/NavyHero';
 import Button from '../../ui/Button';
-import { LoadingState } from '../../ui/EmptyState';
+import EmptyState, { LoadingState } from '../../ui/EmptyState';
 import { firebaseDb } from '@shared/firebase';
 import { COL } from '@shared/firestore-paths';
 import { useUserStore } from '../../stores/user';
@@ -87,15 +87,11 @@ export default function RequestsScreen({ navigation }: MainTabsScreenProps<'Requ
       ) : rows === null ? (
         <LoadingState style={{ paddingTop: spacing.s8 }} />
       ) : rows.length === 0 ? (
-        <View style={styles.center}>
-          <Ionicons name="logo-whatsapp" size={48} color={c.textMuted} />
-          <Text variant="cardTitle" weight="700" align="center" style={{ marginTop: spacing.s3 }}>
-            {i18n.t('requests.emptyTitle')}
-          </Text>
-          <Text variant="body" color={c.textMuted} align="center" style={{ marginTop: spacing.s1 }}>
-            {i18n.t('requests.emptyBody')}
-          </Text>
-        </View>
+        <EmptyState
+          icon="logo-whatsapp"
+          title={i18n.t('requests.emptyTitle')}
+          subtitle={i18n.t('requests.emptyBody')}
+        />
       ) : (
         <FlatList
           data={rows}
@@ -116,7 +112,7 @@ export default function RequestsScreen({ navigation }: MainTabsScreenProps<'Requ
             const v = item.vendorId ? vendorMap[item.vendorId] : undefined;
             return (
               <Pressable onPress={() => reopenChat(item)} style={[styles.card, { backgroundColor: c.surface, borderColor: c.border }]}>
-                <View style={[styles.iconWrap, { backgroundColor: 'rgba(37,211,102,0.12)' }]}>
+                <View style={[styles.iconWrap, { backgroundColor: c.whatsappFill }]}>
                   <Ionicons name="logo-whatsapp" size={20} color={c.whatsappDark} />
                 </View>
                 <View style={{ flex: 1, marginStart: spacing.s3 }}>
@@ -130,9 +126,17 @@ export default function RequestsScreen({ navigation }: MainTabsScreenProps<'Requ
                     <Text variant="microcopy" weight="700" color={c.brandText} forceLtr>{item.ref}</Text>
                   </View>
                   {v ? (
-                    <Text variant="microcopy" weight="600" color={c.whatsappDark}>
-                      {ar ? 'كمّل المحادثة ←' : 'Continue chat →'}
-                    </Text>
+                    <View style={styles.continueRow}>
+                      <Text variant="microcopy" weight="600" color={c.whatsappDark}>
+                        {ar ? 'كمّل المحادثة' : 'Continue chat'}
+                      </Text>
+                      <Ionicons
+                        name={ar ? 'arrow-back' : 'arrow-forward'}
+                        size={12}
+                        color={c.whatsappDark}
+                        style={{ marginStart: 3 }}
+                      />
+                    </View>
                   ) : null}
                 </View>
               </Pressable>
@@ -151,6 +155,7 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderRadius: radius.lg, padding: spacing.s4,
   },
   iconWrap: { width: 40, height: 40, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  continueRow: { flexDirection: 'row', alignItems: 'center' },
   refPill: { paddingHorizontal: spacing.s2, paddingVertical: 4, borderRadius: 999 },
   hint: {
     flexDirection: 'row', alignItems: 'center',

@@ -6,6 +6,7 @@ import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
 import Avatar from '../../ui/Avatar';
 import PressableScale from '../../ui/PressableScale';
+import { Chevron } from '../../ui/Chevron';
 import VendorCtaSheet from '../../ui/VendorCtaSheet';
 import { useColors } from '../../theme/colors';
 import { radius, spacing, shadowStyle, getCurrentLocale } from '../../theme/ts';
@@ -28,14 +29,14 @@ const Row: React.FC<RowProps> = ({ icon, label, trailing, onPress, destructive }
   return (
     <PressableScale onPress={onPress}>
       <View style={[styles.row, { backgroundColor: c.surface, borderColor: c.border }]}>
-        <View style={[styles.rowIcon, { backgroundColor: destructive ? '#fdecec' : c.brandFill }]}>
+        <View style={[styles.rowIcon, { backgroundColor: destructive ? c.dangerFill : c.brandFill }]}>
           <Ionicons name={icon} size={18} color={destructive ? c.danger : c.brandText} />
         </View>
         <Text variant="body" color={destructive ? c.danger : c.text} style={{ flex: 1, marginStart: spacing.s3 }}>
           {label}
         </Text>
         {trailing ?? (
-          <Ionicons name="chevron-back" size={18} color={c.textMuted} style={{ transform: [{ scaleX: -1 }] }} />
+          <Chevron direction="forward" size={18} color={c.textMuted} />
         )}
       </View>
     </PressableScale>
@@ -85,14 +86,14 @@ export default function AccountScreen({ navigation }: MainTabsScreenProps<'Accou
             <View>
               <Avatar name={displayName} size={64} />
               <View style={[styles.editBadge, { backgroundColor: c.brand, borderColor: c.surface }]}>
-                <Ionicons name="pencil" size={11} color="#fff" />
+                <Ionicons name="pencil" size={11} color={c.textOnBrand} />
               </View>
             </View>
             <View style={{ flex: 1, marginStart: spacing.s4 }}>
               <Text variant="cardTitle" weight="700" numberOfLines={1}>{displayName}</Text>
               <Text variant="caption" color={c.textMuted} numberOfLines={1}>{subtitle}</Text>
             </View>
-            <Ionicons name="chevron-back" size={18} color={c.textMuted} style={{ transform: [{ scaleX: -1 }] }} />
+            <Chevron direction="forward" size={18} color={c.textMuted} />
           </View>
         </PressableScale>
 
@@ -108,10 +109,10 @@ export default function AccountScreen({ navigation }: MainTabsScreenProps<'Accou
         <PressableScale onPress={() => setVendorCtaOpen(true)}>
           <View style={[styles.upgrade, { backgroundColor: c.brand }]}>
             <View style={[styles.upgradeIcon, { backgroundColor: 'rgba(255,255,255,0.18)' }]}>
-              <Ionicons name="storefront-outline" size={20} color="#fff" />
+              <Ionicons name="storefront-outline" size={20} color={c.textOnBrand} />
             </View>
             <View style={{ flex: 1, marginStart: spacing.s3 }}>
-              <Text variant="cardTitle" weight="700" color="#fff">{i18n.t('account.upgrade.title')}</Text>
+              <Text variant="cardTitle" weight="700" color={c.textOnBrand}>{i18n.t('account.upgrade.title')}</Text>
               <Text variant="caption" color="rgba(255,255,255,0.82)" style={{ marginTop: 4 }}>
                 {i18n.t('account.upgrade.body')}
               </Text>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import i18n from '../../locales/i18n';
 import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
@@ -37,7 +38,7 @@ export default function NotificationsScreen({ navigation }: RootStackScreenProps
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         {/* Empty feed state */}
-        <View style={[styles.emptyCard, { backgroundColor: c.surfaceAlt }]}>
+        <Animated.View entering={FadeInDown.duration(300)} style={[styles.emptyCard, { backgroundColor: c.surfaceAlt }]}>
           <View style={[styles.bell, { backgroundColor: c.brandFill }]}>
             <Ionicons name="notifications-outline" size={26} color={c.brandText} />
           </View>
@@ -47,7 +48,7 @@ export default function NotificationsScreen({ navigation }: RootStackScreenProps
           <Text variant="body" color={c.textMuted} align="center" style={{ marginTop: 4 }}>
             {i18n.t('notif.feedEmptyBody')}
           </Text>
-        </View>
+        </Animated.View>
 
         {/* Preferences */}
         <Text variant="label" weight="700" color={c.textMuted} style={styles.prefsHead}>

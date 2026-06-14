@@ -1,7 +1,7 @@
 import { BRAND } from '../brand';
 
 export default {
-  app: { name: BRAND.en, tagline: 'Kuwait vendor marketplace' },
+  app: { name: BRAND.en, tagline: 'Kuwait’s home-business marketplace' },
   splash: { loading: 'Loading…' },
 
   onboarding: {
