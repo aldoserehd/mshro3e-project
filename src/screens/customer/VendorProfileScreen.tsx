@@ -86,9 +86,9 @@ export default function VendorProfileScreen({ route, navigation }: RootStackScre
           <BackButton
             variant="overlay"
             onPress={() => navigation.goBack()}
-            style={{ position: 'absolute', start: spacing.s4, top: spacing.s4 }}
+            style={{ position: 'absolute', left: spacing.s4, top: spacing.s4 }}
           />
-          <Pressable onPress={onShare} hitSlop={8} style={[styles.coverBtn, { end: spacing.s4, backgroundColor: c.glass }]}>
+          <Pressable onPress={onShare} hitSlop={8} style={[styles.coverBtn, { right: spacing.s4, backgroundColor: c.glass }]}>
             <Ionicons name="share-outline" size={20} color={c.text} />
           </Pressable>
         </View>
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
   },
   stat: { flex: 1, alignItems: 'center' },
   statDiv: { width: 1, marginVertical: 4 },
-  actionsRow: { flexDirection: 'row', paddingHorizontal: spacing.s5, marginTop: spacing.s4, gap: spacing.s2 },
+  actionsRow: { flexDirection: 'row', paddingHorizontal: spacing.s5, marginTop: spacing.s5, gap: spacing.s3 },
   actionBtn: {
     paddingVertical: spacing.s3, borderWidth: 1, borderRadius: radius.xl,
     alignItems: 'center', justifyContent: 'center', minHeight: 78,

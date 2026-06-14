@@ -37,18 +37,24 @@ export const BlurTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, na
   const tabBarWidth = width - horizontalMargin * 2;
   const tabWidth = tabBarWidth / state.routes.length;
 
-  const indicatorX = useSharedValue(state.index * tabWidth);
+  // Indicator is positioned by absolute `left` (screen coords — never mirrored
+  // by RTL, unlike `start`/transforms). We compute the VISUAL slot: under
+  // forced-RTL the flex row renders children reversed, so the focused route's
+  // visual index counts from the other side.
+  const PAD = spacing.s2;
+  const indWidth = tabWidth - PAD * 2;
+  const n = state.routes.length;
+  const slotLeft = (idx: number) => {
+    const visual = I18nManager.isRTL ? n - 1 - idx : idx;
+    return visual * tabWidth + PAD * 2;
+  };
 
+  const indicatorX = useSharedValue(slotLeft(state.index));
   useEffect(() => {
-    indicatorX.value = withSpring(state.index * tabWidth, motion.spring.tab);
-  }, [state.index, tabWidth, indicatorX]);
+    indicatorX.value = withSpring(slotLeft(state.index), motion.spring.tab);
+  }, [state.index, tabWidth]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // RN doesn't mirror transforms under RTL — flip the travel direction so the
-  // pill lands on the focused tab instead of its mirror twin.
-  const dir = I18nManager.isRTL ? -1 : 1;
-  const indicatorStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: dir * indicatorX.value }],
-  }));
+  const indicatorStyle = useAnimatedStyle(() => ({ left: indicatorX.value }));
 
   return (
     <View
@@ -76,7 +82,7 @@ export const BlurTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, na
       <Animated.View
         style={[
           styles.indicator,
-          { width: tabWidth - spacing.s2 * 2, marginStart: spacing.s2, backgroundColor: c.brand },
+          { width: indWidth, backgroundColor: c.brand },
           indicatorStyle,
         ]}
       />

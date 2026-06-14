@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
-import { StyleSheet, View, ViewStyle } from 'react-native';
+import { I18nManager, StyleSheet, View, ViewStyle } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Animated, {
   Easing,
@@ -240,7 +240,9 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   topRow: {
-    flexDirection: 'row',
+    // Force visual LTR (leading=left, trailing=right) even under forced-RTL,
+    // so the back button always sits on the left.
+    flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: spacing.s4,

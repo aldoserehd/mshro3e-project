@@ -125,14 +125,14 @@ export default function ProductDetailScreen({ route, navigation }: RootStackScre
           <BackButton
             variant="overlay"
             onPress={() => navigation.goBack()}
-            style={{ position: 'absolute', start: spacing.s4, top: spacing.s4 }}
+            style={{ position: 'absolute', left: spacing.s4, top: spacing.s4 }}
           />
           <Pressable
             onPress={() => {
               Haptics.selectionAsync().catch(() => {});
               toggleProduct(product.id);
             }}
-            style={[styles.fab, { end: spacing.s4, top: spacing.s4, backgroundColor: c.glass }]}
+            style={[styles.fab, { right: spacing.s4, top: spacing.s4, backgroundColor: c.glass }]}
             hitSlop={8}
           >
             <Ionicons name={isFav ? 'heart' : 'heart-outline'} size={20} color={isFav ? c.danger : c.text} />
@@ -339,7 +339,7 @@ const styles = StyleSheet.create({
   ratingRow: { flexDirection: 'row', alignItems: 'center', marginTop: 3 },
   h: { marginTop: spacing.s5, marginBottom: spacing.s2 },
   bento: { flexDirection: 'row', gap: spacing.s3, marginTop: spacing.s4 },
-  bentoTile: { flex: 1, borderRadius: radius.lg, padding: spacing.s4, gap: 0 },
+  bentoTile: { flex: 1, borderRadius: radius.lg, padding: spacing.s4, gap: 4, alignItems: 'flex-start' },
   radioRow: {
     flexDirection: 'row', alignItems: 'center',
     paddingHorizontal: spacing.s4, height: 56,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { I18nManager, Pressable, StyleSheet, ViewStyle } from 'react-native';
+import { Pressable, StyleSheet, ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useColors } from '../theme/colors';
 import { shadowStyle } from '../theme/ts';
@@ -34,7 +34,7 @@ export const BackButton: React.FC<{
         name="chevron-back"
         size={22}
         color={overlay ? '#fff' : c.text}
-        style={{ transform: [{ scaleX: I18nManager.isRTL ? -1 : 1 }], marginStart: -2 }}
+        style={{ marginLeft: -2 }}
       />
     </Pressable>
   );

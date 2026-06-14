@@ -211,7 +211,9 @@ export default function SettingsScreen({ navigation }: RootStackScreenProps<'Set
 
 const styles = StyleSheet.create({
   topBar: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    // Force visual LTR so the back button stays on the left under forced-RTL.
+    flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
+    alignItems: 'center', justifyContent: 'space-between',
     paddingHorizontal: spacing.s4, paddingVertical: spacing.s3, borderBottomWidth: 1,
   },
   iconBtn: { width: 40, height: 40, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },

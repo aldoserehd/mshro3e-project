@@ -159,6 +159,7 @@ const styles = StyleSheet.create({
   upgradeIcon: { width: 44, height: 44, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   upgradeCta: {
     backgroundColor: '#fff',
-    paddingHorizontal: spacing.s3, paddingVertical: spacing.s2, borderRadius: 999,
+    paddingHorizontal: spacing.s4, paddingVertical: spacing.s2, borderRadius: 999,
+    marginStart: spacing.s3,
   },
 });
