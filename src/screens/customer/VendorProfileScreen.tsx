@@ -1,5 +1,5 @@
 import React from 'react';
-import { Linking, Pressable, ScrollView, Share, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { Alert, Linking, Pressable, ScrollView, Share, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
@@ -23,7 +23,7 @@ const cleanPhone = (raw: string) => raw.replace(/[^\d]/g, '');
 export default function VendorProfileScreen({ route, navigation }: RootStackScreenProps<'VendorProfile'>) {
   const { vendorId } = route.params;
   const { data: vendor, loading } = useVendor(vendorId);
-  const { data: allProducts } = useServices();
+  const { data: products } = useServices(vendorId);
   const { locale } = useLocaleStore();
   const c = useColors();
   const { width } = useWindowDimensions();
@@ -50,15 +50,20 @@ export default function VendorProfileScreen({ route, navigation }: RootStackScre
     );
   }
 
-  const products = allProducts.filter((p) => p.vendorId === vendor.id);
   const isPro = vendor.tier === 'pro' || vendor.tier === 'managed';
   const ar = getCurrentLocale() === 'ar';
 
   const openWhatsapp = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
     const ph = cleanPhone(vendor.whatsapp ?? vendor.phone ?? '');
-    const url = ph ? `https://wa.me/${ph}` : 'https://wa.me/';
-    Linking.openURL(url).catch(() => {});
+    if (!ph) {
+      Alert.alert(
+        ar ? 'لا يوجد رقم واتساب' : 'No WhatsApp number',
+        ar ? 'هذا المحل لم يضف رقم تواصل بعد.' : "This shop hasn't added a contact number yet.",
+      );
+      return;
+    }
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
+    Linking.openURL(`https://wa.me/${ph}`).catch(() => {});
   };
   const callPhone = () => { if (vendor.phone) Linking.openURL(`tel:${vendor.phone}`).catch(() => {}); };
   const onShare = () => {
@@ -112,11 +117,11 @@ export default function VendorProfileScreen({ route, navigation }: RootStackScre
               <Ionicons name="location" size={12} color={c.textMuted} /> {pickLocale(vendor.address)}
             </Text>
           )}
-          {/* Accepting orders pill */}
+          {/* "Orders via WhatsApp" pill — states the model, not a fake availability claim. */}
           <View style={[styles.acceptPill, { backgroundColor: c.isDark ? 'rgba(37,211,102,0.16)' : '#E8F8EE' }]}>
-            <View style={styles.dot} />
+            <Ionicons name="logo-whatsapp" size={11} color={c.whatsappDark} />
             <Text variant="microcopy" weight="600" color={c.whatsappDark}>
-              {ar ? 'يستقبل الطلبات' : 'Accepting orders'}
+              {ar ? 'الطلب عبر واتساب' : 'Orders via WhatsApp'}
             </Text>
           </View>
         </View>
@@ -154,8 +159,6 @@ export default function VendorProfileScreen({ route, navigation }: RootStackScre
 
         {/* Info card */}
         <Card style={styles.infoCard} padding="none">
-          <InfoRow icon="time-outline" label={ar ? 'ساعات العمل' : 'Hours'} value={ar ? '10 ص — 10 م يومياً' : '10 AM — 10 PM daily'} />
-          <Divider />
           <InfoRow icon="call-outline" label={ar ? 'الهاتف' : 'Phone'} value={vendor.phone ?? '—'} mono />
           {vendor.whatsapp && (<><Divider /><InfoRow icon="logo-whatsapp" label="WhatsApp" value={vendor.whatsapp} mono /></>)}
           {isPro && (<><Divider /><InfoRow icon="globe-outline" label={ar ? 'الموقع' : 'Website'} value={BRAND.storeUrl(vendor.handle ?? vendor.slug)} /></>)}
@@ -253,7 +256,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', gap: 6,
     paddingHorizontal: spacing.s3, height: 28, borderRadius: 999, marginTop: spacing.s2,
   },
-  dot: { width: 7, height: 7, borderRadius: 999, backgroundColor: '#25D366' },
   statsRow: {
     flexDirection: 'row', borderRadius: radius.lg,
     marginHorizontal: spacing.s5, marginTop: spacing.s4,

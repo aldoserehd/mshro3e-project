@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
@@ -190,9 +190,8 @@ export default function SignUpScreen({ navigation }: RootStackScreenProps<'SignU
           <Pressable onPress={() => navigation.goBack()} style={styles.backBtn}>
             <Chevron direction="back" size={20} color="#fff" />
           </Pressable>
-          {/* Logo placeholder */}
           <View style={styles.logoMark}>
-            <Text variant="hero" color="#fff" weight="800" style={{ fontSize: 28 }}>م</Text>
+            <Image source={require('../../assets/brand-mark.png')} style={{ width: 44, height: 44 }} resizeMode="contain" />
           </View>
           <Text variant="pageTitle" color="#fff" weight="700" style={{ marginTop: spacing.s3 }}>
             {t.title}
@@ -259,7 +258,7 @@ const styles = StyleSheet.create({
   },
   logoMark: {
     width: 64, height: 64, borderRadius: radius.lg,
-    backgroundColor: 'rgba(255,255,255,0.12)',
+    backgroundColor: '#ffffff',
     alignItems: 'center', justifyContent: 'center',
     marginTop: spacing.s5,
   },

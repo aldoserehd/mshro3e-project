@@ -36,6 +36,9 @@ export type StaffPermission =
 
 export type VendorStatus = 'pending' | 'active' | 'suspended' | 'rejected';
 
+/** How the vendor gets products to the customer — set by the vendor. */
+export type DeliveryOption = 'vendorDelivery' | 'pickup' | 'customerArranges';
+
 export interface Vendor {
   id: ID;
   ownerUid: ID;
@@ -55,6 +58,8 @@ export interface Vendor {
   governorate?: 'capital' | 'hawalli' | 'farwaniya' | 'ahmadi' | 'jahra' | 'mubarak_al_kabeer';
   phone?: string;
   whatsapp?: string;
+  /** Delivery methods this vendor actually offers (subset shown to customers). */
+  deliveryOptions?: DeliveryOption[];
   workingHours: WorkingHours;
   rating: number;
   reviewCount: number;

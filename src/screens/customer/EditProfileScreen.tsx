@@ -7,7 +7,7 @@ import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
 import Button from '../../ui/Button';
 import Avatar from '../../ui/Avatar';
-import { Chevron } from '../../ui/Chevron';
+import { TopBar } from '../../ui/SettingsKit';
 import { useCategories } from '../../data/hooks';
 import { useUserStore } from '../../stores/user';
 import { useLocaleStore } from '../../stores/locale';
@@ -137,19 +137,6 @@ export default function EditProfileScreen({ navigation }: RootStackScreenProps<'
     </Screen>
   );
 }
-
-const TopBar: React.FC<{ title: string; onBack: () => void }> = ({ title, onBack }) => {
-  const c = useColors();
-  return (
-    <View style={[styles.topBar, { backgroundColor: c.surface, borderBottomColor: c.border }]}>
-      <Pressable onPress={onBack} hitSlop={12} style={[styles.backBtn, { backgroundColor: c.surfaceAlt }]}>
-        <Chevron direction="back" size={20} color={c.text} />
-      </Pressable>
-      <Text variant="cardTitle" weight="700">{title}</Text>
-      <View style={{ width: 40 }} />
-    </View>
-  );
-};
 
 const Field: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => {
   const c = useColors();

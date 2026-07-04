@@ -1,5 +1,7 @@
 import { useColorScheme } from 'react-native';
 import { create } from 'zustand';
+import { createJSONStorage, persist } from 'zustand/middleware';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { palette } from '../theme/ts';
 
 export type ThemeMode = 'light' | 'dark' | 'system';
@@ -10,10 +12,15 @@ interface ThemeState {
   setMode: (m: ThemeMode) => void;
 }
 
-export const useThemeStore = create<ThemeState>((set) => ({
-  mode: 'system',
-  setMode: (m) => set({ mode: m }),
-}));
+export const useThemeStore = create<ThemeState>()(
+  persist(
+    (set) => ({
+      mode: 'system',
+      setMode: (m) => set({ mode: m }),
+    }),
+    { name: '@mshro3e/theme', storage: createJSONStorage(() => AsyncStorage) },
+  ),
+);
 
 /**
  * Resolve the effective theme based on the user's mode preference + the OS

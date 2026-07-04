@@ -8,6 +8,7 @@
  */
 import { revalidatePath } from 'next/cache';
 import { adminDb } from '@/lib/firebase-admin';
+import { requireOwner } from '@/lib/auth';
 import { COL } from '@shared/firestore-paths';
 import type { VendorStatus } from '@shared/types';
 
@@ -18,6 +19,8 @@ export interface ActionResult {
 
 async function patchVendor(id: string, patch: Record<string, unknown>): Promise<ActionResult> {
   try {
+    // Server actions are public POST endpoints — always re-verify the owner.
+    await requireOwner();
     await adminDb().collection(COL.vendors).doc(id).set(
       { ...patch, updatedAt: Date.now() },
       { merge: true },
@@ -78,6 +81,7 @@ export async function setVendorTier(
     return res;
   }
   try {
+    await requireOwner();
     const ref = adminDb().collection(COL.vendors).doc(id);
     const snap = await ref.get();
     const current = (snap.data()?.subscriptionUntil as number | undefined) ?? 0;

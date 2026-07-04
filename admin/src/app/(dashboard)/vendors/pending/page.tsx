@@ -1,8 +1,10 @@
 import * as React from 'react';
-import { CheckCircle2, ClipboardCheck, FileText, ImageIcon, IdCard } from 'lucide-react';
+import Link from 'next/link';
+import { CheckCircle2, ClipboardCheck, MessageCircle, Package, Phone } from 'lucide-react';
 import { getLocale } from '@/lib/locale';
 import { getDict } from '@/i18n/dict';
 import { listVendors } from '@/lib/data/vendors';
+import { liveProducts } from '@/lib/data/live';
 import { tFmt } from '@/i18n/dict';
 import { PageHeader } from '@/components/domain/page-header';
 import { VendorActionButton } from '@/components/domain/vendor-action-button';
@@ -18,8 +20,9 @@ const initials = (n: string) => n.trim().split(/\s+/).slice(0, 2).map((p) => p[0
 export default async function VendorsPendingPage() {
   const locale = await getLocale();
   const t = getDict(locale);
-  const vendors = await listVendors({ status: 'pending' });
+  const [vendors, products] = await Promise.all([listVendors({ status: 'pending' }), liveProducts()]);
   const tag = locale === 'ar' ? 'ar-KW' : 'en-US';
+  const productCount = (vendorId: string) => products.filter((p) => p.vendorId === vendorId).length;
 
   return (
     <div className="flex flex-col gap-6">
@@ -63,20 +66,30 @@ export default async function VendorsPendingPage() {
                 </div>
               </div>
 
+              {/* What the reviewer actually needs: reachability + catalog readiness. */}
               <div className="mt-4 grid grid-cols-3 gap-2 text-center">
                 <div className="rounded-[10px] border border-ink-200 bg-navy-50/40 p-3">
-                  <FileText className="size-4 mx-auto text-navy-700" />
-                  <div className="mt-1 text-[12px] font-medium">{t.vendors.docsCR}</div>
+                  <MessageCircle className="size-4 mx-auto text-navy-700" />
+                  <div className="mt-1 text-[12px] font-medium truncate" dir="ltr">{v.whatsapp || '—'}</div>
                 </div>
                 <div className="rounded-[10px] border border-ink-200 bg-navy-50/40 p-3">
-                  <IdCard className="size-4 mx-auto text-navy-700" />
-                  <div className="mt-1 text-[12px] font-medium">{t.vendors.docsID}</div>
+                  <Phone className="size-4 mx-auto text-navy-700" />
+                  <div className="mt-1 text-[12px] font-medium truncate" dir="ltr">{v.phone || '—'}</div>
                 </div>
                 <div className="rounded-[10px] border border-ink-200 bg-navy-50/40 p-3">
-                  <ImageIcon className="size-4 mx-auto text-navy-700" />
-                  <div className="mt-1 text-[12px] font-medium">{t.vendors.docsPhotos}</div>
+                  <Package className="size-4 mx-auto text-navy-700" />
+                  <div className="mt-1 text-[12px] font-medium tabular-nums">
+                    {productCount(v.id)} {locale === 'ar' ? 'منتج' : 'products'}
+                  </div>
                 </div>
               </div>
+
+              <Link
+                href={`/vendors/${v.id}` as never}
+                className="mt-3 inline-block text-[13px] font-medium text-navy-500 hover:text-navy-700"
+              >
+                {locale === 'ar' ? 'عرض الملف الكامل ←' : 'View full profile →'}
+              </Link>
 
               <div className="mt-4 flex gap-2">
                 <VendorActionButton

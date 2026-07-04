@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { Image, StyleSheet, View } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -8,20 +8,22 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import i18n from '../locales/i18n';
 import Text from '../ui/Text';
 import { RootStackScreenProps } from '../navigation/types';
 import { palette, spacing } from '../theme/ts';
-import { useUserStore } from '../stores/user';
+
+export const ONBOARDED_KEY = '@mshro3e/onboarded';
 
 /**
- * Polished splash screen. No artificial delay — fades in app brand briefly
- * then navigates to Onboarding.
+ * Polished splash screen. Brief brand fade, then routes:
+ * first launch → Onboarding; otherwise → MainTabs (browsing never requires
+ * an account — sign-in is only asked for at the moment of ordering).
  */
 export default function SplashScreen({ navigation }: RootStackScreenProps<'Splash'>) {
   const opacity = useSharedValue(0);
   const scale = useSharedValue(0.9);
-  const user = useUserStore((s) => s.user);
 
   useEffect(() => {
     opacity.value = withTiming(1, { duration: 320, easing: Easing.out(Easing.cubic) });
@@ -29,15 +31,22 @@ export default function SplashScreen({ navigation }: RootStackScreenProps<'Splas
       withTiming(1.05, { duration: 320 }),
       withTiming(1, { duration: 220 }),
     );
-    const t = setTimeout(() => {
-      // DEV BYPASS: skip auth so the UI is viewable while we debug crashes.
-      // To enable the real auth flow, swap to the if/else below:
-      //   if (user) navigation.replace('MainTabs'); else navigation.replace('SignIn');
-      void user; // silence unused warning
-      navigation.replace('MainTabs');
+    let cancelled = false;
+    const t = setTimeout(async () => {
+      let onboarded = false;
+      try {
+        onboarded = (await AsyncStorage.getItem(ONBOARDED_KEY)) === '1';
+      } catch {
+        // storage unavailable — treat as returning user
+        onboarded = true;
+      }
+      if (!cancelled) navigation.replace(onboarded ? 'MainTabs' : 'Onboarding');
     }, 700);
-    return () => clearTimeout(t);
-  }, [navigation, opacity, scale, user]);
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
+  }, [navigation, opacity, scale]);
 
   const brand = useAnimatedStyle(() => ({
     opacity: opacity.value,
@@ -54,9 +63,7 @@ export default function SplashScreen({ navigation }: RootStackScreenProps<'Splas
       />
       <Animated.View style={[styles.center, brand]}>
         <View style={styles.mark}>
-          <Text variant="hero" color={palette.white} weight="700">
-            م
-          </Text>
+          <Image source={require('../assets/brand-mark.png')} style={styles.markImg} resizeMode="contain" />
         </View>
         <Text variant="pageTitle" color={palette.white} weight="700" style={{ marginTop: spacing.s4 }}>
           {i18n.t('app.name')}
@@ -76,8 +83,9 @@ const styles = StyleSheet.create({
     width: 92,
     height: 92,
     borderRadius: 24,
-    backgroundColor: 'rgba(255,255,255,0.12)',
+    backgroundColor: '#ffffff',
     alignItems: 'center',
     justifyContent: 'center',
   },
+  markImg: { width: 64, height: 64 },
 });

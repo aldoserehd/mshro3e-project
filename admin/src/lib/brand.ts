@@ -12,10 +12,10 @@
  * they are never user-visible.
  */
 export const BRAND = {
-  /** Latin display name. PLACEHOLDER — final name not chosen yet. */
-  en: 'Our Platform',
-  /** Arabic display name. PLACEHOLDER — final name not chosen yet. */
-  ar: 'منصّتنا',
+  /** Latin display name. */
+  en: 'Mshro3e',
+  /** Arabic display name. */
+  ar: 'مشروعي',
   /** Name by locale. */
   name(locale: 'ar' | 'en'): string {
     return locale === 'ar' ? this.ar : this.en;

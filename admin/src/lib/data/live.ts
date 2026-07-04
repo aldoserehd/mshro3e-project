@@ -109,4 +109,22 @@ export const liveReviews = cache(async (): Promise<ReviewRow[]> => {
   }
 });
 
+/** Category suggestions submitted by vendors (create-only collection). */
+export interface SuggestionRow {
+  id: string;
+  text: string;
+  vendorName?: string | null;
+  createdAt?: number;
+}
+
+export const liveSuggestions = cache(async (): Promise<SuggestionRow[]> => {
+  if (!useFirebase) return [];
+  try {
+    const snap = await adminDb().collection('categorySuggestions').get();
+    return mapDocs<SuggestionRow>(snap).sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0));
+  } catch {
+    return [];
+  }
+});
+
 export const firestoreConfigured = useFirebase;

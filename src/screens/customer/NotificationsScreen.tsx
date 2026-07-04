@@ -5,7 +5,7 @@ import Animated, { FadeInDown } from 'react-native-reanimated';
 import i18n from '../../locales/i18n';
 import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
-import { Chevron } from '../../ui/Chevron';
+import { TopBar } from '../../ui/SettingsKit';
 import { useColors } from '../../theme/colors';
 import { radius, spacing } from '../../theme/ts';
 import type { RootStackScreenProps } from '../../navigation/types';
@@ -28,13 +28,7 @@ export default function NotificationsScreen({ navigation }: RootStackScreenProps
 
   return (
     <Screen>
-      <View style={[styles.topBar, { backgroundColor: c.surface, borderBottomColor: c.border }]}>
-        <Pressable onPress={() => navigation.goBack()} hitSlop={12} style={[styles.backBtn, { backgroundColor: c.surfaceAlt }]}>
-          <Chevron direction="back" size={20} color={c.text} />
-        </Pressable>
-        <Text variant="cardTitle" weight="700">{i18n.t('notif.title')}</Text>
-        <View style={{ width: 40 }} />
-      </View>
+      <TopBar title={i18n.t('notif.title')} onBack={() => navigation.goBack()} />
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
         {/* Empty feed state */}

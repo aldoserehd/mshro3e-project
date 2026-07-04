@@ -95,8 +95,9 @@ export function Sidebar({ locale }: { locale: Locale }) {
     >
       <div className="flex items-center justify-between gap-2 px-4 h-16 border-b border-ink-200">
         <Link href="/overview" className="flex items-center gap-2.5 min-w-0">
-          <span className="inline-flex h-9 w-9 items-center justify-center rounded-[10px] bg-navy-900 text-white font-bold text-[15px] shrink-0">
-            م
+          <span className="inline-flex h-9 w-9 items-center justify-center rounded-[10px] bg-white ring-1 ring-ink-200 shrink-0">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/brand/mark.png" alt="Mshro3e" className="h-7 w-7 object-contain" />
           </span>
           {!collapsed ? (
             <span className="flex flex-col min-w-0">

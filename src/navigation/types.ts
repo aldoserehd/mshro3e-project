@@ -15,14 +15,13 @@ export type RootStackParamList = {
   Category: { categoryId: string };
   Settings: undefined;
   Notifications: undefined;
-  Chat: { vendorId: string; productId?: string };
+  Orders: undefined;
   Info: { topic: 'notifications' | 'about' | 'help' | 'privacy' };
 };
 
 export type MainTabsParamList = {
   Home: undefined;
   Search: undefined;
-  Requests: undefined;
   Favorites: undefined;
   Account: undefined;
 };

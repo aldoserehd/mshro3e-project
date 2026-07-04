@@ -19,7 +19,7 @@ import {
 } from 'firebase/firestore';
 import { dbClient } from '@/lib/firebase-client';
 import { COL } from '@shared/firestore-paths';
-import type { Category, Service, Vendor } from '@shared/types';
+import type { Category, DeliveryOption, Service, Vendor } from '@shared/types';
 
 function mapDocs<T>(docs: { id: string; data: () => unknown }[]): T[] {
   return docs.map((d) => ({ id: d.id, ...(d.data() as object) }) as T);
@@ -39,6 +39,8 @@ export interface StorefrontInput {
   logoZoom?: number;
   coverImage: string;
   categoryIds: string[];
+  /** Delivery methods the vendor actually offers. */
+  deliveryOptions: DeliveryOption[];
 }
 
 function slugify(s: string): string {
@@ -66,6 +68,7 @@ export async function saveStorefront(
     logoZoom: input.logoZoom ?? 1,
     coverImage: input.coverImage || null,
     categoryIds: input.categoryIds,
+    deliveryOptions: input.deliveryOptions,
     updatedAt: Date.now(),
   };
 
@@ -82,7 +85,9 @@ export async function saveStorefront(
     workingHours: {},
     rating: 0,
     reviewCount: 0,
-    status: 'active',
+    // New storefronts await owner approval — the mobile app only lists
+    // status === 'active', and the admin approves from /vendors/pending.
+    status: 'pending',
     tier: null,
     verifiedAt: null,
     createdAt: Date.now(),

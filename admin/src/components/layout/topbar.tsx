@@ -39,7 +39,8 @@ export function Topbar({ locale, user }: TopbarProps) {
   };
 
   const logout = async () => {
-    document.cookie = '__mshro3e_session=; path=/; max-age=0; SameSite=Lax';
+    // The session cookie is httpOnly — only the server can clear it.
+    await fetch('/api/session', { method: 'DELETE' }).catch(() => {});
     window.location.href = '/login';
   };
 

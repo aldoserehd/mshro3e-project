@@ -6,13 +6,12 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useFonts as useManrope, Manrope_500Medium, Manrope_600SemiBold, Manrope_700Bold, Manrope_800ExtraBold } from '@expo-google-fonts/manrope';
 import { Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold, useFonts as useInter } from '@expo-google-fonts/inter';
-import { Tajawal_400Regular, Tajawal_500Medium, Tajawal_700Bold, useFonts as useTajawal } from '@expo-google-fonts/tajawal';
 import { IBMPlexSansArabic_400Regular, IBMPlexSansArabic_500Medium, IBMPlexSansArabic_600SemiBold, IBMPlexSansArabic_700Bold, useFonts as useIBMArabic } from '@expo-google-fonts/ibm-plex-sans-arabic';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 
 import AppNavigator from './src/navigation/AppNavigator';
-import { palette, semantic } from './src/theme/ts';
+import { useColors } from './src/theme/colors';
 import { useLocaleStore } from './src/stores/locale';
 import { useUserStore } from './src/stores/user';
 import { firebaseAuth, firebaseDb } from './shared/firebase';
@@ -39,11 +38,6 @@ export default function App() {
     Inter_600SemiBold,
     Inter_700Bold,
   });
-  const [tajawalLoaded] = useTajawal({
-    Tajawal_400Regular,
-    Tajawal_500Medium,
-    Tajawal_700Bold,
-  });
   const [arabicLoaded] = useIBMArabic({
     IBMPlexSansArabic_400Regular,
     IBMPlexSansArabic_500Medium,
@@ -51,7 +45,7 @@ export default function App() {
     IBMPlexSansArabic_700Bold,
   });
 
-  const fontsReady = manropeLoaded && interLoaded && tajawalLoaded && arabicLoaded;
+  const fontsReady = manropeLoaded && interLoaded && arabicLoaded;
   const [authReady, setAuthReady] = useState(false);
 
   // Firebase Auth listener — hydrates the user store from Firestore on sign-in,
@@ -139,13 +133,14 @@ export default function App() {
   }, [onReady]);
 
   const locale = useLocaleStore((s) => s.locale);
+  const c = useColors();
 
   if (!ready) return null;
 
   return (
-    <GestureHandlerRootView style={styles.root}>
+    <GestureHandlerRootView style={[styles.root, { backgroundColor: c.bg }]}>
       <SafeAreaProvider>
-        <StatusBar barStyle="dark-content" backgroundColor={semantic.bg} />
+        <StatusBar barStyle={c.isDark ? 'light-content' : 'dark-content'} backgroundColor={c.bg} />
         {/* `key` forces a full re-render when locale flips, so every i18n.t() call picks up the new strings. */}
         <AppNavigator key={locale} />
       </SafeAreaProvider>
@@ -154,5 +149,5 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: semantic.bg },
+  root: { flex: 1 },
 });

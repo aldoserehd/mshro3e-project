@@ -11,31 +11,40 @@ export const { palette, semantic, spacing, radius, motion } = theme;
 export type FontRole = keyof typeof typeTokens;
 
 /**
- * font(role, isArabic) — returns RN font style object.
+ * font(role, isArabic, weightOverride) — returns RN font style object.
  * Uses lhAr line-height when Arabic, otherwise lh.
+ *
+ * IMPORTANT: we resolve the weight into the font FILE name and never set
+ * `fontWeight` alongside a custom `fontFamily` — on Android that combination
+ * silently falls back to the system font (this is why Arabic used to render
+ * in the default Roboto-style face).
  */
-export function font(role: FontRole, isArabic = I18nManager.isRTL): TextStyle {
+export function font(
+  role: FontRole,
+  isArabic?: boolean,
+  weightOverride?: TextStyle['fontWeight'],
+): TextStyle {
+  const ar = isArabic ?? (CURRENT_LOCALE === 'ar');
   const token = typeTokens[role];
   // Hero / pageTitle / sectionTitle = display family. Others = body.
   const displayRoles: FontRole[] = ['hero', 'pageTitle', 'sectionTitle'];
   const isDisplay = displayRoles.includes(role);
-  const family = isArabic
+  const family = ar
     ? (isDisplay ? fontFamilies.displayArabic : fontFamilies.bodyArabic)
     : (isDisplay ? fontFamilies.displayLatin : fontFamilies.bodyLatin);
 
-  // Map to actual loaded font names from @expo-google-fonts
-  const fontFamily = resolveFontFamily(family, token.weight);
+  // Map to the actual loaded font file from @expo-google-fonts.
+  const fontFamily = resolveFontFamily(family, weightOverride ?? token.weight);
 
   const style: TextStyle = {
     fontFamily,
     fontSize: token.size,
-    lineHeight: isArabic ? token.lhAr : token.lh,
-    fontWeight: token.weight,
+    lineHeight: ar ? token.lhAr : token.lh,
     // Arabic: no positive letter-spacing (ligature break).
-    letterSpacing: isArabic ? 0 : 0,
+    letterSpacing: 0,
   };
 
-  if (role === 'microcopy' && !isArabic) {
+  if (role === 'microcopy' && !ar) {
     style.letterSpacing = 0.44; // ~+4% tracking on 11px
     style.textTransform = 'uppercase';
   }
@@ -43,34 +52,24 @@ export function font(role: FontRole, isArabic = I18nManager.isRTL): TextStyle {
   return style;
 }
 
-/**
- * Map font family + weight to specific loaded font name.
- */
+/** Weights each family was loaded with (see App.tsx) — clamp to the nearest. */
+const FAMILY_WEIGHTS: Record<string, Record<string, string>> = {
+  Manrope: { '400': '500Medium', '500': '500Medium', '600': '600SemiBold', '700': '700Bold', '800': '800ExtraBold', '900': '800ExtraBold' },
+  Inter: { '400': '400Regular', '500': '500Medium', '600': '600SemiBold', '700': '700Bold', '800': '700Bold', '900': '700Bold' },
+  IBMPlexSansArabic: { '400': '400Regular', '500': '500Medium', '600': '600SemiBold', '700': '700Bold', '800': '700Bold', '900': '700Bold' },
+};
+
+/** Map font family + weight to the specific loaded font file name. */
 function resolveFontFamily(family: string, weight: TextStyle['fontWeight']): string {
-  const w = weightToName(weight);
-  switch (family) {
-    case 'Manrope':
-      return `Manrope_${w}`;
-    case 'Inter':
-      return `Inter_${w}`;
-    case 'Tajawal':
-      return `Tajawal_${w}`;
-    case 'IBMPlexSansArabic':
-      return `IBMPlexSansArabic_${w}`;
-    default:
-      return family;
-  }
+  const w = normalizeWeight(weight);
+  const suffix = FAMILY_WEIGHTS[family]?.[w];
+  return suffix ? `${family}_${suffix}` : family;
 }
 
-function weightToName(w: TextStyle['fontWeight']): string {
-  switch (w) {
-    case '400': return '400Regular';
-    case '500': return '500Medium';
-    case '600': return '600SemiBold';
-    case '700': return '700Bold';
-    case '800': return '800ExtraBold';
-    default: return '400Regular';
-  }
+function normalizeWeight(w: TextStyle['fontWeight']): string {
+  if (w === 'bold') return '700';
+  if (w === 'normal' || w == null) return '400';
+  return String(w);
 }
 
 /**

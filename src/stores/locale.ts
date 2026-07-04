@@ -1,4 +1,6 @@
 import { create } from 'zustand';
+import { createJSONStorage, persist } from 'zustand/middleware';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import i18n from '../locales/i18n';
 import { setCurrentLocale } from '../theme/ts';
 
@@ -15,15 +17,30 @@ const initialLocale: AppLocale = (i18n.locale?.startsWith('ar') ? 'ar' : 'en') a
 setCurrentLocale(initialLocale);
 
 /**
- * Global locale store. Updates i18n.locale + bumps a version
- * that App.tsx watches with a `key` to force re-render the
- * whole tree on language switch.
+ * Global locale store (persisted). Updates i18n.locale; App.tsx watches
+ * `locale` with a `key` to force re-render the whole tree on language switch.
  */
-export const useLocaleStore = create<LocaleState>((set) => ({
-  locale: initialLocale,
-  setLocale: (l) => {
-    i18n.locale = l;
-    setCurrentLocale(l);
-    set({ locale: l });
-  },
-}));
+export const useLocaleStore = create<LocaleState>()(
+  persist(
+    (set) => ({
+      locale: initialLocale,
+      setLocale: (l) => {
+        i18n.locale = l;
+        setCurrentLocale(l);
+        set({ locale: l });
+      },
+    }),
+    {
+      name: '@mshro3e/locale',
+      storage: createJSONStorage(() => AsyncStorage),
+      partialize: (s) => ({ locale: s.locale }),
+      onRehydrateStorage: () => (state) => {
+        // Re-sync i18n + module-level locale with the persisted choice.
+        if (state?.locale) {
+          i18n.locale = state.locale;
+          setCurrentLocale(state.locale);
+        }
+      },
+    },
+  ),
+);

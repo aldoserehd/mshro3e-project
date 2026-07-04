@@ -76,7 +76,10 @@ export function VendorShell({ children }: { children: React.ReactNode }) {
     <div className="flex min-h-dvh">
       <aside className="sticky top-0 self-start h-dvh w-[230px] shrink-0 border-e border-ink-200 bg-white flex flex-col">
         <div className="flex items-center gap-2.5 px-4 h-16 border-b border-ink-200">
-          <span className="inline-flex h-9 w-9 items-center justify-center rounded-[10px] bg-navy-900 text-white font-bold text-[15px]">م</span>
+          <span className="inline-flex h-9 w-9 items-center justify-center rounded-[10px] bg-white ring-1 ring-ink-200">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/brand/mark.png" alt="Mshro3e" className="h-7 w-7 object-contain" />
+          </span>
           <span className="flex flex-col min-w-0">
             <span className="text-[14px] font-bold text-ink-900 truncate">{BRAND.name(locale)}</span>
             <span className="text-[11px] text-ink-500 truncate">{locale === 'ar' ? 'لوحة البائع' : 'Vendor'}</span>
@@ -119,7 +122,23 @@ export function VendorShell({ children }: { children: React.ReactNode }) {
         </div>
       </aside>
 
-      <main className="flex-1 min-w-0 p-6 lg:p-8">{children}</main>
+      <main className="flex-1 min-w-0 p-6 lg:p-8">
+        {vendor?.status === 'pending' && (
+          <div className="mb-5 rounded-[12px] border border-amber-200 bg-amber-50 px-4 py-3 text-[13px] text-amber-900">
+            {locale === 'ar'
+              ? 'متجرك قيد المراجعة — بيظهر للعملاء في التطبيق أول ما نعتمده (عادةً خلال ٢٤ ساعة). تقدر تجهّز منتجاتك الحين.'
+              : 'Your store is under review — it appears to customers once approved (usually within 24 hours). You can add your products meanwhile.'}
+          </div>
+        )}
+        {vendor?.status === 'suspended' && (
+          <div className="mb-5 rounded-[12px] border border-red-200 bg-red-50 px-4 py-3 text-[13px] text-red-900">
+            {locale === 'ar'
+              ? 'متجرك موقوف حالياً وغير ظاهر للعملاء. تواصل مع الدعم لمعرفة السبب.'
+              : 'Your store is currently suspended and hidden from customers. Contact support for details.'}
+          </div>
+        )}
+        {children}
+      </main>
     </div>
   );
 }

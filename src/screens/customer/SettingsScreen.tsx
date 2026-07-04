@@ -1,69 +1,26 @@
 import React, { useState } from 'react';
-import { Alert, I18nManager, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { signOut } from 'firebase/auth';
 import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
-import PressableScale from '../../ui/PressableScale';
-import VendorCtaSheet from '../../ui/VendorCtaSheet';
-import BackButton from '../../ui/BackButton';
-import { radius, shadowStyle, spacing } from '../../theme/ts';
+import { Row, RowGroup, SectionLabel, Segmented, TopBar, ROW_TINTS } from '../../ui/SettingsKit';
+import { spacing, radius } from '../../theme/ts';
 import { useColors } from '../../theme/colors';
 import { useLocaleStore } from '../../stores/locale';
 import { useThemeStore, type ThemeMode } from '../../stores/theme';
 import { useUserStore } from '../../stores/user';
 import { firebaseAuth } from '@shared/firebase';
 import { seedFirestore } from '../../lib/seed-firestore';
-import type { RootStackScreenProps } from '../../navigation/types';
 import { BRAND } from '../../brand';
-
-// ── Generic segmented control ──
-function Segmented<T extends string>({
-  options, value, onChange,
-}: { options: { key: T; label: string; icon?: keyof typeof Ionicons.glyphMap }[]; value: T; onChange: (k: T) => void }) {
-  const c = useColors();
-  return (
-    <View style={[styles.segment, { backgroundColor: c.surfaceAlt, borderColor: c.border }]}>
-      {options.map((o) => {
-        const on = value === o.key;
-        return (
-          <Pressable key={o.key} onPress={() => onChange(o.key)} style={[styles.segmentChip, on && { backgroundColor: c.brand }]}>
-            {o.icon && <Ionicons name={o.icon} size={15} color={on ? '#fff' : c.text} style={{ marginEnd: 6 }} />}
-            <Text variant="label" weight="600" color={on ? '#fff' : c.text}>{o.label}</Text>
-          </Pressable>
-        );
-      })}
-    </View>
-  );
-}
-
-// ── Grouped link list ──
-const LinkRow: React.FC<{
-  icon: keyof typeof Ionicons.glyphMap; label: string; description?: string;
-  onPress?: () => void; first?: boolean;
-}> = ({ icon, label, description, onPress, first }) => {
-  const c = useColors();
-  return (
-    <Pressable onPress={onPress} style={[styles.linkRow, !first && { borderTopWidth: 1, borderTopColor: c.border }]}>
-      <View style={[styles.rowIcon, { backgroundColor: c.brandFill }]}>
-        <Ionicons name={icon} size={17} color={c.brandText} />
-      </View>
-      <View style={{ flex: 1, marginStart: spacing.s3 }}>
-        <Text variant="body" weight="600">{label}</Text>
-        {description && <Text variant="caption" color={c.textMuted}>{description}</Text>}
-      </View>
-      <Ionicons name="chevron-forward" size={18} color={c.textMuted} style={{ transform: [{ scaleX: I18nManager.isRTL ? -1 : 1 }] }} />
-    </Pressable>
-  );
-};
+import type { RootStackScreenProps } from '../../navigation/types';
 
 export default function SettingsScreen({ navigation }: RootStackScreenProps<'Settings'>) {
   const { locale, setLocale } = useLocaleStore();
   const { mode, setMode } = useThemeStore();
+  const user = useUserStore((s) => s.user);
   const c = useColors();
   const [seeding, setSeeding] = useState(false);
-  const [vendorCtaOpen, setVendorCtaOpen] = useState(false);
   const ar = locale === 'ar';
 
   const onSeed = async () => {
@@ -100,143 +57,135 @@ export default function SettingsScreen({ navigation }: RootStackScreenProps<'Set
           onPress: async () => {
             try { await signOut(firebaseAuth()); } catch { /* fall through */ }
             useUserStore.getState().signOut();
-            navigation.reset({ index: 0, routes: [{ name: 'SignIn' }] });
+            navigation.reset({ index: 0, routes: [{ name: 'MainTabs' }] });
           },
         },
       ],
     );
   };
 
-  const SectionLabel = ({ children }: { children: string }) => (
-    <Text variant="microcopy" weight="700" color={c.textMuted} style={styles.sectionLabel}>{children}</Text>
-  );
-
   return (
     <Screen>
-      <View style={[styles.topBar, { backgroundColor: c.surface, borderBottomColor: c.border }]}>
-        <BackButton onPress={() => navigation.goBack()} />
-        <Text variant="cardTitle" weight="700">{ar ? 'الإعدادات' : 'Settings'}</Text>
-        <View style={{ width: 40 }} />
-      </View>
+      <TopBar title={ar ? 'الإعدادات' : 'Settings'} onBack={() => navigation.goBack()} />
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        {/* Appearance */}
+        {/* ── Appearance & language ── */}
         <SectionLabel>{ar ? 'المظهر واللغة' : 'APPEARANCE & LANGUAGE'}</SectionLabel>
-        <View style={[styles.card, { backgroundColor: c.surface, borderColor: c.border }]}>
-          <View style={styles.controlRow}>
-            <Text variant="body" weight="600">{ar ? 'اللغة' : 'Language'}</Text>
-            <Segmented
-              value={locale}
-              onChange={setLocale}
-              options={[{ key: 'ar', label: 'عربي' }, { key: 'en', label: 'EN' }]}
-            />
-          </View>
-          <View style={[styles.controlRow, { borderTopWidth: 1, borderTopColor: c.border }]}>
-            <Text variant="body" weight="600">{ar ? 'الثيم' : 'Theme'}</Text>
-            <Segmented
-              value={mode}
-              onChange={(m: ThemeMode) => setMode(m)}
-              options={[
-                { key: 'light', label: ar ? 'فاتح' : 'Light', icon: 'sunny-outline' },
-                { key: 'dark', label: ar ? 'داكن' : 'Dark', icon: 'moon-outline' },
-                { key: 'system', label: ar ? 'الجهاز' : 'Auto', icon: 'phone-portrait-outline' },
-              ]}
-            />
-          </View>
-        </View>
+        <RowGroup>
+          <Row
+            first
+            icon="language-outline"
+            tint={ROW_TINTS.sky}
+            label={ar ? 'اللغة' : 'Language'}
+            trailing={
+              <Segmented
+                value={locale}
+                onChange={setLocale}
+                options={[{ key: 'ar', label: 'عربي' }, { key: 'en', label: 'EN' }]}
+              />
+            }
+          />
+          <Row
+            icon="moon-outline"
+            tint={ROW_TINTS.purple}
+            label={ar ? 'المظهر' : 'Theme'}
+            trailing={
+              <Segmented
+                value={mode}
+                onChange={(m: ThemeMode) => setMode(m)}
+                options={[
+                  { key: 'light', label: ar ? 'فاتح' : 'Light' },
+                  { key: 'dark', label: ar ? 'داكن' : 'Dark' },
+                  { key: 'system', label: ar ? 'تلقائي' : 'Auto' },
+                ]}
+              />
+            }
+          />
+        </RowGroup>
 
-        {/* App links */}
+        {/* ── App ── */}
         <SectionLabel>{ar ? 'التطبيق' : 'APP'}</SectionLabel>
-        <View style={[styles.card, { backgroundColor: c.surface, borderColor: c.border }]}>
-          <LinkRow first icon="notifications-outline" label={ar ? 'الإشعارات' : 'Notifications'} onPress={() => navigation.navigate('Notifications')} />
-          <LinkRow icon="information-circle-outline" label={ar ? `عن ${BRAND.ar}` : `About ${BRAND.en}`} onPress={() => navigation.navigate('Info', { topic: 'about' })} />
-          <LinkRow icon="help-circle-outline" label={ar ? 'المساعدة والدعم' : 'Help & support'} onPress={() => navigation.navigate('Info', { topic: 'help' })} />
-          <LinkRow icon="shield-checkmark-outline" label={ar ? 'سياسة الخصوصية' : 'Privacy policy'} onPress={() => navigation.navigate('Info', { topic: 'privacy' })} />
-        </View>
+        <RowGroup>
+          <Row
+            first
+            icon="notifications-outline"
+            tint={ROW_TINTS.orange}
+            label={ar ? 'الإشعارات' : 'Notifications'}
+            onPress={() => navigation.navigate('Notifications')}
+          />
+          <Row
+            icon="help-buoy-outline"
+            tint={ROW_TINTS.green}
+            label={ar ? 'المساعدة والدعم' : 'Help & support'}
+            onPress={() => navigation.navigate('Info', { topic: 'help' })}
+          />
+          <Row
+            icon="shield-checkmark-outline"
+            tint={ROW_TINTS.teal}
+            label={ar ? 'سياسة الخصوصية' : 'Privacy policy'}
+            onPress={() => navigation.navigate('Info', { topic: 'privacy' })}
+          />
+          <Row
+            icon="information-circle-outline"
+            tint={ROW_TINTS.purple}
+            label={ar ? `عن ${BRAND.ar}` : `About ${BRAND.en}`}
+            onPress={() => navigation.navigate('Info', { topic: 'about' })}
+          />
+        </RowGroup>
 
-        {/* Payments note */}
-        <View style={[styles.note, { backgroundColor: c.isDark ? 'rgba(37,211,102,0.10)' : '#EEF8F1', borderColor: c.isDark ? 'rgba(37,211,102,0.25)' : '#CDEAD7' }]}>
+        {/* ── Trust note ── */}
+        <View style={[styles.note, { backgroundColor: c.whatsappFill, borderColor: c.isDark ? 'rgba(37,211,102,0.25)' : '#CDEAD7' }]}>
           <Ionicons name="shield-checkmark" size={18} color={c.whatsappDark} style={{ marginTop: 1 }} />
           <View style={{ flex: 1, marginStart: spacing.s2 }}>
-            <Text variant="label" weight="700">{ar ? 'لا نتعامل مع الدفع أو التوصيل' : "We don't handle payment or delivery"}</Text>
+            <Text variant="label" weight="700">
+              {ar ? 'لا نتعامل مع الدفع أو التوصيل' : "We don't handle payment or delivery"}
+            </Text>
             <Text variant="caption" color={c.textMuted} style={{ marginTop: 2 }}>
               {ar ? 'الترتيبات تتم مع البائع مباشرة عبر واتساب.' : 'Arrangements happen directly with the vendor via WhatsApp.'}
             </Text>
           </View>
         </View>
 
-        {/* Dev */}
+        {/* ── Developer ── */}
         {__DEV__ && (
           <>
             <SectionLabel>{ar ? 'تطوير' : 'DEVELOPER'}</SectionLabel>
-            <View style={[styles.card, { backgroundColor: c.surface, borderColor: c.border }]}>
-              <LinkRow
+            <RowGroup>
+              <Row
                 first
                 icon="cloud-upload-outline"
+                tint={ROW_TINTS.slate}
                 label={seeding ? (ar ? 'جاري التحميل…' : 'Seeding…') : (ar ? 'تحميل بيانات تجريبية' : 'Seed Firestore')}
-                description={ar ? 'نسخ بيانات العرض إلى Firestore' : 'Copy demo data to Firestore'}
+                sub={ar ? 'نسخ بيانات العرض إلى Firestore' : 'Copy demo data to Firestore'}
                 onPress={onSeed}
               />
-            </View>
+            </RowGroup>
           </>
         )}
 
-        {/* Vendor CTA */}
-        <PressableScale onPress={() => setVendorCtaOpen(true)}>
-          <View style={styles.banner}>
-            <LinearGradient colors={['#2a4686', '#001a41']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
-            <View style={styles.bannerIcon}><Ionicons name="storefront-outline" size={20} color="#fff" /></View>
-            <View style={{ flex: 1, marginStart: spacing.s3 }}>
-              <Text variant="cardTitle" weight="700" color="#fff">{ar ? `اعرض مشروعك على ${BRAND.ar}` : `List your business on ${BRAND.en}`}</Text>
-              <Text variant="caption" color="#9db7ff">{ar ? 'ابدأ مجاناً — والذكاء الاصطناعي يبني متجرك' : 'Start free — AI builds your store'}</Text>
-            </View>
-            <View style={styles.bannerCta}>
-              <Ionicons name="arrow-forward" size={16} color="#001a41" style={{ transform: [{ scaleX: I18nManager.isRTL ? -1 : 1 }] }} />
-            </View>
-          </View>
-        </PressableScale>
+        {/* ── Sign out ── */}
+        {user?.isAuthenticated && (
+          <RowGroup style={{ marginTop: spacing.s5 }}>
+            <Row first icon="log-out-outline" tint={c.danger} label={ar ? 'تسجيل الخروج' : 'Log out'} destructive onPress={onLogout} />
+          </RowGroup>
+        )}
 
-        <Pressable style={[styles.logoutBtn, { backgroundColor: c.isDark ? 'rgba(255,107,107,0.12)' : '#FBE9E9' }]} onPress={onLogout}>
-          <Ionicons name="log-out-outline" size={18} color={c.danger} />
-          <Text variant="button" weight="600" color={c.danger} style={{ marginStart: spacing.s2 }}>{ar ? 'تسجيل الخروج' : 'Log out'}</Text>
-        </Pressable>
-
-        <Text variant="microcopy" color={c.textMuted} align="center" style={{ marginTop: spacing.s4 }}>{BRAND.en} {BRAND.version}</Text>
+        <Text variant="microcopy" color={c.textMuted} align="center" style={{ marginTop: spacing.s5 }}>
+          {BRAND.en} {BRAND.version}
+        </Text>
       </ScrollView>
-
-      <VendorCtaSheet visible={vendorCtaOpen} onClose={() => setVendorCtaOpen(false)} />
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  topBar: {
-    // Force visual LTR so the back button stays on the left under forced-RTL.
-    flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
-    alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: spacing.s4, paddingVertical: spacing.s3, borderBottomWidth: 1,
-  },
-  iconBtn: { width: 40, height: 40, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   scroll: { padding: spacing.s5, paddingBottom: 80 },
-  sectionLabel: { marginTop: spacing.s5, marginBottom: spacing.s2, marginStart: spacing.s1, letterSpacing: 1 },
-  card: { borderRadius: radius.lg, borderWidth: 1, overflow: 'hidden' },
-  controlRow: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: spacing.s4, paddingVertical: spacing.s3, gap: spacing.s3,
-  },
-  segment: { flexDirection: 'row', borderRadius: 999, borderWidth: 1, padding: 3 },
-  segmentChip: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.s3, paddingVertical: 7, borderRadius: 999 },
-  linkRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.s4, paddingVertical: spacing.s3 },
-  rowIcon: { width: 34, height: 34, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   note: {
-    flexDirection: 'row', alignItems: 'flex-start',
-    marginTop: spacing.s5, padding: spacing.s4, borderRadius: radius.lg, borderWidth: 1,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginTop: spacing.s5,
+    padding: spacing.s4,
+    borderRadius: radius.lg,
+    borderWidth: 1,
   },
-  banner: {
-    flexDirection: 'row', alignItems: 'center', padding: spacing.s4,
-    borderRadius: radius.xl, marginTop: spacing.s5, overflow: 'hidden', ...shadowStyle(2),
-  },
-  bannerIcon: { width: 44, height: 44, borderRadius: 999, backgroundColor: 'rgba(255,255,255,0.16)', alignItems: 'center', justifyContent: 'center' },
-  bannerCta: { width: 34, height: 34, borderRadius: 999, backgroundColor: '#9db7ff', alignItems: 'center', justifyContent: 'center' },
-  logoutBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: spacing.s4, borderRadius: radius.md, marginTop: spacing.s5 },
 });

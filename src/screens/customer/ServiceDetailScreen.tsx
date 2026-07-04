@@ -19,8 +19,9 @@ import { useColors } from '../../theme/colors';
 import { radius, spacing, shadowStyle, formatPrice, pickLocale, getCurrentLocale } from '../../theme/ts';
 import type { RootStackScreenProps } from '../../navigation/types';
 
-type DeliveryOption = 'vendorDelivery' | 'pickup' | 'customerArranges';
-const DELIVERY_OPTIONS: { key: DeliveryOption; icon: keyof typeof Ionicons.glyphMap }[] = [
+import type { DeliveryOption } from '@shared/types';
+
+const ALL_DELIVERY_OPTIONS: { key: DeliveryOption; icon: keyof typeof Ionicons.glyphMap }[] = [
   { key: 'vendorDelivery', icon: 'bicycle-outline' },
   { key: 'pickup', icon: 'bag-handle-outline' },
   { key: 'customerArranges', icon: 'car-outline' },
@@ -35,7 +36,16 @@ export default function ProductDetailScreen({ route, navigation }: RootStackScre
   const c = useColors();
 
   const [activeImg, setActiveImg] = useState(0);
-  const [delivery, setDelivery] = useState<DeliveryOption>('vendorDelivery');
+  const [delivery, setDelivery] = useState<DeliveryOption | null>(null);
+
+  // Only the methods this vendor actually offers. Legacy vendors without the
+  // field fall back to the full set (they can narrow it from their portal).
+  const deliveryOptions = useMemo(() => {
+    const offered = vendor?.deliveryOptions;
+    if (!offered || offered.length === 0) return ALL_DELIVERY_OPTIONS;
+    return ALL_DELIVERY_OPTIONS.filter((o) => offered.includes(o.key));
+  }, [vendor?.deliveryOptions]);
+  const selectedDelivery = delivery ?? deliveryOptions[0]?.key ?? null;
 
   const uid = useUserStore((s) => s.user?.uid);
   const isFav = useFavoritesStore((s) => (product ? s.productIds.has(product.id) : false));
@@ -84,9 +94,18 @@ export default function ProductDetailScreen({ route, navigation }: RootStackScre
       );
       return;
     }
+    const phone = (vendor?.whatsapp ?? vendor?.phone ?? '').replace(/[^\d]/g, '');
+    if (!phone) {
+      const ar = getCurrentLocale() === 'ar';
+      Alert.alert(
+        ar ? 'لا يوجد رقم واتساب' : 'No WhatsApp number',
+        ar ? 'هذا المحل لم يضف رقم تواصل بعد.' : "This shop hasn't added a contact number yet.",
+      );
+      return;
+    }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
     const ref = makeRef();
-    const deliveryLabel = i18n.t(`product.delivery.${delivery}`);
+    const deliveryLabel = selectedDelivery ? i18n.t(`product.delivery.${selectedDelivery}`) : '';
     const message = i18n.t('contact.taggedMessage', {
       product: pickLocale(product.title),
       price: priceStr,
@@ -104,11 +123,7 @@ export default function ProductDetailScreen({ route, navigation }: RootStackScre
         ref,
       });
     }
-    const phone = (vendor?.whatsapp ?? vendor?.phone ?? '').replace(/[^\d]/g, '');
-    const url = phone
-      ? `https://wa.me/${phone}?text=${encodeURIComponent(message)}`
-      : `https://wa.me/?text=${encodeURIComponent(message)}`;
-    Linking.openURL(url).catch(() => {});
+    Linking.openURL(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`).catch(() => {});
   };
 
   return (
@@ -207,33 +222,21 @@ export default function ProductDetailScreen({ route, navigation }: RootStackScre
             </>
           )}
 
-          {/* ── Bento meta (always visible — "on request" when no prep set) ── */}
-          {(
-            <View style={styles.bento}>
-              <View style={[styles.bentoTile, { backgroundColor: c.surfaceAlt }]}>
-                <Ionicons name="time-outline" size={20} color={c.brandText} />
-                <Text variant="caption" color={c.textMuted} style={{ marginTop: 6 }}>{i18n.t('product.prepTime')}</Text>
-                <Text variant="cardTitle" weight="700">
-                  {prepHours > 0
-                    ? i18n.t('product.hours', { n: String(prepHours) })
-                    : getCurrentLocale() === 'ar' ? 'حسب الطلب' : 'On request'}
-                </Text>
-              </View>
-              <View style={[styles.bentoTile, { backgroundColor: c.surfaceAlt }]}>
-                <Ionicons name="ribbon-outline" size={20} color={c.brandText} />
-                <Text variant="caption" color={c.textMuted} style={{ marginTop: 6 }}>
-                  {getCurrentLocale() === 'ar' ? 'الجودة' : 'Quality'}
-                </Text>
-                <Text variant="cardTitle" weight="700">{getCurrentLocale() === 'ar' ? 'صنع بالكويت' : 'Made in Kuwait'}</Text>
-              </View>
+          {/* ── Prep time — only when the vendor actually set one ── */}
+          {prepHours > 0 && (
+            <View style={[styles.prepRow, { backgroundColor: c.surfaceAlt }]}>
+              <Ionicons name="time-outline" size={18} color={c.brandText} />
+              <Text variant="label" weight="600" style={{ marginStart: spacing.s2 }}>
+                {i18n.t('product.prepTime')}: {i18n.t('product.hours', { n: String(prepHours) })}
+              </Text>
             </View>
           )}
 
-          {/* ── Delivery & pickup ── */}
+          {/* ── Delivery & pickup — only the methods this vendor offers ── */}
           <Text variant="sectionTitle" weight="700" style={styles.h}>{i18n.t('product.deliveryTitle')}</Text>
           <View style={{ gap: spacing.s2 }}>
-            {DELIVERY_OPTIONS.map(({ key, icon }) => {
-              const selected = delivery === key;
+            {deliveryOptions.map(({ key, icon }) => {
+              const selected = selectedDelivery === key;
               return (
                 <Pressable key={key} onPress={() => setDelivery(key)}>
                   <View
@@ -263,6 +266,11 @@ export default function ProductDetailScreen({ route, navigation }: RootStackScre
                 </Pressable>
               );
             })}
+            <Text variant="caption" color={c.textMuted}>
+              {getCurrentLocale() === 'ar'
+                ? 'التفاصيل النهائية للتوصيل تتفق عليها مع البائع في واتساب.'
+                : 'Final delivery details are agreed with the vendor on WhatsApp.'}
+            </Text>
           </View>
 
           {/* ── More from vendor ── */}
@@ -338,8 +346,11 @@ const styles = StyleSheet.create({
   vendorNameRow: { flexDirection: 'row', alignItems: 'center' },
   ratingRow: { flexDirection: 'row', alignItems: 'center', marginTop: 3 },
   h: { marginTop: spacing.s5, marginBottom: spacing.s2 },
-  bento: { flexDirection: 'row', gap: spacing.s3, marginTop: spacing.s4 },
-  bentoTile: { flex: 1, borderRadius: radius.lg, padding: spacing.s4, gap: 4, alignItems: 'flex-start' },
+  prepRow: {
+    flexDirection: 'row', alignItems: 'center',
+    borderRadius: radius.md, paddingHorizontal: spacing.s3, paddingVertical: spacing.s2,
+    alignSelf: 'flex-start', marginTop: spacing.s4,
+  },
   radioRow: {
     flexDirection: 'row', alignItems: 'center',
     paddingHorizontal: spacing.s4, height: 56,

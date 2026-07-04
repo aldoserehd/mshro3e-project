@@ -12,7 +12,7 @@ import PreferencesScreen from '../screens/auth/PreferencesScreen';
 import HomeScreen from '../screens/customer/HomeScreen';
 import CategoriesScreen from '../screens/customer/CategoriesScreen';
 import FavoritesScreen from '../screens/customer/FavoritesScreen';
-import RequestsScreen from '../screens/customer/RequestsScreen';
+import OrdersScreen from '../screens/customer/OrdersScreen';
 import ProfileScreen from '../screens/customer/ProfileScreen';
 import EditProfileScreen from '../screens/customer/EditProfileScreen';
 import VendorProfileScreen from '../screens/customer/VendorProfileScreen';
@@ -20,7 +20,6 @@ import ServiceDetailScreen from '../screens/customer/ServiceDetailScreen';
 import CategoryScreen from '../screens/customer/CategoryScreen';
 import SettingsScreen from '../screens/customer/SettingsScreen';
 import NotificationsScreen from '../screens/customer/NotificationsScreen';
-import ChatScreen from '../screens/customer/ChatScreen';
 import InfoScreen from '../screens/customer/InfoScreen';
 
 import BlurTabBar from '../ui/BlurTabBar';
@@ -41,7 +40,6 @@ const MainTabs = () => {
   >
     {/* Order is reversed under RTL so Home appears on the LEFT and Account on the RIGHT visually. */}
     <Tabs.Screen name="Account" component={ProfileScreen} options={{ tabBarLabel: i18n.t('tabs.account') }} />
-    <Tabs.Screen name="Requests" component={RequestsScreen} options={{ tabBarLabel: i18n.t('tabs.requests') }} />
     <Tabs.Screen name="Favorites" component={FavoritesScreen} options={{ tabBarLabel: i18n.t('tabs.favorites') }} />
     <Tabs.Screen name="Search" component={CategoriesScreen} options={{ tabBarLabel: i18n.t('tabs.search') }} />
     <Tabs.Screen name="Home" component={HomeScreen} options={{ tabBarLabel: i18n.t('tabs.home') }} />
@@ -86,7 +84,7 @@ export default function AppNavigator() {
         <Stack.Screen name="Category" component={CategoryScreen} />
         <Stack.Screen name="Settings" component={SettingsScreen} />
         <Stack.Screen name="Notifications" component={NotificationsScreen} />
-        <Stack.Screen name="Chat" component={ChatScreen} />
+        <Stack.Screen name="Orders" component={OrdersScreen} />
         <Stack.Screen name="Info" component={InfoScreen} />
       </Stack.Navigator>
     </NavigationContainer>

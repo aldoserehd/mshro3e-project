@@ -1,20 +1,28 @@
 import * as React from 'react';
 import Link from 'next/link';
-import { Tag, Plus } from 'lucide-react';
+import { Tag, Plus, Lightbulb } from 'lucide-react';
 import { getLocale } from '@/lib/locale';
 import { getDict, tFmt } from '@/i18n/dict';
-import { liveCategories, liveVendors } from '@/lib/data/live';
+import { liveCategories, liveSuggestions, liveVendors } from '@/lib/data/live';
 import { PageHeader } from '@/components/domain/page-header';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { DeleteCategoryButton } from './delete-category-button';
 import { StarterPackButton } from './starter-pack-button';
+import { SuggestionButtons } from './suggestion-buttons';
+import { formatDate } from '@/lib/utils';
 
 export default async function CategoriesPage() {
   const locale = await getLocale();
   const t = getDict(locale);
-  const [categories, vendors] = await Promise.all([liveCategories(), liveVendors()]);
+  const ar = locale === 'ar';
+  const [categories, vendors, suggestions] = await Promise.all([
+    liveCategories(),
+    liveVendors(),
+    liveSuggestions(),
+  ]);
+  const tag = ar ? 'ar-KW' : 'en-US';
   const countFor = (id: string) => vendors.filter((v) => v.categoryIds?.includes(id)).length;
 
   return (
@@ -37,6 +45,38 @@ export default async function CategoriesPage() {
           </div>
         }
       />
+
+      {/* Vendor suggestions — approve turns one into a category. */}
+      {suggestions.length > 0 && (
+        <Card className="p-0 overflow-hidden">
+          <div className="flex items-center gap-2 border-b border-ink-200/70 bg-amber-50/60 px-5 py-3">
+            <Lightbulb className="size-4 text-amber-600" />
+            <span className="text-[13px] font-semibold text-ink-900">
+              {ar ? `اقتراحات البائعين (${suggestions.length})` : `Vendor suggestions (${suggestions.length})`}
+            </span>
+          </div>
+          <ul className="divide-y divide-ink-200/70">
+            {suggestions.map((s) => (
+              <li key={s.id} className="flex items-center gap-4 px-5 py-3.5">
+                <div className="flex flex-col min-w-0 flex-1">
+                  <span className="font-medium truncate">{s.text}</span>
+                  <span className="text-[12px] text-ink-500">
+                    {s.vendorName ? `${s.vendorName} · ` : ''}
+                    {s.createdAt ? formatDate(s.createdAt, tag) : ''}
+                  </span>
+                </div>
+                <SuggestionButtons
+                  id={s.id}
+                  approveLabel={ar ? 'اعتماد كفئة' : 'Approve'}
+                  dismissLabel={ar ? 'تجاهل' : 'Dismiss'}
+                  approvedText={ar ? 'تمت إضافة الفئة — عدّل اسمها الإنجليزي إذا حاب.' : 'Category added — edit its English name if needed.'}
+                  failureText={t.vendors.actionFailed}
+                />
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
 
       {categories.length === 0 ? (
         <Card>

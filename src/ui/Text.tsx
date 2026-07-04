@@ -5,7 +5,7 @@ import {
   TextStyle,
   StyleSheet,
 } from 'react-native';
-import { font, type FontRole, rtl } from '../theme/ts';
+import { font, type FontRole, getCurrentLocale } from '../theme/ts';
 import { useColors } from '../theme/colors';
 
 export interface TextProps extends RNTextProps {
@@ -33,15 +33,15 @@ export const Text: React.FC<TextProps> = ({
   children,
   ...rest
 }) => {
-  const isRtl = rtl();
-  const ar = isArabic ?? isRtl;
-  const base = font(variant, ar);
+  const ar = isArabic ?? getCurrentLocale() === 'ar';
+  // Weight is baked into the resolved font FILE — never set fontWeight next
+  // to a custom fontFamily (Android falls back to the system font).
+  const base = font(variant, ar, weight);
   const c = useColors();
   const composed: TextStyle = {
     ...base,
     color: color ?? c.text,
   };
-  if (weight) composed.fontWeight = weight;
   if (align) composed.textAlign = align;
   else if (forceLtr) composed.textAlign = 'left';
   return (

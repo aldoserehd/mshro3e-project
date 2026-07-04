@@ -11,6 +11,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { adminDb } from '@/lib/firebase-admin';
+import { requireOwner } from '@/lib/auth';
 import { COL } from '@shared/firestore-paths';
 import { liveCategories } from '@/lib/data/live';
 import type { Category } from '@shared/types';
@@ -49,6 +50,7 @@ const STARTER_CATEGORIES: { ar: string; en: string; emoji: string; slug: string 
 
 /** Insert the starter categories, skipping slugs that already exist. */
 export async function seedStarterCategoriesAction(): Promise<{ added: number }> {
+  await requireOwner();
   const db = adminDb();
   const existing = await db.collection(COL.categories).get();
   const have = new Set(existing.docs.map((d) => d.data().slug));
@@ -91,6 +93,11 @@ function str(fd: FormData, key: string): string {
 // ─── vendors ────────────────────────────────────────────────────────────
 
 export async function createVendor(_prev: ActionState, fd: FormData): Promise<ActionState> {
+  try {
+    await requireOwner();
+  } catch {
+    return { ok: false, error: 'Not authorized' };
+  }
   const nameEn = str(fd, 'nameEn');
   const nameAr = str(fd, 'nameAr') || nameEn;
   if (!nameAr && !nameEn) return { ok: false, error: 'Name is required' };
@@ -134,6 +141,11 @@ export async function createVendor(_prev: ActionState, fd: FormData): Promise<Ac
 // ─── products ───────────────────────────────────────────────────────────
 
 export async function createProduct(_prev: ActionState, fd: FormData): Promise<ActionState> {
+  try {
+    await requireOwner();
+  } catch {
+    return { ok: false, error: 'Not authorized' };
+  }
   const vendorId = str(fd, 'vendorId');
   const titleEn = str(fd, 'titleEn');
   const titleAr = str(fd, 'titleAr') || titleEn;
@@ -173,6 +185,11 @@ export async function createProduct(_prev: ActionState, fd: FormData): Promise<A
 // ─── categories ─────────────────────────────────────────────────────────
 
 export async function createCategory(_prev: ActionState, fd: FormData): Promise<ActionState> {
+  try {
+    await requireOwner();
+  } catch {
+    return { ok: false, error: 'Not authorized' };
+  }
   const nameEn = str(fd, 'nameEn');
   const nameAr = str(fd, 'nameAr') || nameEn;
   if (!nameAr && !nameEn) return { ok: false, error: 'Name is required' };
@@ -202,8 +219,55 @@ export async function createCategory(_prev: ActionState, fd: FormData): Promise<
   redirect('/categories');
 }
 
+// ─── category suggestions (vendor → owner review) ──────────────────────
+
+/** Approve a vendor suggestion: create a category from its text, then remove it. */
+export async function approveCategorySuggestion(id: string): Promise<ActionState> {
+  try {
+    await requireOwner();
+  } catch {
+    return { ok: false, error: 'Not authorized' };
+  }
+  try {
+    const db = adminDb();
+    const ref = db.collection('categorySuggestions').doc(id);
+    const snap = await ref.get();
+    const text = (snap.data()?.text as string | undefined)?.trim();
+    if (!text) return { ok: false, error: 'Suggestion not found' };
+    const all = await db.collection(COL.categories).get();
+    const order = all.empty
+      ? 1
+      : Math.max(...all.docs.map((d) => Number((d.data() as { order?: number }).order) || 0)) + 1;
+    await db.collection(COL.categories).add({
+      name: { ar: text, en: text },
+      emoji: '🏷️',
+      icon: 'pricetag-outline',
+      slug: slugify(text),
+      order,
+    });
+    await ref.delete();
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : 'Failed' };
+  }
+  revalidatePath('/categories');
+  return { ok: true };
+}
+
+/** Dismiss (delete) a vendor suggestion. */
+export async function dismissCategorySuggestion(id: string): Promise<ActionState> {
+  try {
+    await requireOwner();
+    await adminDb().collection('categorySuggestions').doc(id).delete();
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : 'Failed' };
+  }
+  revalidatePath('/categories');
+  return { ok: true };
+}
+
 export async function deleteCategory(id: string): Promise<void> {
   try {
+    await requireOwner();
     await adminDb().collection(COL.categories).doc(id).delete();
   } catch {
     // best-effort; revalidate either way

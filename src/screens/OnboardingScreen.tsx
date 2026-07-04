@@ -8,12 +8,14 @@ import {
   View,
 } from 'react-native';
 import LottieView from 'lottie-react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import i18n from '../locales/i18n';
 import Text from '../ui/Text';
 import Button from '../ui/Button';
 import Screen from '../ui/Screen';
 import { palette, radius, semantic, spacing } from '../theme/ts';
 import { RootStackScreenProps } from '../navigation/types';
+import { ONBOARDED_KEY } from './SplashScreen';
 
 interface Slide {
   key: string;
@@ -44,15 +46,20 @@ export default function OnboardingScreen({ navigation }: RootStackScreenProps<'O
     if (i !== index) setIndex(i);
   };
 
+  const finish = () => {
+    AsyncStorage.setItem(ONBOARDED_KEY, '1').catch(() => {});
+    navigation.replace('MainTabs');
+  };
+
   const goNext = () => {
     if (index < slides.length - 1) {
       listRef.current?.scrollToOffset({ offset: (index + 1) * width, animated: true });
     } else {
-      navigation.replace('MainTabs');
+      finish();
     }
   };
 
-  const skip = () => navigation.replace('MainTabs');
+  const skip = finish;
 
   return (
     <Screen background={palette.navy900}>

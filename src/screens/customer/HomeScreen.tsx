@@ -48,16 +48,16 @@ export default function HomeScreen({ navigation }: MainTabsScreenProps<'Home'>) 
   }, [vendors]);
 
   // Area filter: keep a product if its vendor's address matches the chosen area.
+  // Honest results — if nothing matches, we show an empty state with a reset
+  // instead of silently ignoring the user's chosen area.
   const areaFiltered = useMemo(() => {
     if (area.id === 'all') return products;
     const needle = [area.ar, area.en].map((s) => s.toLowerCase());
-    const matched = products.filter((p) => {
+    return products.filter((p) => {
       const v = vendorMap[p.vendorId];
       const addr = v?.address ? `${v.address.ar} ${v.address.en}`.toLowerCase() : '';
       return needle.some((n) => addr.includes(n));
     });
-    // Graceful fallback: if no vendor data carries this area yet, don't blank the home.
-    return matched.length ? matched : products;
   }, [products, area, vendorMap]);
 
   // In-page search results.
@@ -167,7 +167,11 @@ export default function HomeScreen({ navigation }: MainTabsScreenProps<'Home'>) 
             {/* ── Available Today ── */}
             <SectionHeader title={i18n.t('home.availableToday')} />
             {today.length === 0 ? (
-              <EmptyHint />
+              <EmptyHint
+                areaMiss={area.id !== 'all' && products.length > 0}
+                areaName={pickLocale(area)}
+                onReset={() => setArea(KUWAIT_AREAS[0])}
+              />
             ) : (
               <FlatList
                 data={today}
@@ -275,14 +279,28 @@ const TallProductCard: React.FC<{ product: Service; vendor?: Vendor; onPress: ()
   );
 };
 
-const EmptyHint: React.FC = () => {
+const EmptyHint: React.FC<{ areaMiss?: boolean; areaName?: string; onReset?: () => void }> = ({ areaMiss, areaName, onReset }) => {
   const c = useColors();
+  const ar = getCurrentLocale() === 'ar';
   return (
     <View style={styles.empty}>
-      <Ionicons name="storefront-outline" size={40} color={c.textMuted} />
+      <Ionicons name={areaMiss ? 'location-outline' : 'storefront-outline'} size={40} color={c.textMuted} />
       <Text variant="body" color={c.textMuted} align="center" style={{ marginTop: spacing.s2 }}>
-        {getCurrentLocale() === 'ar' ? 'لا توجد منتجات بعد — أضف من لوحة الإدارة.' : 'No products yet — add some from the admin.'}
+        {areaMiss
+          ? ar
+            ? `ما في محلات في «${areaName}» بعد.`
+            : `No shops in "${areaName}" yet.`
+          : ar
+            ? 'لا توجد منتجات بعد — قريباً!'
+            : 'No products yet — coming soon!'}
       </Text>
+      {areaMiss && onReset && (
+        <Pressable onPress={onReset} hitSlop={8} style={{ marginTop: spacing.s3 }}>
+          <Text variant="label" weight="700" color={c.brandText}>
+            {ar ? 'عرض كل المناطق' : 'Show all areas'}
+          </Text>
+        </Pressable>
+      )}
     </View>
   );
 };

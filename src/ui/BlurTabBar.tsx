@@ -18,7 +18,6 @@ import { useColors } from '../theme/colors';
 const ICONS: Record<string, { active: keyof typeof Ionicons.glyphMap; inactive: keyof typeof Ionicons.glyphMap }> = {
   Home: { active: 'home', inactive: 'home-outline' },
   Search: { active: 'grid', inactive: 'grid-outline' },
-  Requests: { active: 'chatbubbles', inactive: 'chatbubbles-outline' },
   Favorites: { active: 'heart', inactive: 'heart-outline' },
   Account: { active: 'person', inactive: 'person-outline' },
 };

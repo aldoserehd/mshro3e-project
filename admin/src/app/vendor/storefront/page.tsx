@@ -18,7 +18,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import type { Category } from '@shared/types';
+import type { Category, DeliveryOption } from '@shared/types';
 
 /** Keep only digits, max 8 — Kuwait local number (after the fixed +965). */
 const kwDigits = (s: string) => s.replace(/\D/g, '').replace(/^965/, '').slice(0, 8);
@@ -42,6 +42,9 @@ export default function StorefrontPage() {
   const [logoZoom, setLogoZoom] = React.useState(1);
   const [coverImage, setCoverImage] = React.useState('');
   const [categoryIds, setCategoryIds] = React.useState<string[]>([]);
+  const [deliveryOptions, setDeliveryOptions] = React.useState<DeliveryOption[]>([
+    'vendorDelivery', 'pickup', 'customerArranges',
+  ]);
   const [showEn, setShowEn] = React.useState(false);
   const [suggestion, setSuggestion] = React.useState('');
   const [suggestBusy, setSuggestBusy] = React.useState(false);
@@ -79,7 +82,11 @@ export default function StorefrontPage() {
     setLogoZoom(vendor.logoZoom ?? 1);
     setCoverImage(vendor.coverImage ?? '');
     setCategoryIds(vendor.categoryIds ?? []);
+    if (vendor.deliveryOptions?.length) setDeliveryOptions(vendor.deliveryOptions);
   }, [vendor, ar]);
+
+  const toggleDelivery = (opt: DeliveryOption) =>
+    setDeliveryOptions((cur) => (cur.includes(opt) ? cur.filter((o) => o !== opt) : [...cur, opt]));
 
   const toggleCat = (id: string) =>
     setCategoryIds((ids) => (ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]));
@@ -129,6 +136,10 @@ export default function StorefrontPage() {
       setErr(ar ? 'رقم الواتساب لازم يكون ٨ أرقام (بدون 965+).' : 'WhatsApp number must be 8 digits (without +965).');
       return;
     }
+    if (deliveryOptions.length === 0) {
+      setErr(ar ? 'اختر طريقة استلام وحدة على الأقل.' : 'Pick at least one delivery method.');
+      return;
+    }
     const area = KW_AREAS.find((a) => a.id === areaId);
     // `name`/`bio` hold the locale the vendor is editing in; the EN fields hold
     // the auto-filled English. Map both to AR/EN, falling back across each other.
@@ -142,6 +153,7 @@ export default function StorefrontPage() {
       phone: phone.length === 8 ? `+965${phone}` : '',
       whatsapp: `+965${whatsapp}`,
       logoImage, logoZoom, coverImage, categoryIds,
+      deliveryOptions,
     };
     const isNew = !vendor;
     setBusy(true); setErr('');
@@ -262,6 +274,31 @@ export default function StorefrontPage() {
             </Field>
             <Field label={t.phone}>
               <KwPhoneInput value={phone} onChange={setPhone} />
+            </Field>
+            <Field label={ar ? 'طرق الاستلام والتوصيل *' : 'Delivery & pickup methods *'} hint={ar ? 'اختر اللي تقدمه فعلاً — هذا اللي يظهر للعميل.' : 'Pick only what you actually offer — customers see these.'}>
+              <div className="flex flex-wrap gap-2">
+                {([
+                  { key: 'vendorDelivery' as DeliveryOption, ar: 'توصيل من عندي', en: 'I deliver' },
+                  { key: 'pickup' as DeliveryOption, ar: 'استلام من عندي', en: 'Pickup' },
+                  { key: 'customerArranges' as DeliveryOption, ar: 'العميل يرتب مندوب', en: 'Customer arranges' },
+                ]).map((o) => {
+                  const on = deliveryOptions.includes(o.key);
+                  return (
+                    <button
+                      key={o.key}
+                      type="button"
+                      onClick={() => toggleDelivery(o.key)}
+                      className={`rounded-full border px-3.5 py-2 text-[13px] font-medium transition-colors ${
+                        on
+                          ? 'border-navy-500 bg-navy-500 text-white'
+                          : 'border-ink-200 bg-white text-ink-900 hover:bg-navy-50'
+                      }`}
+                    >
+                      {ar ? o.ar : o.en}
+                    </button>
+                  );
+                })}
+              </div>
             </Field>
           </Card>
 

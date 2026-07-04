@@ -38,6 +38,10 @@ export const PressableScale: React.FC<PressableScaleProps> = ({
 
   return (
     <Pressable
+      // Layout styles (flex, width) must live on the Pressable itself —
+      // putting them only on the inner Animated.View made `flex: 1` buttons
+      // collapse to their content size inside rows.
+      style={style}
       onPressIn={(e) => {
         scale.value = withSpring(pressedScale, motion.spring.snappy);
         if (haptic === 'light') {
@@ -53,9 +57,16 @@ export const PressableScale: React.FC<PressableScaleProps> = ({
       }}
       {...rest}
     >
-      <Animated.View style={[animStyle, style]}>{children}</Animated.View>
+      <Animated.View style={[animStyle, styles.inner]}>{children}</Animated.View>
     </Pressable>
   );
 };
+
+import { StyleSheet } from 'react-native';
+
+const styles = StyleSheet.create({
+  // Stretch to the Pressable's width so flex-sized buttons fill their slot.
+  inner: { alignSelf: 'stretch' },
+});
 
 export default PressableScale;

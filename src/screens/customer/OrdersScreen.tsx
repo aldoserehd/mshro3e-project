@@ -5,16 +5,16 @@ import { collection, getDocs, query, where } from 'firebase/firestore';
 import i18n from '../../locales/i18n';
 import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
-import NavyHero from '../../ui/NavyHero';
 import Button from '../../ui/Button';
 import EmptyState, { LoadingState } from '../../ui/EmptyState';
+import { TopBar } from '../../ui/SettingsKit';
 import { firebaseDb } from '@shared/firebase';
 import { COL } from '@shared/firestore-paths';
 import { useUserStore } from '../../stores/user';
 import { useVendors } from '../../data/hooks';
 import { useColors } from '../../theme/colors';
 import { radius, spacing, getCurrentLocale } from '../../theme/ts';
-import type { MainTabsScreenProps } from '../../navigation/types';
+import type { RootStackScreenProps } from '../../navigation/types';
 
 interface LeadRow {
   id: string;
@@ -25,8 +25,17 @@ interface LeadRow {
   status?: string;
 }
 
-/** "Requests" tab — the customer's WhatsApp contact history (leads they created). */
-export default function RequestsScreen({ navigation }: MainTabsScreenProps<'Requests'>) {
+/** Older leads stored a Firestore Timestamp; new ones store epoch millis. */
+function toMillis(v: unknown): number {
+  if (typeof v === 'number') return v;
+  if (v && typeof (v as { toMillis?: () => number }).toMillis === 'function') {
+    return (v as { toMillis: () => number }).toMillis();
+  }
+  return 0;
+}
+
+/** "My orders" — the customer's WhatsApp contact history (leads they created). */
+export default function OrdersScreen({ navigation }: RootStackScreenProps<'Orders'>) {
   const c = useColors();
   const user = useUserStore((s) => s.user);
   const { data: vendors } = useVendors();
@@ -53,7 +62,11 @@ export default function RequestsScreen({ navigation }: MainTabsScreenProps<'Requ
         query(collection(firebaseDb(), COL.leads), where('customerUid', '==', user.uid)),
       );
       const list = snap.docs
-        .map((d) => ({ id: d.id, ...(d.data() as object) }) as LeadRow)
+        .map((d) => {
+          const row = { id: d.id, ...(d.data() as object) } as LeadRow;
+          row.createdAt = toMillis((d.data() as { createdAt?: unknown }).createdAt);
+          return row;
+        })
         .sort((a, b) => (b.createdAt ?? 0) - (a.createdAt ?? 0));
       setRows(list);
     } catch {
@@ -71,11 +84,7 @@ export default function RequestsScreen({ navigation }: MainTabsScreenProps<'Requ
 
   return (
     <Screen>
-      <NavyHero
-        eyebrow={i18n.t('requests.subtitle')}
-        title={i18n.t('requests.title')}
-        pattern="dots"
-      />
+      <TopBar title={i18n.t('requests.title')} onBack={() => navigation.goBack()} />
       {!user ? (
         <View style={styles.center}>
           <Ionicons name="person-circle-outline" size={48} color={c.textMuted} />
@@ -96,7 +105,7 @@ export default function RequestsScreen({ navigation }: MainTabsScreenProps<'Requ
         <FlatList
           data={rows}
           keyExtractor={(r) => r.id}
-          contentContainerStyle={{ padding: spacing.s5, paddingBottom: 130, gap: spacing.s3 }}
+          contentContainerStyle={{ padding: spacing.s5, paddingBottom: 40, gap: spacing.s3 }}
           refreshControl={<RefreshControl refreshing={refreshing} onRefresh={async () => { setRefreshing(true); await load(); setRefreshing(false); }} />}
           ListHeaderComponent={
             <View style={[styles.hint, { backgroundColor: c.surfaceAlt }]}>
@@ -104,7 +113,7 @@ export default function RequestsScreen({ navigation }: MainTabsScreenProps<'Requ
               <Text variant="caption" color={c.textMuted} style={{ flex: 1, marginStart: 6 }}>
                 {ar
                   ? 'المحادثة نفسها تصير في واتساب — هذا سجل طلباتك، واضغط أي طلب عشان تكمل المحادثة.'
-                  : 'The conversation happens in WhatsApp — this is your request log. Tap one to continue the chat.'}
+                  : 'The conversation happens in WhatsApp — this is your order log. Tap one to continue the chat.'}
               </Text>
             </View>
           }

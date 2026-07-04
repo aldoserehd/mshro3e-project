@@ -22,6 +22,11 @@ import { FaqList } from '@/components/marketing/faq';
 export const metadata: Metadata = {
   title: `${BRAND.ar} للأعمال · ${BRAND.en} for business`,
   description: `موظّف تسويق ذكي لمشروعك الكويتي — متجر ثنائي اللغة بالذكاء الاصطناعي وطلبات واتساب. Grow your Kuwaiti business on ${BRAND.en} — AI-built store, WhatsApp leads, no commission.`,
+  openGraph: {
+    title: `${BRAND.ar} · ${BRAND.en}`,
+    description: `سوق المشاريع الكويتية — متجرك جاهز وطلباتك واتساب. The Kuwaiti home-business marketplace.`,
+    images: [{ url: '/brand/og.png', width: 1200, height: 630 }],
+  },
 };
 
 const FEATURE_ICON: Record<Feature['icon'], React.ComponentType<{ className?: string }>> = {
@@ -45,8 +50,9 @@ export default async function JoinPage() {
       <header className="absolute inset-x-0 top-0 z-40">
         <div className="mx-auto flex h-[72px] max-w-6xl items-center justify-between px-5">
           <Link href={'/join' as never} className="flex items-center gap-2.5">
-            <span className="inline-flex size-9 items-center justify-center rounded-[12px] bg-white/10 text-[15px] font-bold text-white ring-1 ring-white/20 backdrop-blur-sm">
-              م
+            <span className="inline-flex size-9 items-center justify-center rounded-[12px] bg-white ring-1 ring-white/20">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/brand/mark.png" alt="" className="size-7 object-contain" />
             </span>
             <span className="text-[17px] font-bold text-white">{BRAND.name(locale)}</span>
           </Link>
@@ -333,7 +339,10 @@ export default async function JoinPage() {
       <footer className="border-t border-ink-200 bg-white">
         <div className="mx-auto flex max-w-6xl flex-col items-center gap-4 px-5 py-10 sm:flex-row sm:justify-between">
           <div className="flex items-center gap-2.5">
-            <span className="inline-flex size-9 items-center justify-center rounded-[12px] bg-navy-900 text-[15px] font-bold text-white">م</span>
+            <span className="inline-flex size-9 items-center justify-center rounded-[12px] bg-white ring-1 ring-ink-200">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/brand/mark.png" alt="" className="size-7 object-contain" />
+            </span>
             <div className="text-start">
               <p className="text-[15px] font-bold">{BRAND.name(locale)}</p>
               <p className="text-[12px] text-ink-500">{copy.footer.tagline}</p>

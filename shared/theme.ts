@@ -130,7 +130,9 @@ export const shadow = {
 
 export const fonts = {
   displayLatin: 'Manrope',
-  displayArabic: 'Tajawal',
+  // One Arabic family everywhere — IBM Plex Sans Arabic (brand face).
+  // Mixing Tajawal display + Plex body read as two different apps.
+  displayArabic: 'IBMPlexSansArabic',
   bodyLatin: 'Inter',
   bodyArabic: 'IBMPlexSansArabic',
 } as const;

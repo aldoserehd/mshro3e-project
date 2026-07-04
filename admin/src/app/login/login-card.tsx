@@ -6,12 +6,13 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Controller } from 'react-hook-form';
+import { signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import { authClient } from '@/lib/firebase-client';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { getDict, type Locale } from '@/i18n/dict';
-import { BRAND } from '@/lib/brand';
 import { Mail, Lock, ArrowRight, ArrowLeft, Eye, EyeOff, Info } from 'lucide-react';
 
 const schema = z.object({
@@ -30,6 +31,7 @@ export function LoginCard({ locale }: { locale: Locale }) {
 
   const [showPassword, setShowPassword] = React.useState(false);
   const [forgotOpen, setForgotOpen] = React.useState(false);
+  const [formError, setFormError] = React.useState<string | null>(null);
 
   const {
     register,
@@ -41,22 +43,28 @@ export function LoginCard({ locale }: { locale: Locale }) {
     defaultValues: { identifier: '', password: '', remember: true },
   });
 
-  const onSubmit = async (_v: FormValues) => {
-    // Mock session — UTF-8 → base64 (btoa only handles Latin1, so encode bytes first).
-    const json = JSON.stringify({
-      uid: 'owner_demo_1',
-      role: 'owner',
-      displayName: locale === 'ar' ? 'سالم العتيبي' : 'Salem Otaibi',
-      email: _v.identifier.includes('@') ? _v.identifier : `owner@${BRAND.domain}`,
-    });
-    const bytes = new TextEncoder().encode(json);
-    const binary = Array.from(bytes, (b) => String.fromCharCode(b)).join('');
-    const payload = btoa(binary);
-    document.cookie = `__mshro3e_session=${payload}; path=/; max-age=2592000; SameSite=Lax`;
-    // Brief artificial delay so the loading state actually shows
-    await new Promise((r) => setTimeout(r, 350));
-    router.push(next as never);
-    router.refresh();
+  const onSubmit = async (v: FormValues) => {
+    setFormError(null);
+    try {
+      // Real Firebase sign-in → server verifies the token and mints a
+      // SIGNED httpOnly session cookie (only uids in OWNER_UIDS get in).
+      const cred = await signInWithEmailAndPassword(authClient(), v.identifier.trim(), v.password);
+      const idToken = await cred.user.getIdToken();
+      const res = await fetch('/api/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken }),
+      });
+      if (!res.ok) {
+        await signOut(authClient()).catch(() => {});
+        setFormError(res.status === 403 ? t.login.errNotOwner : t.login.errGeneric);
+        return;
+      }
+      router.push(next as never);
+      router.refresh();
+    } catch {
+      setFormError(t.login.errCredentials);
+    }
   };
 
   const ArrowIcon = locale === 'ar' ? ArrowLeft : ArrowRight;
@@ -138,6 +146,12 @@ export function LoginCard({ locale }: { locale: Locale }) {
             <span className="text-[12px] text-red-600">{errors.password.message}</span>
           ) : null}
         </div>
+
+        {formError ? (
+          <p className="text-[13px] text-red-600 bg-red-50 border border-red-100 rounded-[8px] px-3 py-2">
+            {formError}
+          </p>
+        ) : null}
 
         <Controller
           control={control}

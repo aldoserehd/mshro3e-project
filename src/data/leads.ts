@@ -11,7 +11,7 @@
  * The write is best-effort: a failed log must never block the customer from
  * reaching the vendor, so callers fire-and-forget.
  */
-import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { addDoc, collection } from 'firebase/firestore';
 import { firebaseDb } from '@shared/firebase';
 import { COL } from '@shared/firestore-paths';
 
@@ -46,7 +46,9 @@ export async function logLead(input: LeadInput): Promise<string | null> {
       ref: input.ref,
       channel: 'whatsapp',
       status: 'new',
-      createdAt: serverTimestamp(),
+      // Epoch millis — the whole codebase (vendor portal, admin KPIs, the
+      // Requests tab) sorts and windows on numeric createdAt.
+      createdAt: Date.now(),
     });
     return ref.id;
   } catch (e) {
