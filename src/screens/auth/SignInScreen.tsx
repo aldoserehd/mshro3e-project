@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
+import { Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { signInWithEmailAndPassword } from 'firebase/auth';
@@ -123,8 +123,8 @@ export default function SignInScreen({ navigation }: RootStackScreenProps<'SignI
           <Pressable onPress={() => navigation.goBack()} style={styles.backBtn}>
             <Chevron direction="back" size={20} color="#fff" />
           </Pressable>
-          <View style={styles.logoMark}>
-            <Text variant="hero" color="#fff" weight="800" style={{ fontSize: 28 }}>م</Text>
+          <View style={[styles.logoMark, { backgroundColor: '#fff' }]}>
+            <Image source={require('../../assets/brand-mark.png')} style={{ width: 44, height: 44 }} resizeMode="contain" />
           </View>
           <Text variant="pageTitle" color="#fff" weight="700" style={{ marginTop: spacing.s3 }}>{t.title}</Text>
           <Text variant="body" color={palette.navy300} style={{ marginTop: 4 }}>{t.subtitle}</Text>
@@ -194,7 +194,8 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   backBtn: {
-    position: 'absolute', top: spacing.s4, start: spacing.s4,
+    // Physical left — back buttons live on the LEFT in both directions.
+    position: 'absolute', top: spacing.s4, left: spacing.s4,
     width: 40, height: 40, borderRadius: 999,
     backgroundColor: 'rgba(255,255,255,0.12)',
     alignItems: 'center', justifyContent: 'center',

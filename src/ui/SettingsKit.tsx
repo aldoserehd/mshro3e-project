@@ -8,9 +8,10 @@ import { radius, spacing } from '../theme/ts';
 import { useColors } from '../theme/colors';
 
 /**
- * Shared building blocks for Account / Settings style screens —
- * the iOS-Settings grouped-list pattern: section labels, grouped cards,
- * rows with colored icon squircles, hairline separators, chevrons.
+ * Shared building blocks for Account / Settings screens — Stitch "Kuwaiti
+ * Artisans" visual language: cards with an in-card uppercase header strip,
+ * rows with brand-tinted icon tiles, selectable option cards, and a top bar
+ * whose back button is ALWAYS on the visual left.
  */
 
 /** Top bar with the back button ALWAYS on the visual left (product decision). */
@@ -31,21 +32,22 @@ export const TopBar: React.FC<{ title: string; onBack?: () => void; trailing?: R
   );
 };
 
-/** Small uppercase-ish section label above a group. */
-export const SectionLabel: React.FC<{ children: string }> = ({ children }) => {
-  const c = useColors();
-  return (
-    <Text variant="microcopy" weight="700" color={c.textMuted} style={styles.sectionLabel}>
-      {children}
-    </Text>
-  );
-};
-
-/** Grouped card that wraps rows. */
-export const RowGroup: React.FC<{ children: React.ReactNode; style?: ViewStyle }> = ({ children, style }) => {
+/** Grouped card with an optional uppercase header strip (Stitch style). */
+export const RowGroup: React.FC<{ title?: string; children: React.ReactNode; style?: ViewStyle }> = ({
+  title,
+  children,
+  style,
+}) => {
   const c = useColors();
   return (
     <View style={[styles.group, { backgroundColor: c.surface, borderColor: c.border }, style]}>
+      {title ? (
+        <View style={[styles.groupHead, { backgroundColor: c.surfaceAlt, borderBottomColor: c.border }]}>
+          <Text variant="microcopy" weight="700" color={c.brandText} style={{ letterSpacing: 1.5 }}>
+            {title}
+          </Text>
+        </View>
+      ) : null}
       {children}
     </View>
   );
@@ -53,20 +55,30 @@ export const RowGroup: React.FC<{ children: React.ReactNode; style?: ViewStyle }
 
 export interface RowProps {
   icon: keyof typeof Ionicons.glyphMap;
-  /** Squircle background color (pass a saturated tone; icon renders white). */
-  tint: string;
   label: string;
   sub?: string;
   /** Value text shown before the chevron (e.g. current language). */
   value?: string;
   onPress?: () => void;
-  /** Custom trailing node — replaces value+chevron (e.g. a Switch or Segmented). */
+  /** Custom trailing node — replaces value+chevron (e.g. a Switch). */
   trailing?: React.ReactNode;
   destructive?: boolean;
   first?: boolean;
+  /** 'tile' = 44px brand-tinted icon tile (activity rows); 'plain' = muted icon. */
+  variant?: 'tile' | 'plain';
 }
 
-export const Row: React.FC<RowProps> = ({ icon, tint, label, sub, value, onPress, trailing, destructive, first }) => {
+export const Row: React.FC<RowProps> = ({
+  icon,
+  label,
+  sub,
+  value,
+  onPress,
+  trailing,
+  destructive,
+  first,
+  variant = 'plain',
+}) => {
   const c = useColors();
   return (
     <Pressable
@@ -74,19 +86,24 @@ export const Row: React.FC<RowProps> = ({ icon, tint, label, sub, value, onPress
       disabled={!onPress}
       style={({ pressed }) => [
         styles.row,
+        variant === 'tile' && styles.rowTall,
         !first && { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.border },
         pressed && onPress ? { backgroundColor: c.surfaceAlt } : null,
       ]}
     >
-      <View style={[styles.iconSq, { backgroundColor: destructive ? c.danger : tint }]}>
-        <Ionicons name={icon} size={16} color="#fff" />
-      </View>
+      {variant === 'tile' ? (
+        <View style={[styles.iconTile, { backgroundColor: destructive ? c.dangerFill : c.brandFill }]}>
+          <Ionicons name={icon} size={20} color={destructive ? c.danger : c.brandText} />
+        </View>
+      ) : (
+        <Ionicons name={icon} size={21} color={destructive ? c.danger : c.textMuted} style={{ width: 28 }} />
+      )}
       <View style={{ flex: 1, marginStart: spacing.s3 }}>
-        <Text variant="body" weight="500" color={destructive ? c.danger : c.text} numberOfLines={1}>
+        <Text variant="body" weight={variant === 'tile' ? '600' : '500'} color={destructive ? c.danger : c.text} numberOfLines={1}>
           {label}
         </Text>
         {sub ? (
-          <Text variant="caption" color={c.textMuted} numberOfLines={1}>
+          <Text variant="caption" color={c.textMuted} numberOfLines={2}>
             {sub}
           </Text>
         ) : null}
@@ -105,51 +122,64 @@ export const Row: React.FC<RowProps> = ({ icon, tint, label, sub, value, onPress
   );
 };
 
-/** Compact segmented control (used for language / theme). */
-export function Segmented<T extends string>({
-  options,
-  value,
-  onChange,
-}: {
-  options: { key: T; label: string; icon?: keyof typeof Ionicons.glyphMap }[];
-  value: T;
-  onChange: (k: T) => void;
-}) {
+/** Section card with a leading icon circle + headline (Stitch settings style). */
+export const SectionCard: React.FC<{
+  icon: keyof typeof Ionicons.glyphMap;
+  title: string;
+  children: React.ReactNode;
+  style?: ViewStyle;
+}> = ({ icon, title, children, style }) => {
   const c = useColors();
   return (
-    <View style={[styles.segment, { backgroundColor: c.surfaceSunken, borderColor: c.border }]}>
-      {options.map((o) => {
-        const on = value === o.key;
-        return (
-          <Pressable
-            key={o.key}
-            onPress={() => onChange(o.key)}
-            style={[styles.segmentChip, on && { backgroundColor: c.brand }]}
-          >
-            {o.icon ? (
-              <Ionicons name={o.icon} size={13} color={on ? '#fff' : c.textMuted} style={{ marginEnd: 4 }} />
-            ) : null}
-            <Text variant="microcopy" weight="700" color={on ? '#fff' : c.textMuted}>
-              {o.label}
-            </Text>
-          </Pressable>
-        );
-      })}
+    <View style={[styles.sectionCard, { backgroundColor: c.surface, borderColor: c.border }, style]}>
+      <View style={styles.sectionHead}>
+        <View style={[styles.sectionIcon, { backgroundColor: c.brandFill }]}>
+          <Ionicons name={icon} size={19} color={c.brandText} />
+        </View>
+        <Text variant="cardTitle" weight="700">{title}</Text>
+      </View>
+      {children}
     </View>
   );
-}
+};
 
-/** Row icon tints — consistent across Account + Settings. */
-export const ROW_TINTS = {
-  blue: '#415c9d',
-  sky: '#3E86C6',
-  green: '#2FA45C',
-  orange: '#E8883A',
-  purple: '#7A5CC6',
-  teal: '#2E9E9B',
-  pink: '#C65C8A',
-  slate: '#6B7590',
-} as const;
+/** Selectable option card (language / theme choices). */
+export const OptionCard: React.FC<{
+  label: string;
+  selected: boolean;
+  onPress: () => void;
+  sub?: string;
+}> = ({ label, selected, onPress, sub }) => {
+  const c = useColors();
+  return (
+    <Pressable
+      onPress={onPress}
+      style={[
+        styles.option,
+        {
+          backgroundColor: selected ? c.brandFill : c.surfaceSunken,
+          borderColor: selected ? c.brand : 'transparent',
+        },
+      ]}
+    >
+      <Ionicons
+        name={selected ? 'checkmark-circle' : 'ellipse-outline'}
+        size={19}
+        color={selected ? c.brandText : c.borderStrong}
+      />
+      <View style={{ flex: 1, marginStart: spacing.s2 }}>
+        <Text variant="label" weight={selected ? '700' : '500'} color={selected ? c.brandText : c.text} numberOfLines={1}>
+          {label}
+        </Text>
+        {sub ? (
+          <Text variant="microcopy" color={c.textMuted} numberOfLines={1}>
+            {sub}
+          </Text>
+        ) : null}
+      </View>
+    </Pressable>
+  );
+};
 
 const styles = StyleSheet.create({
   topBar: {
@@ -161,13 +191,12 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.s3,
     borderBottomWidth: 1,
   },
-  sectionLabel: {
-    marginTop: spacing.s5,
-    marginBottom: spacing.s2,
-    marginStart: spacing.s2,
-    letterSpacing: 0.8,
-  },
   group: { borderRadius: radius.lg, borderWidth: 1, overflow: 'hidden' },
+  groupHead: {
+    paddingHorizontal: spacing.s4,
+    paddingVertical: spacing.s3,
+    borderBottomWidth: 1,
+  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -175,20 +204,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.s4,
     paddingVertical: spacing.s2,
   },
-  iconSq: {
-    width: 30,
-    height: 30,
-    borderRadius: 8,
+  rowTall: { minHeight: 64, paddingVertical: spacing.s3 },
+  iconTile: {
+    width: 44,
+    height: 44,
+    borderRadius: radius.md,
     alignItems: 'center',
     justifyContent: 'center',
   },
   trailing: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  segment: { flexDirection: 'row', borderRadius: 999, borderWidth: 1, padding: 3 },
-  segmentChip: {
+  sectionCard: { borderRadius: radius.lg, borderWidth: 1, padding: spacing.s4 },
+  sectionHead: { flexDirection: 'row', alignItems: 'center', gap: spacing.s3, marginBottom: spacing.s4 },
+  sectionIcon: { width: 38, height: 38, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  option: {
     flexDirection: 'row',
     alignItems: 'center',
+    flex: 1,
+    minWidth: 130,
+    borderWidth: 2,
+    borderRadius: radius.md,
     paddingHorizontal: spacing.s3,
-    paddingVertical: 6,
-    borderRadius: 999,
+    paddingVertical: spacing.s3,
   },
 });

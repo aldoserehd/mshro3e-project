@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { I18nManager, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Platform, Pressable, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
@@ -36,22 +36,21 @@ export const BlurTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, na
   const tabBarWidth = width - horizontalMargin * 2;
   const tabWidth = tabBarWidth / state.routes.length;
 
-  // Indicator is positioned by absolute `left` (screen coords — never mirrored
-  // by RTL, unlike `start`/transforms). We compute the VISUAL slot: under
-  // forced-RTL the flex row renders children reversed, so the focused route's
-  // visual index counts from the other side.
+  // Indicator position: MEASURED from each tab's real onLayout x, so it is
+  // correct regardless of RTL child ordering or left/right swap semantics —
+  // computing it from the route index kept mirroring on Android.
   const PAD = spacing.s2;
   const indWidth = tabWidth - PAD * 2;
-  const n = state.routes.length;
-  const slotLeft = (idx: number) => {
-    const visual = I18nManager.isRTL ? n - 1 - idx : idx;
-    return visual * tabWidth + PAD * 2;
-  };
+  const [tabX, setTabX] = useState<Record<number, number>>({});
 
-  const indicatorX = useSharedValue(slotLeft(state.index));
+  const indicatorX = useSharedValue(-9999); // off-screen until first measure
   useEffect(() => {
-    indicatorX.value = withSpring(slotLeft(state.index), motion.spring.tab);
-  }, [state.index, tabWidth]); // eslint-disable-line react-hooks/exhaustive-deps
+    const x = tabX[state.index];
+    if (x == null) return;
+    const target = x + PAD;
+    if (indicatorX.value < -999) indicatorX.value = target; // first paint: no fly-in
+    else indicatorX.value = withSpring(target, motion.spring.tab);
+  }, [state.index, tabX]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const indicatorStyle = useAnimatedStyle(() => ({ left: indicatorX.value }));
 
@@ -66,12 +65,19 @@ export const BlurTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, na
         },
       ]}
     >
-      <BlurView intensity={90} tint={c.isDark ? 'dark' : 'light'} style={StyleSheet.absoluteFill} />
+      {/* Real blur only on iOS — expo-blur is a frame-rate killer on Android,
+          where a near-opaque fill looks the same and scrolls smoothly. */}
+      {Platform.OS === 'ios' && (
+        <BlurView intensity={90} tint={c.isDark ? 'dark' : 'light'} style={StyleSheet.absoluteFill} />
+      )}
       <View
         style={[
           StyleSheet.absoluteFill,
           {
-            backgroundColor: c.isDark ? 'rgba(20,26,46,0.55)' : 'rgba(255,255,255,0.5)',
+            backgroundColor:
+              Platform.OS === 'ios'
+                ? c.isDark ? 'rgba(20,26,46,0.55)' : 'rgba(255,255,255,0.5)'
+                : c.isDark ? 'rgba(20,26,46,0.97)' : 'rgba(255,255,255,0.97)',
             borderRadius: radius.full,
             borderWidth: 1,
             borderColor: c.isDark ? 'rgba(255,255,255,0.10)' : 'rgba(255,255,255,0.65)',
@@ -111,6 +117,10 @@ export const BlurTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, na
             <Pressable
               key={route.key}
               onPress={onPress}
+              onLayout={(e) => {
+                const x = e.nativeEvent.layout.x;
+                setTabX((prev) => (prev[index] === x ? prev : { ...prev, [index]: x }));
+              }}
               style={[styles.tab, { width: tabWidth }]}
               accessibilityRole="button"
               accessibilityState={focused ? { selected: true } : {}}

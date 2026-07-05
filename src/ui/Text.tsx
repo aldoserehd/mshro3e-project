@@ -43,7 +43,12 @@ export const Text: React.FC<TextProps> = ({
     color: color ?? c.text,
   };
   if (align) composed.textAlign = align;
-  else if (forceLtr) composed.textAlign = 'left';
+  else if (forceLtr) {
+    // LTR island for phones / prices / emails / ref codes: physical left
+    // (App.tsx disables RTL left/right swapping) + LTR bidi direction.
+    composed.textAlign = 'left';
+    composed.writingDirection = 'ltr';
+  }
   return (
     <RNText style={[composed, style]} allowFontScaling {...rest}>
       {children}

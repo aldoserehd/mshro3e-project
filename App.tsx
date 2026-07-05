@@ -22,6 +22,11 @@ if (!I18nManager.isRTL) {
   I18nManager.allowRTL(true);
   I18nManager.forceRTL(true);
 }
+// `left`/`right` styles mean PHYSICAL left/right — never auto-swapped in RTL.
+// (Android otherwise flips them, which pushed back buttons to the top-right
+// and right-aligned LTR content like phone numbers.) Use start/end for
+// direction-aware layout.
+I18nManager.swapLeftAndRightInRTL(false);
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 

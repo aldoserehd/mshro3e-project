@@ -251,7 +251,8 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   backBtn: {
-    position: 'absolute', top: spacing.s4, start: spacing.s4,
+    // Physical left — back buttons live on the LEFT in both directions.
+    position: 'absolute', top: spacing.s4, left: spacing.s4,
     width: 40, height: 40, borderRadius: 999,
     backgroundColor: 'rgba(255,255,255,0.12)',
     alignItems: 'center', justifyContent: 'center',

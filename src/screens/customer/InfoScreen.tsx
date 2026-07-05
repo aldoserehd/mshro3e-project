@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
 import Card from '../../ui/Card';
-import { Chevron } from '../../ui/Chevron';
+import { TopBar } from '../../ui/SettingsKit';
 import { spacing } from '../../theme/ts';
 import { useColors } from '../../theme/colors';
 import { useLocaleStore } from '../../stores/locale';
@@ -110,13 +110,7 @@ export default function InfoScreen({ route, navigation }: RootStackScreenProps<'
 
   return (
     <Screen>
-      <View style={[styles.topBar, { backgroundColor: c.surface, borderBottomColor: c.border }]}>
-        <Pressable onPress={() => navigation.goBack()} hitSlop={12} style={[styles.backBtn, { backgroundColor: c.surfaceAlt }]}>
-          <Chevron direction="back" size={20} color={c.text} />
-        </Pressable>
-        <Text variant="cardTitle" weight="700">{copy.title}</Text>
-        <View style={{ width: 40 }} />
-      </View>
+      <TopBar title={copy.title} onBack={() => navigation.goBack()} />
 
       <ScrollView contentContainerStyle={styles.scroll}>
         <Text variant="body" color={c.textMuted} style={{ marginBottom: spacing.s4 }}>

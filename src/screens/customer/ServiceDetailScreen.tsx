@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { Alert, Linking, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { Alert, I18nManager, Linking, Pressable, ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
@@ -324,7 +324,8 @@ export default function ProductDetailScreen({ route, navigation }: RootStackScre
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   detailHeader: {
-    height: 52, flexDirection: 'row', alignItems: 'center',
+    // Back button stays on the visual LEFT under forced-RTL.
+    height: 52, flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row', alignItems: 'center',
     paddingHorizontal: spacing.s4, borderBottomWidth: 1,
   },
   headerBack: { width: 40, height: 40, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },

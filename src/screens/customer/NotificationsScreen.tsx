@@ -1,30 +1,27 @@
-import React, { useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native';
+import React from 'react';
+import { ScrollView, StyleSheet, Switch, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import i18n from '../../locales/i18n';
 import Screen from '../../ui/Screen';
 import Text from '../../ui/Text';
 import { TopBar } from '../../ui/SettingsKit';
+import { usePrefsStore, type NotifPrefs } from '../../stores/prefs';
 import { useColors } from '../../theme/colors';
-import { radius, spacing } from '../../theme/ts';
+import { radius, spacing, getCurrentLocale } from '../../theme/ts';
 import type { RootStackScreenProps } from '../../navigation/types';
-
-type PrefKey = 'newProducts' | 'replies' | 'deals' | 'backInStock' | 'push';
-const PREFS: { key: PrefKey; icon: keyof typeof Ionicons.glyphMap }[] = [
-  { key: 'push', icon: 'phone-portrait-outline' },
-  { key: 'newProducts', icon: 'sparkles-outline' },
-  { key: 'replies', icon: 'chatbubble-ellipses-outline' },
-  { key: 'deals', icon: 'pricetag-outline' },
-  { key: 'backInStock', icon: 'refresh-outline' },
-];
 
 export default function NotificationsScreen({ navigation }: RootStackScreenProps<'Notifications'>) {
   const c = useColors();
-  const [prefs, setPrefs] = useState<Record<PrefKey, boolean>>({
-    push: true, newProducts: true, replies: true, deals: false, backInStock: true,
-  });
-  const toggle = (k: PrefKey) => setPrefs((p) => ({ ...p, [k]: !p[k] }));
+  const prefs = usePrefsStore();
+  const ar = getCurrentLocale() === 'ar';
+
+  const ROWS: { key: keyof NotifPrefs; icon: keyof typeof Ionicons.glyphMap; label: string; sub?: string }[] = [
+    { key: 'push', icon: 'phone-portrait-outline', label: ar ? 'إشعارات التطبيق' : 'Push notifications' },
+    { key: 'orderUpdates', icon: 'receipt-outline', label: ar ? 'تحديثات الطلبات' : 'Order updates' },
+    { key: 'promos', icon: 'pricetag-outline', label: ar ? 'العروض والخصومات' : 'Promotions & discounts' },
+    { key: 'vendorAlerts', icon: 'sparkles-outline', label: ar ? 'تنبيهات المحلات' : 'Vendor alerts' },
+  ];
 
   return (
     <Screen>
@@ -44,26 +41,26 @@ export default function NotificationsScreen({ navigation }: RootStackScreenProps
           </Text>
         </Animated.View>
 
-        {/* Preferences */}
-        <Text variant="label" weight="700" color={c.textMuted} style={styles.prefsHead}>
+        {/* Preferences — persisted in the prefs store (shared with Settings) */}
+        <Text variant="microcopy" weight="700" color={c.textMuted} style={styles.prefsHead}>
           {i18n.t('notif.prefsTitle')}
         </Text>
         <View style={[styles.prefsCard, { backgroundColor: c.surface, borderColor: c.border }]}>
-          {PREFS.map(({ key, icon }, i) => (
+          {ROWS.map((row, i) => (
             <View
-              key={key}
+              key={row.key}
               style={[
                 styles.prefRow,
-                i < PREFS.length - 1 && { borderBottomWidth: 1, borderBottomColor: c.border },
+                i < ROWS.length - 1 && { borderBottomWidth: 1, borderBottomColor: c.border },
               ]}
             >
               <View style={[styles.prefIcon, { backgroundColor: c.brandFill }]}>
-                <Ionicons name={icon} size={18} color={c.brandText} />
+                <Ionicons name={row.icon} size={18} color={c.brandText} />
               </View>
-              <Text variant="body" style={{ flex: 1, marginStart: spacing.s3 }}>{i18n.t(`notif.${key}`)}</Text>
+              <Text variant="body" style={{ flex: 1, marginStart: spacing.s3 }}>{row.label}</Text>
               <Switch
-                value={prefs[key]}
-                onValueChange={() => toggle(key)}
+                value={prefs[row.key]}
+                onValueChange={(v) => prefs.setPref(row.key, v)}
                 trackColor={{ false: c.borderStrong, true: c.brand }}
                 thumbColor="#fff"
               />
@@ -76,16 +73,10 @@ export default function NotificationsScreen({ navigation }: RootStackScreenProps
 }
 
 const styles = StyleSheet.create({
-  topBar: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: spacing.s4, paddingVertical: spacing.s3,
-    borderBottomWidth: 1,
-  },
-  backBtn: { width: 40, height: 40, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   scroll: { padding: spacing.s5, paddingBottom: spacing.s8 },
   emptyCard: { borderRadius: radius.xl, padding: spacing.s6, alignItems: 'center' },
   bell: { width: 56, height: 56, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
-  prefsHead: { marginTop: spacing.s6, marginBottom: spacing.s2, marginStart: spacing.s1 },
+  prefsHead: { marginTop: spacing.s6, marginBottom: spacing.s2, marginStart: spacing.s1, letterSpacing: 1 },
   prefsCard: { borderRadius: radius.lg, borderWidth: 1, overflow: 'hidden' },
   prefRow: { flexDirection: 'row', alignItems: 'center', padding: spacing.s4 },
   prefIcon: { width: 34, height: 34, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },

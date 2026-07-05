@@ -51,12 +51,13 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
-    // User profile — read/write only your own doc
+    // User profile — read/write/delete only your own doc.
+    // Delete supports in-app account deletion (App Store requirement).
     match /users/{uid} {
       allow read: if request.auth != null && request.auth.uid == uid;
       allow create: if request.auth != null && request.auth.uid == uid;
       allow update: if request.auth != null && request.auth.uid == uid;
-      allow delete: if false;
+      allow delete: if request.auth != null && request.auth.uid == uid;
     }
 
     // Leads — WhatsApp contact events (vendor attribution).

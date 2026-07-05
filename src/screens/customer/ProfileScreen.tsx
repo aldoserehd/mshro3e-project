@@ -8,9 +8,8 @@ import Text from '../../ui/Text';
 import Avatar from '../../ui/Avatar';
 import Button from '../../ui/Button';
 import PressableScale from '../../ui/PressableScale';
-import { Chevron } from '../../ui/Chevron';
 import VendorCtaSheet from '../../ui/VendorCtaSheet';
-import { Row, RowGroup, SectionLabel, ROW_TINTS } from '../../ui/SettingsKit';
+import { Row, RowGroup } from '../../ui/SettingsKit';
 import { useColors } from '../../theme/colors';
 import { radius, spacing, shadowStyle } from '../../theme/ts';
 import { useLocaleStore } from '../../stores/locale';
@@ -53,130 +52,167 @@ export default function AccountScreen({ navigation }: MainTabsScreenProps<'Accou
           {ar ? 'حسابي' : 'My account'}
         </Text>
 
-        {/* ── Identity ── */}
-        {isSignedIn ? (
-          <PressableScale onPress={() => navigation.navigate('Profile')}>
-            <View style={[styles.identity, { backgroundColor: c.surface, borderColor: c.border }]}>
-              <View style={[styles.avatarRing, { borderColor: c.brandFill }]}>
-                <Avatar name={user!.name?.trim() || 'User'} size={56} />
+        {/* ── Profile header card ── */}
+        <View style={[styles.identity, { backgroundColor: c.surface, borderColor: c.border }]}>
+          {isSignedIn ? (
+            <>
+              <View style={styles.avatarWrap}>
+                <View style={[styles.avatarRing, { borderColor: c.brandFill }]}>
+                  <Avatar name={user!.name?.trim() || 'User'} size={64} />
+                </View>
+                <Pressable
+                  onPress={() => navigation.navigate('Profile')}
+                  hitSlop={8}
+                  style={[styles.editBadge, { backgroundColor: c.brand, borderColor: c.surface }]}
+                >
+                  <Ionicons name="pencil" size={11} color="#fff" />
+                </Pressable>
               </View>
-              <View style={{ flex: 1, marginStart: spacing.s3 }}>
+              <View style={{ flex: 1, marginStart: spacing.s4 }}>
                 <Text variant="cardTitle" weight="700" numberOfLines={1}>
                   {user!.name?.trim() || (ar ? 'بدون اسم' : 'No name')}
                 </Text>
-                <Text variant="caption" color={c.textMuted} numberOfLines={1}>
+                <Text variant="caption" color={c.textMuted} numberOfLines={1} forceLtr>
                   {user!.email || user!.phone || ''}
                 </Text>
-                <Text variant="microcopy" weight="600" color={c.brandText} style={{ marginTop: 2 }}>
-                  {ar ? 'عرض وتعديل الملف' : 'View & edit profile'}
+                <View style={[styles.memberPill, { backgroundColor: c.brandFill, borderColor: c.brand }]}>
+                  <Ionicons name="checkmark-circle" size={13} color={c.brandText} />
+                  <Text variant="microcopy" weight="700" color={c.brandText}>
+                    {ar ? 'عضو مشروعي' : 'MSHRO3E MEMBER'}
+                  </Text>
+                </View>
+              </View>
+              <Button
+                title={ar ? 'تعديل' : 'Edit'}
+                size="sm"
+                onPress={() => navigation.navigate('Profile')}
+              />
+            </>
+          ) : (
+            <>
+              <View style={[styles.guestIcon, { backgroundColor: c.brandFill }]}>
+                <Ionicons name="person-outline" size={26} color={c.brandText} />
+              </View>
+              <View style={{ flex: 1, marginStart: spacing.s3 }}>
+                <Text variant="cardTitle" weight="700">{ar ? 'حياك في مشروعي 👋' : 'Welcome 👋'}</Text>
+                <Text variant="caption" color={c.textMuted}>
+                  {ar ? 'سجّل عشان تتابع طلباتك وتحفظ مفضلاتك.' : 'Sign in to track orders and keep favorites.'}
                 </Text>
+                <View style={{ flexDirection: 'row', gap: spacing.s2, marginTop: spacing.s3 }}>
+                  <Button title={ar ? 'تسجيل الدخول' : 'Sign in'} size="sm" onPress={() => navigation.navigate('SignIn')} />
+                  <Button
+                    title={ar ? 'حساب جديد' : 'Sign up'}
+                    size="sm"
+                    variant="ghost"
+                    onPress={() => navigation.navigate('SignUp')}
+                  />
+                </View>
               </View>
-              <Chevron direction="forward" size={18} color={c.borderStrong} />
-            </View>
-          </PressableScale>
-        ) : (
-          <View style={[styles.identity, { backgroundColor: c.surface, borderColor: c.border }]}>
-            <View style={[styles.guestIcon, { backgroundColor: c.brandFill }]}>
-              <Ionicons name="person-outline" size={24} color={c.brandText} />
-            </View>
-            <View style={{ flex: 1, marginStart: spacing.s3 }}>
-              <Text variant="cardTitle" weight="700">{ar ? 'حياك في مشروعي 👋' : 'Welcome 👋'}</Text>
-              <Text variant="caption" color={c.textMuted}>
-                {ar ? 'سجّل عشان تتابع طلباتك وتحفظ مفضلاتك.' : 'Sign in to track orders and keep favorites.'}
-              </Text>
-              <View style={{ flexDirection: 'row', gap: spacing.s2, marginTop: spacing.s3 }}>
-                <Button title={ar ? 'تسجيل الدخول' : 'Sign in'} size="sm" onPress={() => navigation.navigate('SignIn')} />
-                <Button
-                  title={ar ? 'حساب جديد' : 'Sign up'}
-                  size="sm"
-                  variant="ghost"
-                  onPress={() => navigation.navigate('SignUp')}
-                />
-              </View>
-            </View>
-          </View>
-        )}
+            </>
+          )}
+        </View>
 
         {/* ── Activity ── */}
-        <SectionLabel>{ar ? 'نشاطي' : 'MY ACTIVITY'}</SectionLabel>
-        <RowGroup>
+        <RowGroup title={ar ? 'نشاطي' : 'ACTIVITY'} style={{ marginTop: spacing.s5 }}>
           <Row
             first
-            icon="receipt-outline"
-            tint={ROW_TINTS.blue}
+            variant="tile"
+            icon="bag-handle-outline"
             label={ar ? 'طلباتي' : 'My orders'}
             sub={ar ? 'سجل تواصلك مع المحلات عبر واتساب' : 'Your WhatsApp order history'}
             onPress={() => navigation.navigate('Orders')}
           />
           <Row
+            variant="tile"
             icon="heart-outline"
-            tint={ROW_TINTS.pink}
             label={ar ? 'المفضلة' : 'Favorites'}
             onPress={() => navigation.navigate('Favorites')}
           />
+        </RowGroup>
+
+        {/* ── Own a business? (Stitch navy card) ── */}
+        <PressableScale onPress={() => setVendorCtaOpen(true)} style={{ marginTop: spacing.s5 }}>
+          <View style={styles.bizCard}>
+            <LinearGradient colors={['#151b2c', '#001a41']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
+            {/* soft glow circles */}
+            <View style={[styles.glow, { top: -70, right: -50, backgroundColor: 'rgba(65,92,157,0.35)' }]} />
+            <View style={[styles.glow, { bottom: -80, left: -60, backgroundColor: 'rgba(157,183,255,0.18)' }]} />
+            <View style={styles.bizHead}>
+              <Ionicons name="storefront-outline" size={26} color="#9db7ff" />
+              <Text variant="cardTitle" weight="700" color="#fff">
+                {ar ? 'عندك مشروع؟' : 'Own a business?'}
+              </Text>
+            </View>
+            <Text variant="body" color="#7e8398" style={{ marginTop: spacing.s2 }}>
+              {ar
+                ? 'انضم لسوق المشاريع الكويتية — متجرك جاهز وطلباتك توصلك واتساب، بدون أي عمولة.'
+                : "Join Kuwait's home-business marketplace — a ready storefront, orders on WhatsApp, zero commission."}
+            </Text>
+            <View style={[styles.bizCta, { backgroundColor: '#9db7ff' }]}>
+              <Text variant="button" weight="700" color="#2a4686">
+                {ar ? 'سجّل مشروعك' : 'Apply to become a vendor'}
+              </Text>
+              <Ionicons
+                name="arrow-forward"
+                size={17}
+                color="#2a4686"
+                style={{ transform: [{ scaleX: I18nManager.isRTL ? -1 : 1 }] }}
+              />
+            </View>
+          </View>
+        </PressableScale>
+
+        {/* ── App settings ── */}
+        <RowGroup title={ar ? 'إعدادات التطبيق' : 'APP SETTINGS'} style={{ marginTop: spacing.s5 }}>
+          <Row
+            first
+            icon="settings-outline"
+            label={ar ? 'الإعدادات' : 'Settings'}
+            sub={ar ? 'اللغة، المظهر، الإشعارات' : 'Language, theme, notifications'}
+            onPress={() => navigation.navigate('Settings')}
+          />
           <Row
             icon="notifications-outline"
-            tint={ROW_TINTS.orange}
             label={ar ? 'الإشعارات' : 'Notifications'}
             onPress={() => navigation.navigate('Notifications')}
           />
         </RowGroup>
 
-        {/* ── General ── */}
-        <SectionLabel>{ar ? 'عام' : 'GENERAL'}</SectionLabel>
-        <RowGroup>
+        {/* ── Support ── */}
+        <RowGroup title={ar ? 'الدعم' : 'SUPPORT'} style={{ marginTop: spacing.s5 }}>
           <Row
             first
-            icon="settings-outline"
-            tint={ROW_TINTS.slate}
-            label={ar ? 'الإعدادات' : 'Settings'}
-            sub={ar ? 'اللغة، المظهر، الخصوصية' : 'Language, theme, privacy'}
-            onPress={() => navigation.navigate('Settings')}
-          />
-          <Row
             icon="help-buoy-outline"
-            tint={ROW_TINTS.green}
             label={ar ? 'المساعدة والدعم' : 'Help & support'}
             onPress={() => navigation.navigate('Info', { topic: 'help' })}
           />
           <Row
             icon="information-circle-outline"
-            tint={ROW_TINTS.purple}
             label={ar ? `عن ${BRAND.ar}` : `About ${BRAND.en}`}
             onPress={() => navigation.navigate('Info', { topic: 'about' })}
           />
+          <Row
+            icon="shield-checkmark-outline"
+            label={ar ? 'سياسة الخصوصية' : 'Privacy policy'}
+            onPress={() => navigation.navigate('Info', { topic: 'privacy' })}
+          />
         </RowGroup>
 
-        {/* ── Vendor CTA ── */}
-        <PressableScale onPress={() => setVendorCtaOpen(true)} style={{ marginTop: spacing.s5 }}>
-          <View style={styles.banner}>
-            <LinearGradient colors={['#2a4686', '#001a41']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFill} />
-            <View style={styles.bannerIcon}>
-              <Ionicons name="storefront-outline" size={20} color="#fff" />
-            </View>
-            <View style={{ flex: 1, marginStart: spacing.s3 }}>
-              <Text variant="cardTitle" weight="700" color="#fff">
-                {ar ? 'عندك مشروع؟' : 'Own a business?'}
-              </Text>
-              <Text variant="caption" color="#9db7ff">
-                {ar ? 'اعرضه على مشروعي — بدون عمولة' : 'List it on Mshro3e — zero commission'}
-              </Text>
-            </View>
-            <View style={styles.bannerCta}>
-              <Ionicons name="arrow-forward" size={16} color="#001a41" style={{ transform: [{ scaleX: I18nManager.isRTL ? -1 : 1 }] }} />
-            </View>
-          </View>
-        </PressableScale>
-
-        {/* ── Sign out ── */}
+        {/* ── Log out (outlined, Stitch danger style) ── */}
         {isSignedIn && (
-          <RowGroup style={{ marginTop: spacing.s5 }}>
-            <Row first icon="log-out-outline" tint={c.danger} label={ar ? 'تسجيل الخروج' : 'Log out'} destructive onPress={onLogout} />
-          </RowGroup>
+          <Pressable
+            onPress={onLogout}
+            style={[styles.logoutBtn, { borderColor: c.isDark ? 'rgba(255,107,107,0.35)' : 'rgba(186,26,26,0.25)' }]}
+          >
+            <Ionicons name="log-out-outline" size={19} color={c.danger} />
+            <Text variant="button" weight="700" color={c.danger}>
+              {ar ? 'تسجيل الخروج' : 'Log out'}
+            </Text>
+          </Pressable>
         )}
 
-        <Text variant="microcopy" color={c.textMuted} align="center" style={{ marginTop: spacing.s5 }}>
-          {BRAND.en} {BRAND.version}
+        <Text variant="microcopy" color={c.textMuted} align="center" style={{ marginTop: spacing.s5, letterSpacing: 1 }}>
+          {BRAND.en.toUpperCase()} {BRAND.version}
         </Text>
       </ScrollView>
 
@@ -195,20 +231,58 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     ...shadowStyle(1),
   },
+  avatarWrap: { position: 'relative' },
   avatarRing: { borderWidth: 3, borderRadius: 999, padding: 2 },
-  guestIcon: { width: 48, height: 48, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
-  banner: {
+  editBadge: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    width: 24,
+    height: 24,
+    borderRadius: 999,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  memberPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: spacing.s4,
+    gap: 4,
+    alignSelf: 'flex-start',
+    borderRadius: 999,
+    borderWidth: 1,
+    paddingHorizontal: spacing.s2,
+    paddingVertical: 3,
+    marginTop: 6,
+  },
+  guestIcon: { width: 52, height: 52, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  bizCard: {
     borderRadius: radius.xl,
+    padding: spacing.s5,
     overflow: 'hidden',
     ...shadowStyle(2),
   },
-  bannerIcon: {
-    width: 44, height: 44, borderRadius: 999,
-    backgroundColor: 'rgba(255,255,255,0.16)',
-    alignItems: 'center', justifyContent: 'center',
+  glow: { position: 'absolute', width: 190, height: 190, borderRadius: 999 },
+  bizHead: { flexDirection: 'row', alignItems: 'center', gap: spacing.s3 },
+  bizCta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.s2,
+    alignSelf: 'flex-start',
+    borderRadius: radius.md,
+    paddingHorizontal: spacing.s4,
+    paddingVertical: spacing.s3,
+    marginTop: spacing.s4,
   },
-  bannerCta: { width: 34, height: 34, borderRadius: 999, backgroundColor: '#9db7ff', alignItems: 'center', justifyContent: 'center' },
+  logoutBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.s2,
+    borderWidth: 2,
+    borderRadius: radius.lg,
+    paddingVertical: spacing.s4,
+    marginTop: spacing.s5,
+  },
 });

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Alert, Linking, Pressable, ScrollView, Share, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { Alert, I18nManager, Linking, Pressable, ScrollView, Share, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
@@ -240,7 +240,11 @@ const Divider = () => {
 };
 
 const styles = StyleSheet.create({
-  fallbackHeader: { height: 52, flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.s4, borderBottomWidth: 1 },
+  fallbackHeader: {
+    // Back button stays on the visual LEFT under forced-RTL.
+    height: 52, flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row', alignItems: 'center',
+    paddingHorizontal: spacing.s4, borderBottomWidth: 1,
+  },
   fallbackBody: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   cover: { height: 200, position: 'relative' },
   coverBtn: {
