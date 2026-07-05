@@ -1,5 +1,5 @@
 import React from 'react';
-import { I18nManager, Pressable, StyleSheet, View, ViewStyle } from 'react-native';
+import { Pressable, StyleSheet, View, ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Text from './Text';
 import BackButton from './BackButton';
@@ -14,7 +14,11 @@ import { useColors } from '../theme/colors';
  * whose back button is ALWAYS on the visual left.
  */
 
-/** Top bar with the back button ALWAYS on the visual left (product decision). */
+/**
+ * Top bar with the back button ALWAYS on the physical left.
+ * Uses absolute positioning (not row direction tricks) — flex row order
+ * proved unreliable across RTL configurations on Android.
+ */
 export const TopBar: React.FC<{ title: string; onBack?: () => void; trailing?: React.ReactNode }> = ({
   title,
   onBack,
@@ -23,11 +27,19 @@ export const TopBar: React.FC<{ title: string; onBack?: () => void; trailing?: R
   const c = useColors();
   return (
     <View style={[styles.topBar, { backgroundColor: c.surface, borderBottomColor: c.border }]}>
-      {onBack ? <BackButton onPress={onBack} /> : <View style={{ width: 40 }} />}
-      <Text variant="cardTitle" weight="700" numberOfLines={1} style={{ flex: 1, textAlign: 'center' }}>
+      <Text variant="cardTitle" weight="700" numberOfLines={1} style={styles.topBarTitle}>
         {title}
       </Text>
-      {trailing ?? <View style={{ width: 40 }} />}
+      {onBack ? (
+        <View style={styles.topBarLeft} pointerEvents="box-none">
+          <BackButton onPress={onBack} />
+        </View>
+      ) : null}
+      {trailing ? (
+        <View style={styles.topBarRight} pointerEvents="box-none">
+          {trailing}
+        </View>
+      ) : null}
     </View>
   );
 };
@@ -183,14 +195,14 @@ export const OptionCard: React.FC<{
 
 const styles = StyleSheet.create({
   topBar: {
-    // Force the back button to the visual LEFT under forced-RTL.
-    flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
-    alignItems: 'center',
-    gap: spacing.s2,
-    paddingHorizontal: spacing.s4,
-    paddingVertical: spacing.s3,
+    height: 56,
+    justifyContent: 'center',
     borderBottomWidth: 1,
   },
+  topBarTitle: { textAlign: 'center', marginHorizontal: 56 },
+  // Physical corners — App.tsx disables RTL left/right swapping.
+  topBarLeft: { position: 'absolute', left: spacing.s4, top: 0, bottom: 0, justifyContent: 'center' },
+  topBarRight: { position: 'absolute', right: spacing.s4, top: 0, bottom: 0, justifyContent: 'center' },
   group: { borderRadius: radius.lg, borderWidth: 1, overflow: 'hidden' },
   groupHead: {
     paddingHorizontal: spacing.s4,

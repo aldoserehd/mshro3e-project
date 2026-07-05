@@ -8,6 +8,7 @@ import Text from '../../ui/Text';
 import Avatar from '../../ui/Avatar';
 import Button from '../../ui/Button';
 import PressableScale from '../../ui/PressableScale';
+import { Chevron } from '../../ui/Chevron';
 import VendorCtaSheet from '../../ui/VendorCtaSheet';
 import { Row, RowGroup } from '../../ui/SettingsKit';
 import { useColors } from '../../theme/colors';
@@ -52,23 +53,22 @@ export default function AccountScreen({ navigation }: MainTabsScreenProps<'Accou
           {ar ? 'حسابي' : 'My account'}
         </Text>
 
-        {/* ── Profile header card ── */}
+        {/* ── Profile header card — whole card opens Edit profile ── */}
         <View style={[styles.identity, { backgroundColor: c.surface, borderColor: c.border }]}>
           {isSignedIn ? (
-            <>
+            <Pressable
+              onPress={() => navigation.navigate('Profile')}
+              style={({ pressed }) => [styles.identityInner, pressed && { opacity: 0.75 }]}
+            >
               <View style={styles.avatarWrap}>
                 <View style={[styles.avatarRing, { borderColor: c.brandFill }]}>
                   <Avatar name={user!.name?.trim() || 'User'} size={64} />
                 </View>
-                <Pressable
-                  onPress={() => navigation.navigate('Profile')}
-                  hitSlop={8}
-                  style={[styles.editBadge, { backgroundColor: c.brand, borderColor: c.surface }]}
-                >
+                <View style={[styles.editBadge, { backgroundColor: c.brand, borderColor: c.surface }]}>
                   <Ionicons name="pencil" size={11} color="#fff" />
-                </Pressable>
+                </View>
               </View>
-              <View style={{ flex: 1, marginStart: spacing.s4 }}>
+              <View style={{ flex: 1, marginStart: spacing.s4, marginEnd: spacing.s2 }}>
                 <Text variant="cardTitle" weight="700" numberOfLines={1}>
                   {user!.name?.trim() || (ar ? 'بدون اسم' : 'No name')}
                 </Text>
@@ -82,12 +82,8 @@ export default function AccountScreen({ navigation }: MainTabsScreenProps<'Accou
                   </Text>
                 </View>
               </View>
-              <Button
-                title={ar ? 'تعديل' : 'Edit'}
-                size="sm"
-                onPress={() => navigation.navigate('Profile')}
-              />
-            </>
+              <Chevron direction="forward" size={18} color={c.borderStrong} />
+            </Pressable>
           ) : (
             <>
               <View style={[styles.guestIcon, { backgroundColor: c.brandFill }]}>
@@ -231,6 +227,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     ...shadowStyle(1),
   },
+  identityInner: { flex: 1, flexDirection: 'row', alignItems: 'center' },
   avatarWrap: { position: 'relative' },
   avatarRing: { borderWidth: 3, borderRadius: 999, padding: 2 },
   editBadge: {
